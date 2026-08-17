@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# Local environment. .env.example files are tracked on purpose — they are the
+# documentation of what each app needs.
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# Test and tooling output
+coverage/
+.eslintcache
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Editor and OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+*.swp
+*~
+
+# Certificates and keys, in case one ever lands here by accident
+*.pem
+*.key
+*.p12
+
+# Agent/editor workspace config, kept local
+.claude/
