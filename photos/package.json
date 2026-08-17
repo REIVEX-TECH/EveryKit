@@ -1,0 +1,35 @@
+{
+  "name": "everykit-photos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Passport and visa photos made in the browser. Nothing is uploaded.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@imgly/background-removal": "^1.7.0",
+    "@mediapipe/tasks-vision": "^1.0.1",
+    "@vercel/analytics": "^2.0.1",
+    "lucide-react": "^1.31.0",
+    "next": "15.5.23",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "15.5.23",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.10"
+  }
+}

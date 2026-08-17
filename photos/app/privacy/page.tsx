@@ -1,0 +1,90 @@
+import type { Metadata } from "next";
+import { absoluteUrl } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "Privacy",
+  description:
+    "What EveryKit Photos does and does not collect. Your photo is processed in your browser and never uploaded.",
+  alternates: { canonical: absoluteUrl("/privacy") },
+};
+
+export default function PrivacyPage() {
+  return (
+    <div className="ek-shell max-w-[680px] py-16">
+      <h1 className="text-[32px]">Privacy</h1>
+      <p className="mt-2 text-[14px] text-text-light">Last updated 17 August 2026</p>
+
+      <div className="mt-10 space-y-8 text-[16px] text-text-light">
+        <section>
+          <h2 className="text-[19px] text-foreground">Your photo</h2>
+          <p className="mt-2">
+            Your photo is never uploaded. Choosing a file hands it to the browser
+            tab, not to us. The face detection, the cropping and the background
+            removal all run on your own device. There is no server that receives
+            image data, because this tool does not have a backend at all.
+          </p>
+          <p className="mt-2">
+            Nothing is saved either. The photo lives in the tab&apos;s memory
+            while you work and is gone when you close it. Downloads go straight
+            to your device.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-[19px] text-foreground">What does get requested</h2>
+          <p className="mt-2">
+            To be precise rather than merely reassuring: the tool downloads two
+            things the first time you use them — the face detection model, and,
+            if you ask for a white background, the segmentation model. Those are
+            ordinary file downloads from public CDNs. They carry no information
+            about you and none of your image data goes with them. Your
+            device&apos;s IP address is visible to those CDNs, as it is for any
+            file a website loads.
+          </p>
+          <p className="mt-2">
+            The face detection library also tries to send usage statistics back
+            to Google, which it offers no setting to turn off. This site blocks
+            that request with a content security policy that names the only three
+            hosts the page is allowed to contact. The library carries on working
+            without it.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-[19px] text-foreground">Analytics</h2>
+          <p className="mt-2">
+            We use Vercel Analytics to count page views. It does not use cookies
+            and does not build a profile of you across sites. We can see that a
+            page was visited, roughly from where, and on what kind of device. We
+            cannot see who you are or anything about your photo.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-[19px] text-foreground">Accounts and payments</h2>
+          <p className="mt-2">
+            There are no accounts. There is nothing to sign up for and no email
+            address to give us.
+          </p>
+          <p className="mt-2">
+            If and when paid downloads are switched on, payment will be handled
+            by Lemon Squeezy, who will collect what they need to take a payment.
+            Their privacy policy will apply to that part. We will not receive
+            your card details.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-[19px] text-foreground">Getting in touch</h2>
+          <p className="mt-2">
+            EveryKit is made by Reivex. Questions about this page can go to{" "}
+            <a className="ek-link" href="https://reivex.io" rel="noopener">
+              reivex.io
+            </a>
+            .
+          </p>
+        </section>
+      </div>
+    </div>
+  );
+}
