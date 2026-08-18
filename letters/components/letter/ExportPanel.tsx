@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Copy, Download, FileText } from "lucide-react";
 import type { LetterDoc } from "@/lib/letter/types";
 import { renderText } from "@/lib/render/text";
+import { revealResult } from "@/lib/revealResult";
 import { MoreFromEveryKit } from "@/components/site/MoreFromEveryKit";
 import { EmailGate, useEmailGate } from "@/components/site/EmailGate";
 import {
@@ -29,6 +30,16 @@ type Props = {
 export function ExportPanel({ doc, slug, isoDate }: Props) {
   const [status, setStatus] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+
+  /**
+   * The confirmation. On a phone the letter and its buttons sit below a long
+   * form, so after copying or downloading there is nothing on screen to say it
+   * worked unless the page comes back to it.
+   */
+  const doneRef = useRef<HTMLDivElement | null>(null);
+  const revealDone = useCallback(() => {
+    requestAnimationFrame(() => revealResult(doneRef.current));
+  }, []);
   const [unlocked, setUnlocked] = useState(() => hasPaid());
   const gate = useEmailGate();
 
@@ -39,10 +50,11 @@ export function ExportPanel({ doc, slug, isoDate }: Props) {
       await navigator.clipboard.writeText(renderText(doc));
       setStatus("Copied. Paste it into an email or a document.");
       setDone(true);
+      revealDone();
     } catch {
       setStatus("Your browser blocked the clipboard. Select the letter and copy it by hand.");
     }
-  }, [doc]);
+  }, [doc, revealDone]);
 
   const save = useCallback(
     async (kind: "pdf" | "docx") => {
@@ -63,11 +75,12 @@ export function ExportPanel({ doc, slug, isoDate }: Props) {
         setTimeout(() => URL.revokeObjectURL(url), 10_000);
         setStatus(null);
         setDone(true);
+        revealDone();
       } catch {
         setStatus("That file could not be built. Copying the text still works.");
       }
     },
-    [doc, filename],
+    [doc, filename, revealDone],
   );
 
   const onBuy = useCallback(async () => {
@@ -146,7 +159,7 @@ export function ExportPanel({ doc, slug, isoDate }: Props) {
       </p>
 
       {done ? (
-        <div className="mt-2 border-t border-line pt-4">
+        <div ref={doneRef} className="mt-2 border-t border-line pt-4">
           <p className="text-[14px] text-foreground">That&apos;s it — you&apos;re done.</p>
           <p className="mt-1 text-[14px] text-text-light">
             Read it once more before you send it. Names and dates are the things

@@ -23,8 +23,10 @@ type Props = {
   blockedReason: string | null;
 };
 
-const PREVIEW_MAX_HEIGHT = 260;
-const SHEET_PREVIEW_WIDTH = 460;
+// Sized for the sticky rail: the whole panel has to stay inside a viewport or
+// sticky positioning buys nothing.
+const PREVIEW_MAX_HEIGHT = 150;
+const SHEET_PREVIEW_WIDTH = 360;
 
 /**
  * Coalesce a redraw into the next frame.
@@ -177,36 +179,33 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
   }, [savePhoto, saveSheet]);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[auto_1fr] lg:gap-12">
-      <div>
+    /*
+     * One column, because this panel lives in a narrow sticky rail beside the
+     * controls, and it has to stay shorter than a viewport or sticky stops
+     * meaning anything.
+     *
+     * Order matters here: photo, then the buttons. The download used to sit
+     * below the print-sheet preview, which put it 771px down a 649px viewport —
+     * the result was visible and the way to take it was not.
+     */
+    <div className="ek-card p-4">
+      <p className="ek-step-number">Your photo</p>
+
+      <div className="mt-3 flex items-start gap-4">
         <canvas
           ref={photoRef}
           aria-label={`Your finished ${specSizeLabel(spec)} photo`}
           role="img"
-          className="rounded-[4px] border border-line"
+          className="shrink-0 rounded-[4px] border border-line"
         />
-        <p className="mt-2 text-[13px] text-text-light">
-          {spec.pixelWidth} x {spec.pixelHeight} px, {specSizeLabel(spec)} at {spec.dpi} DPI
-        </p>
-      </div>
-
-      <div>
-        <h3 className="text-[15px] font-semibold text-foreground">
-          Print sheet — {layout.count} {layout.count === 1 ? "copy" : "copies"} on 4 x 6 inch paper
-        </h3>
-        <canvas
-          ref={sheetRef}
-          role="img"
-          aria-label={`A 4 by 6 inch sheet holding ${layout.count} copies of your photo with cut lines between them`}
-          className="mt-3 w-full rounded-[8px] border border-line"
-        />
-        <p className="mt-2 text-[13px] text-text-light">
-          Any photo shop that prints 4 x 6 will print this. Cut along the lines.
-        </p>
-
-        <fieldset className="mt-6">
-          <legend className="text-[13px] text-text-light">File format</legend>
-          <div className="mt-2 inline-flex rounded-full border border-line p-1">
+        <div className="min-w-0">
+          <p className="text-[13px] text-text-light">
+            {spec.pixelWidth} x {spec.pixelHeight} px
+          </p>
+          <p className="text-[13px] text-text-light">
+            {specSizeLabel(spec)} at {spec.dpi} DPI
+          </p>
+          <div className="mt-2 inline-flex rounded-full border border-line p-0.5">
             {(
               [
                 ["image/jpeg", "JPEG"],
@@ -217,8 +216,9 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
                 key={value}
                 type="button"
                 aria-pressed={format === value}
+                aria-label={`Download as ${label}`}
                 onClick={() => setFormat(value)}
-                className={`rounded-full px-4 py-1.5 text-[13px] font-semibold ${
+                className={`rounded-full px-3 py-1 text-[12px] font-semibold ${
                   format === value ? "bg-foreground text-white" : "text-text-light"
                 }`}
               >
@@ -226,95 +226,95 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
               </button>
             ))}
           </div>
-          <p className="mt-2 text-[13px] text-text-light">
-            {format === "image/jpeg"
-              ? "JPEG is what most online applications ask for."
-              : "PNG is larger and lossless. Use it if the form asks for PNG."}
-          </p>
-        </fieldset>
-
-        {blockedReason ? (
-          <p className="mt-6 rounded-[12px] border border-line bg-bg-soft p-3 text-[14px] text-warn">
-            {blockedReason}
-          </p>
-        ) : null}
-
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          {unlocked ? (
-            <>
-              <button
-                type="button"
-                className="ek-btn ek-btn-accent"
-                onClick={() => gate.guard(() => void savePhoto(false))}
-              >
-                <Download size={17} aria-hidden="true" />
-                Download the photo
-              </button>
-              <button
-                type="button"
-                className="ek-btn ek-btn-quiet"
-                onClick={() => gate.guard(() => void saveSheet())}
-              >
-                <Printer size={16} aria-hidden="true" />
-                Download the print sheet
-              </button>
-              {PAYMENTS_ENABLED ? (
-                <span className="rounded-full border border-line px-3 py-1 text-[12px] text-text-light">
-                  paid — thank you
-                </span>
-              ) : (
-                <span className="rounded-full border border-line px-3 py-1 text-[12px] text-text-light">
-                  launch week — free
-                </span>
-              )}
-            </>
-          ) : (
-            <>
-              <button type="button" className="ek-btn ek-btn-accent" onClick={onBuy}>
-                <Download size={17} aria-hidden="true" />
-                Get the clean file — {PRICE_LABEL}
-              </button>
-              <button
-                type="button"
-                className="ek-btn ek-btn-quiet"
-                onClick={() => gate.guard(() => void savePhoto(true))}
-              >
-                Download the watermarked preview
-              </button>
-            </>
-          )}
         </div>
-
-        {gate.gateOpen ? (
-          <EmailGate
-            actionLabel="Download"
-            onDone={gate.complete}
-            onCancel={gate.skip}
-          />
-        ) : null}
-
-        {PAYMENTS_ENABLED && !unlocked ? (
-          <p className="mt-3 text-[13px] text-text-light">
-            One payment for this photo and the print sheet. No account, nothing
-            to cancel. The preview above is exactly what you get, minus the
-            watermark.
-          </p>
-        ) : null}
-
-        <p aria-live="polite" className="mt-3 min-h-[20px] text-[14px] text-text-light">
-          {status}
-        </p>
-
-        {done ? (
-          <div className="mt-2 border-t border-line pt-4">
-            <p className="text-[14px] text-foreground">That&apos;s it — you&apos;re done.</p>
-            <p className="mt-1 text-[14px] text-text-light">
-              Check the file opens at {specSizeLabel(spec)} before you submit it.
-            </p>
-            <MoreFromEveryKit />
-          </div>
-        ) : null}
       </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {unlocked ? (
+          <>
+            <button
+              type="button"
+              className="ek-btn ek-btn-accent py-2.5"
+              onClick={() => gate.guard(() => void savePhoto(false))}
+            >
+              <Download size={17} aria-hidden="true" />
+              Download the photo
+            </button>
+            <button
+              type="button"
+              className="ek-btn ek-btn-quiet py-2.5 text-[14px]"
+              onClick={() => gate.guard(() => void saveSheet())}
+            >
+              <Printer size={16} aria-hidden="true" />
+              Print sheet
+            </button>
+            <span className="rounded-full border border-line px-3 py-1 text-[12px] text-text-light">
+              {PAYMENTS_ENABLED ? "paid — thank you" : "launch week — free"}
+            </span>
+          </>
+        ) : (
+          <>
+            <button type="button" className="ek-btn ek-btn-accent py-2.5" onClick={onBuy}>
+              <Download size={17} aria-hidden="true" />
+              Get the clean file — {PRICE_LABEL}
+            </button>
+            <button
+              type="button"
+              className="ek-btn ek-btn-quiet py-2.5 text-[14px]"
+              onClick={() => gate.guard(() => void savePhoto(true))}
+            >
+              Watermarked preview
+            </button>
+          </>
+        )}
+      </div>
+
+      {gate.gateOpen ? (
+        <EmailGate actionLabel="Download" onDone={gate.complete} onCancel={gate.skip} />
+      ) : null}
+
+      <p aria-live="polite" className="mt-2 min-h-[20px] text-[13px] text-text-light">
+        {status}
+      </p>
+
+      {blockedReason ? (
+        <p className="mt-1 rounded-[10px] border border-line bg-bg-soft p-3 text-[13px] text-warn">
+          {blockedReason}
+        </p>
+      ) : null}
+
+      {PAYMENTS_ENABLED && !unlocked ? (
+        <p className="mt-2 text-[13px] text-text-light">
+          One payment for this photo and the print sheet. The preview above is
+          exactly what you get, minus the watermark.
+        </p>
+      ) : null}
+
+      {/* Secondary, so it sits below the way out. */}
+      <details className="mt-4 border-t border-line pt-3">
+        <summary className="cursor-pointer text-[13px] text-text-light">
+          Print sheet — {layout.count} {layout.count === 1 ? "copy" : "copies"} on 4 x 6 inch paper
+        </summary>
+        <canvas
+          ref={sheetRef}
+          role="img"
+          aria-label={`A 4 by 6 inch sheet holding ${layout.count} copies of your photo with cut lines between them`}
+          className="mt-2 w-full rounded-[6px] border border-line"
+        />
+        <p className="mt-2 text-[13px] text-text-light">
+          Any photo shop that prints 4 x 6 will print this. Cut along the lines.
+        </p>
+      </details>
+
+      {done ? (
+        <div className="mt-3 border-t border-line pt-3">
+          <p className="text-[14px] text-foreground">That&apos;s it — you&apos;re done.</p>
+          <p className="mt-1 text-[13px] text-text-light">
+            Check the file opens at {specSizeLabel(spec)} before you submit it.
+          </p>
+          <MoreFromEveryKit />
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -24,6 +24,7 @@ import {
   makeWorkingCopy,
 } from "@/lib/imaging/imageSource";
 import { renderPhoto } from "@/lib/imaging/render";
+import { revealResult } from "@/lib/revealResult";
 import { Dropzone } from "./Dropzone";
 import { SpecPicker } from "./SpecPicker";
 import { CropStage } from "./CropStage";
@@ -83,6 +84,18 @@ export function PhotoTool({ initialSlug, heading, intro, example }: Props) {
   const loadedRef = useRef<Loaded | null>(null);
   loadedRef.current = loaded;
 
+  /**
+   * The finished photo. Scrolled to when a step completes and it is off
+   * screen, which on a phone is the difference between seeing your result and
+   * assuming nothing happened.
+   */
+  const resultRef = useRef<HTMLDivElement | null>(null);
+  const reveal = useCallback(() => {
+    // After paint, so the panel has its final height before anything is
+    // measured against the viewport.
+    requestAnimationFrame(() => revealResult(resultRef.current));
+  }, []);
+
   useEffect(() => {
     return () => {
       const current = loadedRef.current;
@@ -140,6 +153,10 @@ export function PhotoTool({ initialSlug, heading, intro, example }: Props) {
           setDetectionUnavailable(outcome.status === "unavailable");
           setRect(fallbackCrop(image, spec).rect);
         }
+
+        // The photo is processed and the crop is placed: this is the first
+        // moment there is a result worth looking at.
+        reveal();
       } catch (error) {
         if (error instanceof UnsupportedImageError) {
           setLoadError({ message: error.message, hint: error.hint });
@@ -153,7 +170,7 @@ export function PhotoTool({ initialSlug, heading, intro, example }: Props) {
         setLoading(false);
       }
     },
-    [releaseLoaded, spec],
+    [releaseLoaded, spec, reveal],
   );
 
   // Changing the spec changes the frame shape, so the crop is recomputed.
@@ -185,6 +202,9 @@ export function PhotoTool({ initialSlug, heading, intro, example }: Props) {
         // The cutout was traced on the working copy, so its scale is relative
         // to the full-resolution source the crop rect uses.
         setCutout({ bitmap: result.bitmap, scale: result.scale * loaded.workingScale });
+        // Background removal takes seconds, long enough that someone may have
+        // scrolled away while waiting.
+        reveal();
       } catch {
         setRemovalError(
           "The background could not be removed here. Keeping the original background still works.",
@@ -194,7 +214,7 @@ export function PhotoTool({ initialSlug, heading, intro, example }: Props) {
         setRemoval(null);
       }
     },
-    [cutout, loaded],
+    [cutout, loaded, reveal],
   );
 
   const measurement = useMemo(
@@ -299,62 +319,85 @@ export function PhotoTool({ initialSlug, heading, intro, example }: Props) {
         <div className="lg:pt-2">{example}</div>
       </div>
 
-      <div className="mt-16 space-y-14 border-t border-line pt-14">
-        <Step number={2} title="What it is for">
-          <SpecPicker spec={spec} onChange={onSpecChange} />
-        </Step>
-
+      <div className="mt-16 border-t border-line pt-14">
         {loaded && rect ? (
-          <>
-            <Step
-              number={3}
-              title="Position"
-              note={
-                face
-                  ? "Cropped for you. Drag to adjust."
-                  : detectionUnavailable
-                    ? "Face detection could not start here, so place your head inside the guides yourself."
-                    : "No face was found in this photo. Place your head inside the guides yourself."
-              }
+          /*
+           * Once a photo is in, the page becomes a workbench: controls on the
+           * left, the finished photo on the right. The result column is sticky,
+           * so on a wide screen it stays on screen while the crop is adjusted —
+           * the point being that you can watch what you are making while you
+           * make it, rather than scrolling to find out afterwards.
+           */
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(320px,400px)] lg:gap-12">
+            <div className="order-2 space-y-14 lg:order-1">
+              <Step number={2} title="What it is for">
+                <SpecPicker spec={spec} onChange={onSpecChange} />
+              </Step>
+
+              <Step
+                number={3}
+                title="Position"
+                note={
+                  face
+                    ? "Cropped for you. Drag to adjust."
+                    : detectionUnavailable
+                      ? "Face detection could not start here, so place your head inside the guides yourself."
+                      : "No face was found in this photo. Place your head inside the guides yourself."
+                }
+              >
+                <CropStage
+                  previewUrl={loaded.previewUrl}
+                  sourceSize={{ width: loaded.source.width, height: loaded.source.height }}
+                  spec={spec}
+                  rect={rect}
+                  onRectChange={(update) =>
+                    setRect((previous) => (previous ? update(previous) : previous))
+                  }
+                  onReset={resetCrop}
+                />
+              </Step>
+
+              <Step number={4} title="Background">
+                <BackgroundToggle
+                  spec={spec}
+                  useReplacement={useReplacement}
+                  onChange={onBackgroundChange}
+                  progress={removal}
+                  error={removalError}
+                  ready={cutout !== null}
+                />
+              </Step>
+
+              <Step number={5} title="Checks">
+                <ComplianceList
+                  checks={checks}
+                  confirmed={confirmed}
+                  onConfirmChange={(id, value) =>
+                    setConfirmed((previous) => ({ ...previous, [id]: value }))
+                  }
+                />
+              </Step>
+            </div>
+
+            {/* First in the source order, so on a phone the result sits
+                directly under the photo just chosen rather than below four
+                sections of controls. */}
+            <div
+              ref={resultRef}
+              className="order-1 lg:order-2 lg:sticky lg:top-6 lg:self-start"
             >
-              <CropStage
-                previewUrl={loaded.previewUrl}
-                sourceSize={{ width: loaded.source.width, height: loaded.source.height }}
+              <ExportPanel
                 spec={spec}
-                rect={rect}
-                onRectChange={(update) =>
-                  setRect((previous) => (previous ? update(previous) : previous))
-                }
-                onReset={resetCrop}
+                renderSingle={renderSingle}
+                blockedReason={blockedReason}
               />
-            </Step>
-
-            <Step number={4} title="Background">
-              <BackgroundToggle
-                spec={spec}
-                useReplacement={useReplacement}
-                onChange={onBackgroundChange}
-                progress={removal}
-                error={removalError}
-                ready={cutout !== null}
-              />
-            </Step>
-
-            <Step number={5} title="Checks">
-              <ComplianceList
-                checks={checks}
-                confirmed={confirmed}
-                onConfirmChange={(id, value) =>
-                  setConfirmed((previous) => ({ ...previous, [id]: value }))
-                }
-              />
-            </Step>
-
-            <Step number={6} title="Download">
-              <ExportPanel spec={spec} renderSingle={renderSingle} blockedReason={blockedReason} />
-            </Step>
-          </>
-        ) : null}
+            </div>
+          </div>
+        ) : (
+          <Step number={2} title="What it is for">
+            <SpecPicker spec={spec} onChange={onSpecChange} />
+          </Step>
+        )}
       </div>
     </div>
   );
