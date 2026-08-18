@@ -4,7 +4,7 @@ import { absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "What EveryKit Photos does and does not collect. Your photo is processed in your browser and never uploaded.",
+    "What EveryKit Photos does and does not collect. Your photo is processed in your browser and never uploaded. If you give us your email, we store that.",
   alternates: { canonical: absoluteUrl("/privacy") },
 };
 
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
             image data, because this tool does not have a backend at all.
           </p>
           <p className="mt-2">
-            Nothing is saved either. The photo lives in the tab&apos;s memory
+            The photo is not saved either. It lives in the tab&apos;s memory
             while you work and is gone when you close it. Downloads go straight
             to your device.
           </p>
@@ -51,6 +51,29 @@ export default function PrivacyPage() {
         </section>
 
         <section>
+          <h2 className="text-[19px] text-foreground">Your email address</h2>
+          <p className="mt-2">
+            Before a download we ask for your email address. Giving it is
+            optional — there is a skip link, and the file is the same either
+            way.
+          </p>
+          <p className="mt-2">
+            If you do enter it, we store it: the address itself, which kit you
+            were using, and the dates you first and last gave it. That is the
+            whole record. It is not linked to your photo, because your photo
+            never reaches us. We use it to tell you when a new kit launches. We
+            do not sell it and we do not pass it on.
+          </p>
+          <p className="mt-2">
+            To be removed, email{" "}
+            <a className="ek-link" href="mailto:hello@useeverykit.com">
+              hello@useeverykit.com
+            </a>{" "}
+            and the row is deleted.
+          </p>
+        </section>
+
+        <section>
           <h2 className="text-[19px] text-foreground">Analytics</h2>
           <p className="mt-2">
             We use Vercel Analytics to count page views. It does not use cookies
@@ -63,8 +86,8 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-[19px] text-foreground">Accounts and payments</h2>
           <p className="mt-2">
-            There are no accounts. There is nothing to sign up for and no email
-            address to give us.
+            There are no accounts. Nothing to sign up for, no password, and
+            nothing to log into.
           </p>
           <p className="mt-2">
             If and when paid downloads are switched on, payment will be handled

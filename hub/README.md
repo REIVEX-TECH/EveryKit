@@ -36,6 +36,65 @@ kit while you test the "More from EveryKit" strip.
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | `https://useeverykit.com` | Origin for canonicals, the sitemap and OpenGraph. |
+| `DATABASE_URL` | none | Postgres, for the one table of email addresses. Without it `/api/subscribe` answers 500 and every kit falls back to handing over the file anyway. |
+
+## The database
+
+EveryKit stores one thing server-side: email addresses. One table, defined in
+[`db/schema.sql`](../db/schema.sql) at the repo root, and no kit ever talks to
+it — they all POST to this app's `/api/subscribe`.
+
+### Locally
+
+```bash
+docker compose up -d
+```
+
+That starts Postgres 16 on 5432 and applies the schema on first run. Then:
+
+```bash
+DATABASE_URL=postgres://everykit:everykit@localhost:5432/everykit npm run dev
+```
+
+The schema is applied by the container's init hook, which only fires on an
+empty data directory. After editing `db/schema.sql`, run
+`docker compose down -v && docker compose up -d` to start clean.
+
+No Docker? Any Postgres will do — create a database and run
+`psql "$DATABASE_URL" -f db/schema.sql` against it.
+
+### In production (Neon, free tier)
+
+1. Create a project at neon.tech. Any region near your users.
+2. Copy the **pooled** connection string, the one with `-pooler` in the host.
+   Serverless functions open and drop connections constantly, and the direct
+   string will exhaust the connection limit under any real traffic.
+3. Apply the schema once:
+   `psql "postgres://…-pooler…/neondb?sslmode=require" -f db/schema.sql`
+4. Put the same string in the hub's Vercel project as `DATABASE_URL` and
+   redeploy. It is read at request time, but Vercel only picks up new
+   environment variables on a fresh deployment.
+
+Getting the list out is [`db/export.md`](../db/export.md).
+
+## `/api/subscribe`
+
+The only endpoint EveryKit has. `POST { email, kit }`, and it answers
+`{"ok":true}` whether the address is new or already known — a form that
+answers differently for a known address is an enumeration oracle, and there is
+no reason to build one.
+
+CORS is an allowlist, not `*`, because this endpoint writes: the apex and any
+single-label `*.useeverykit.com` subdomain, over https. Localhost is allowed
+only when `VERCEL_ENV` is not `production`, so a dev machine can exercise the
+real endpoint without the deployed hub accepting calls from anywhere.
+
+A hidden `honeypot` field no real form fills is accepted with `{"ok":true}` and
+written nowhere.
+
+**The kits fail open.** If this endpoint is down, slow or blocked, every kit
+hands over the file regardless and shows no error. That is deliberate and it is
+covered by tests on both sides. A lead is worth less than a working tool.
 
 ## Adding a kit
 

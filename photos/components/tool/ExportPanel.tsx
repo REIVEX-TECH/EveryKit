@@ -12,6 +12,8 @@ import {
 } from "@/lib/imaging/render";
 import { PAYMENTS_ENABLED, PRICE_LABEL, hasPaid, startCheckout } from "@/lib/payments";
 import { MoreFromEveryKit } from "@/components/site/MoreFromEveryKit";
+import { EmailGate, useEmailGate } from "@/components/site/EmailGate";
+import { rememberEmailGiven } from "@/lib/emailCapture";
 
 type Props = {
   spec: PhotoSpec;
@@ -58,6 +60,10 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
    * someone who had already paid saw the buy button flash up first.
    */
   const [unlocked, setUnlocked] = useState(() => hasPaid());
+
+  // The email ask sits in front of every download, including the free
+  // watermarked one. It appears once a session and never blocks the file.
+  const gate = useEmailGate();
 
   // Memoised because the redraw effect depends on it.
   const layout = useMemo(() => layoutPrintSheet(spec, SHEET_4X6), [spec]);
@@ -154,6 +160,10 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
       if (result === "paid") {
         setUnlocked(true);
         setStatus(null);
+        // Someone who has just paid gave an email address to Lemon Squeezy a
+        // moment ago. Stopping them to ask for it again, to release the file
+        // they bought, would be indefensible — so the session counts as asked.
+        rememberEmailGiven();
         // The purchase covers both files, so both are handed over without
         // making anyone hunt for a second button.
         await savePhoto(false);
@@ -235,12 +245,16 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
               <button
                 type="button"
                 className="ek-btn ek-btn-accent"
-                onClick={() => savePhoto(false)}
+                onClick={() => gate.guard(() => void savePhoto(false))}
               >
                 <Download size={17} aria-hidden="true" />
                 Download the photo
               </button>
-              <button type="button" className="ek-btn ek-btn-quiet" onClick={saveSheet}>
+              <button
+                type="button"
+                className="ek-btn ek-btn-quiet"
+                onClick={() => gate.guard(() => void saveSheet())}
+              >
                 <Printer size={16} aria-hidden="true" />
                 Download the print sheet
               </button>
@@ -263,13 +277,21 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
               <button
                 type="button"
                 className="ek-btn ek-btn-quiet"
-                onClick={() => savePhoto(true)}
+                onClick={() => gate.guard(() => void savePhoto(true))}
               >
                 Download the watermarked preview
               </button>
             </>
           )}
         </div>
+
+        {gate.gateOpen ? (
+          <EmailGate
+            actionLabel="Download"
+            onDone={gate.complete}
+            onCancel={gate.skip}
+          />
+        ) : null}
 
         {PAYMENTS_ENABLED && !unlocked ? (
           <p className="mt-3 text-[13px] text-text-light">

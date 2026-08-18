@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ExamplePair } from "@/components/site/ExamplePair";
 import { OtherSizes } from "@/components/site/OtherSizes";
 import { PhotoTool } from "@/components/tool/PhotoTool";
@@ -98,8 +99,13 @@ export default function HomePage() {
               plain wall and a window are all you need.
             </li>
             <li>
-              It does not store anything. Close the tab and nothing is left
-              behind.
+              It does not store your photo. Close the tab and the image is gone.
+              We do ask for your email before a download, which you can skip —
+              the{" "}
+              <Link href="/privacy" className="ek-link">
+                privacy page
+              </Link>{" "}
+              says what happens to it.
             </li>
           </ul>
         </section>

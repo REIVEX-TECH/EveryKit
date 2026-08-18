@@ -1,0 +1,29 @@
+# Local Postgres for developing the hub's /api/subscribe endpoint.
+#
+#   docker compose up -d
+#   DATABASE_URL=postgres://everykit:everykit@localhost:5432/everykit npm run dev --prefix hub
+#
+# db/schema.sql runs on first start only. To reapply it after editing:
+#   docker compose down -v && docker compose up -d
+services:
+  postgres:
+    image: postgres:16
+    container_name: everykit-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: everykit
+      POSTGRES_PASSWORD: everykit
+      POSTGRES_DB: everykit
+    ports:
+      - "5432:5432"
+    volumes:
+      - everykit-pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U everykit -d everykit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  everykit-pgdata:

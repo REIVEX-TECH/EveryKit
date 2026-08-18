@@ -28,7 +28,10 @@ const CONNECT_SOURCES = [
   "https://cdn.jsdelivr.net", // MediaPipe WASM runtime
   "https://storage.googleapis.com", // face detection model
   "https://staticimgly.com", // background removal model and ONNX runtime
-  HUB_ORIGIN, // the hub's /kits.json, read by the "More from EveryKit" strip
+  // The hub serves /kits.json for the cross-promotion strip and /api/subscribe
+  // for the email ask. Both fail silently by design, so leaving this off the
+  // list would break them without raising anything.
+  HUB_ORIGIN,
   // Lemon Squeezy overlay checkout. Listed whether or not payments are
   // currently switched on, so that flipping NEXT_PUBLIC_PAYMENTS_ENABLED is a
   // one-variable change and cannot half-work.

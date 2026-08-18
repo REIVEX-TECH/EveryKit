@@ -4,7 +4,7 @@ import { CONTACT_EMAIL, absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "What EveryKit collects. The tools process your files in your browser; this site counts page views and nothing else.",
+    "What EveryKit collects: your email address, if you give it. Your files are processed in your browser and never uploaded.",
   alternates: { canonical: absoluteUrl("/privacy") },
 };
 
@@ -28,6 +28,35 @@ export default function PrivacyPage() {
             If a kit ever needs to send something somewhere, its page will say
             so plainly.
           </p>
+          <p className="mt-2">
+            This is about your files, and it is the one promise the whole thing
+            is built around. It is not a claim that we collect nothing at all —
+            see below.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-[19px] text-foreground">Your email address</h2>
+          <p className="mt-2">
+            The kits ask for an email address before you download what you made.
+            It is optional — every kit has a skip link, and the file is the same
+            whether you give it or not.
+          </p>
+          <p className="mt-2">
+            If you do give it, we keep one row: the address, which kit you were
+            using, and when you first and last entered it. Nothing about what you
+            made is stored alongside it, because none of that ever reaches us. We
+            use it to tell you when a new kit launches. We do not sell it, and we
+            do not pass it to anyone else.
+          </p>
+          <p className="mt-2">
+            There is no confirmation email and no marketing sequence. To be
+            removed, write to{" "}
+            <a className="ek-link" href={`mailto:${CONTACT_EMAIL}`}>
+              {CONTACT_EMAIL}
+            </a>{" "}
+            and the row is deleted.
+          </p>
         </section>
 
         <section>
@@ -44,9 +73,10 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-[19px] text-foreground">Accounts and payments</h2>
           <p className="mt-2">
-            There are no accounts and nothing to sign up for. When a kit charges
-            for a file, the payment is handled by Lemon Squeezy, who collect
-            what they need to take it. We never receive your card details.
+            There are no accounts, no passwords and nothing to log into. When a
+            kit charges for a file, the payment is handled by Lemon Squeezy, who
+            collect what they need to take it. We never receive your card
+            details.
           </p>
         </section>
 
