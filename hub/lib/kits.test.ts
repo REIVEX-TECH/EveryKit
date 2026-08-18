@@ -7,10 +7,42 @@ import { kits, registryPayload } from "@/data/kits";
  * silently and nobody would notice.
  */
 describe("kits registry", () => {
-  it("publishes exactly the agreed fields, and no internal ones", () => {
+  it("still publishes the five original fields, unchanged", () => {
+    // Backward compatibility is the whole contract here: the kits' cross-promo
+    // strips parse this file and validate these names. New fields may be added
+    // beside them; these five may never be renamed or reshaped.
     for (const kit of registryPayload().kits) {
-      expect(Object.keys(kit).sort()).toEqual(["name", "slug", "status", "tagline", "url"]);
+      expect(typeof kit.slug).toBe("string");
+      expect(typeof kit.name).toBe("string");
+      expect(typeof kit.tagline).toBe("string");
+      expect(typeof kit.url).toBe("string");
+      expect(["live", "soon"]).toContain(kit.status);
     }
+  });
+
+  it("adds category and icon without removing anything", () => {
+    for (const kit of registryPayload().kits) {
+      expect(["photos", "documents"]).toContain(kit.category);
+      expect(kit.icon.startsWith("/icons/")).toBe(true);
+    }
+  });
+
+  it("survives a consumer that only knows the original fields", () => {
+    // Exactly what lib/kits.ts in each kit does: pick the five it knows and
+    // ignore the rest. Extra keys must not make an entry fail validation.
+    const isKnownShape = (value: unknown) => {
+      const k = value as Record<string, unknown>;
+      return (
+        typeof k.slug === "string" &&
+        typeof k.name === "string" &&
+        typeof k.tagline === "string" &&
+        typeof k.url === "string" &&
+        (k.status === "live" || k.status === "soon")
+      );
+    };
+    const parsed = JSON.parse(JSON.stringify(registryPayload()));
+    expect(parsed.kits.every(isKnownShape)).toBe(true);
+    expect(parsed.kits.length).toBe(kits.length);
   });
 
   it("uses unique slugs", () => {

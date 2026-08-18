@@ -103,13 +103,22 @@ covered by tests on both sides. A lead is worth less than a working tool.
 Add an entry to `data/kits.ts`. That is the whole job — the directory and
 `/kits.json` are both generated from it, so they cannot drift apart.
 
-A new `slug` needs a matching thumbnail branch in
-`components/KitThumbnail.tsx`, or it falls through to the generic one. The
-thumbnails are inline SVG drawings of what a kit produces, not screenshots and
-not stock photos, which is also why this page makes zero image requests.
+A new kit needs a `category`, and a glyph in `public/icons/<slug>.svg`
+referenced by the registry. Glyphs are flat SVG in the brand family — the same
+corner-radius language, `#1d81f2` with at most one `#ff8a4c` accent — and must
+read at 48px, which is the size the directory renders them.
 
-`lib/kits.test.ts` guards the registry contract: published fields, unique
-slugs, and that each kit's subdomain matches its slug. That last one matters
+Categories come from `CATEGORIES` in the same file. A category with no live
+kits does not render, so adding one before its first tool exists is harmless.
+
+The category filter is component state, not a route. Every kit is in the
+server-rendered HTML whatever is selected, so a crawler sees all of them and
+nobody waits for a navigation to change shelf.
+
+`lib/kits.test.ts` guards the registry contract: the five original published
+fields keep their names and shapes, new fields are additive only, a consumer
+that knows only the original five still parses every entry, slugs are unique,
+and each kit's subdomain matches its slug. That last one matters
 because every kit filters *itself* out of its own "More from EveryKit" strip by
 comparing slugs — a mismatch would make a kit advertise itself.
 

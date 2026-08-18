@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { KitCard } from "@/components/KitCard";
+import { KitDirectory } from "@/components/KitDirectory";
 import { Wordmark } from "@/components/site/Wordmark";
-import { kits } from "@/data/kits";
+import { CATEGORIES, kits } from "@/data/kits";
 import { PARENT_NAME, PARENT_URL, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -51,13 +51,9 @@ export default function HomePage() {
           </p>
         </div>
 
-        <ul className="mt-10 grid gap-6 sm:grid-cols-2">
-          {kits.map((kit) => (
-            <li key={kit.slug}>
-              <KitCard kit={kit} />
-            </li>
-          ))}
-        </ul>
+        <div className="mt-10">
+          <KitDirectory kits={kits} categories={CATEGORIES} />
+        </div>
 
         <section className="mt-20 border-t border-line pt-12">
           <h2 className="text-[22px]">How every kit works</h2>

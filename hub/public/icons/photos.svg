@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="EveryKit Photos">
+  <!-- An ID photo: the frame, a head, and the guide line the tool crops to. -->
+  <rect x="9" y="5" width="30" height="38" rx="5" fill="#1d81f2"/>
+  <circle cx="24" cy="20" r="6.5" fill="#ffffff"/>
+  <path d="M13.5 39c0-6 4.7-10 10.5-10s10.5 4 10.5 10z" fill="#ffffff"/>
+  <rect x="9" y="12.5" width="30" height="1.6" fill="#ff8a4c"/>
+</svg>
