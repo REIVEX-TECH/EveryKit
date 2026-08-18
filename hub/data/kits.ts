@@ -36,7 +36,7 @@ export const kits: Kit[] = [
     name: "EveryKit Letters",
     tagline: "Formal letters, written for you",
     url: "https://letters.useeverykit.com",
-    status: "soon",
+    status: "live",
     outputAlt: "A page of a formal letter",
   },
 ];

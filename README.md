@@ -13,10 +13,11 @@ Built by [Reivex](https://reivex.io).
 
 | | Folder | Domain | What it is |
 | --- | --- | --- | --- |
-| Hub | [`hub/`](hub) | useeverykit.com | The directory of kits, and `/kits.json`, the registry every kit reads |
+| Hub | [`hub/`](hub) | useeverykit.com | The directory of kits, `/kits.json`, and the one API endpoint |
 | Photos | [`photos/`](photos) | photos.useeverykit.com | Passport and visa photos cropped from a selfie |
+| Letters | [`letters/`](letters) | letters.useeverykit.com | Formal letters assembled from a short form |
 
-Neither is deployed yet. [LAUNCH.md](LAUNCH.md) lists what is verified and what
+None of them is deployed yet. [LAUNCH.md](LAUNCH.md) lists what is verified and what
 still needs a human.
 
 ## Repo map
@@ -24,14 +25,18 @@ still needs a human.
 ```
 CLAUDE.md      shared context: brand, design system, payments, conventions
 LAUNCH.md      pre-launch status and the remaining manual steps
-hub/           Next.js app — the directory and the kit registry
+db/            the one table EveryKit has, and how to get the list out
+docker-compose.yml   local Postgres for developing the hub endpoint
+hub/           Next.js app — the directory, the registry, /api/subscribe
 photos/        Next.js app — the passport photo tool
+letters/       Next.js app — the formal letter writer
 docs/          the original build prompts, kept as a record of intent
 ```
 
-The two apps share no code. That is deliberate: consistency comes from
-`CLAUDE.md`, not from a package, until there are enough kits to justify one.
-A design change made in one app has to be made in the other.
+The three apps share no code. That is deliberate: consistency comes from
+`CLAUDE.md`, not from a package. A design change made in one has to be made in
+the others — a cost that stays smaller than a shared package until there are
+more kits than this.
 
 ## Running them
 
@@ -45,9 +50,13 @@ cd hub && npm install && npm run dev
 cd photos && npm install && npm run dev
 ```
 
-The hub runs on port 4200 and Photos on 3000, deliberately different so both can
-run at once — which is how you test the "More from EveryKit" strip, since Photos
-reads the hub's `/kits.json` across origins.
+```bash
+cd letters && npm install && npm run dev
+```
+
+The ports are deliberately different — hub 4200, Photos 3000, Letters 3100 — so
+all three can run at once. That is how you test the two things that cross
+origins: the "More from EveryKit" strip, and the email ask.
 
 To point a local Photos at a local hub, put this in `photos/.env.local`:
 
@@ -55,7 +64,7 @@ To point a local Photos at a local hub, put this in `photos/.env.local`:
 NEXT_PUBLIC_HUB_URL=http://localhost:4200
 ```
 
-Both apps use the same commands:
+All three use the same commands:
 
 | Command | What it does |
 | --- | --- |
@@ -77,12 +86,14 @@ via **Root Directory** in the project's settings:
 | --- | --- | --- |
 | `everykit-hub` | `hub` | useeverykit.com |
 | `everykit-photos` | `photos` | photos.useeverykit.com |
+| `everykit-letters` | `letters` | letters.useeverykit.com |
 
 Subdomains belong to their own project — do not attach `photos.` to the hub's.
 
-Deploy the hub first. Photos reads `useeverykit.com/kits.json`, and if the hub
-is not up the cross-promotion strip silently does not render, which is correct
-but looks like a bug if you are not expecting it.
+Deploy the hub first. The kits read `useeverykit.com/kits.json` and post to
+`/api/subscribe`, and both fail silently by design — if the hub is not up, the
+cross-promotion strip does not render and no address is recorded. Correct
+behaviour, but it looks like a bug if you are not expecting it.
 
 Exact DNS records and environment variables are in [LAUNCH.md](LAUNCH.md).
 
@@ -90,7 +101,7 @@ Exact DNS records and environment variables are in [LAUNCH.md](LAUNCH.md).
 
 **[CLAUDE.md](CLAUDE.md)** is the shared context every app is built against:
 the brand, the design tokens, the payments convention, the layout rules, and a
-definition of done. It applies to both apps and to any kit added later. Read it
+definition of done. It applies to every app here and to any kit added later. Read it
 before changing anything user-facing. It is written for whoever is doing the
 work, human or otherwise.
 
@@ -98,8 +109,22 @@ work, human or otherwise.
 and what still needs an account, a domain or a decision. It is the handover
 document, not a changelog.
 
+## What is stored
+
+One thing: an email address, if you give it, in one table. The hub owns it and
+the kits never hold database credentials — they POST to `/api/subscribe` and
+carry on whether it answers or not.
+
+Your files are a different matter and the promise there is unchanged: photos and
+letters are processed entirely in the browser and never uploaded. There is no
+server-side file handling anywhere and adding some would be a decision to make
+deliberately, not to drift into.
+
+See the email capture convention in [CLAUDE.md](CLAUDE.md), and
+[`db/`](db) for the schema and how to pull the list.
+
 ## What is not here
 
-No backend, no database, no user accounts, no server-side file handling. If a
-feature seems to need one, that is a decision to make deliberately rather than
-drift into — the privacy promise on every kit depends on it.
+No accounts, no admin dashboard, no unsubscribe automation, no email sending, no
+cookies, no analytics on the email table. One table, one endpoint, and the
+capture points inside the kits.
