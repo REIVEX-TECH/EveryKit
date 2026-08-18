@@ -3,11 +3,15 @@ import { ImageResponse } from "next/og";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
-/**
- * The home-screen icon. iOS rounds the corners itself and puts it on a real
- * background, so this fills the square rather than floating a small mark.
- */
+/** The home-screen icon. iOS rounds the corners and supplies the background. */
 export default function AppleIcon() {
+  const tile = (color: string) => ({
+    width: 66,
+    height: 66,
+    borderRadius: 17,
+    background: color,
+  });
+
   return new ImageResponse(
     (
       <div
@@ -15,17 +19,18 @@ export default function AppleIcon() {
           width: "100%",
           height: "100%",
           display: "flex",
-          alignItems: "center",
+          flexWrap: "wrap",
+          alignContent: "center",
           justifyContent: "center",
+          gap: 14,
           background: "#ffffff",
-          fontSize: 92,
-          fontWeight: 600,
-          fontFamily: "sans-serif",
-          letterSpacing: -3,
+          padding: 14,
         }}
       >
-        <span style={{ color: "#171717" }}>E</span>
-        <span style={{ color: "#1d81f2" }}>K</span>
+        <div style={tile("#1d81f2")} />
+        <div style={tile("#ff8a4c")} />
+        <div style={tile("#1d81f2")} />
+        <div style={tile("#1d81f2")} />
       </div>
     ),
     size,

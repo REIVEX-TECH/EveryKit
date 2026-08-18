@@ -35,6 +35,13 @@ export default function OpengraphImage() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 64 }}>
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            {/* The mark, so a shared link carries the brand even as a thumbnail. */}
+            <div style={{ display: "flex", flexWrap: "wrap", width: 96, height: 96, gap: 8 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 11, background: "#1d81f2" }} />
+              <div style={{ width: 44, height: 44, borderRadius: 11, background: "#ff8a4c" }} />
+              <div style={{ width: 44, height: 44, borderRadius: 11, background: "#1d81f2" }} />
+              <div style={{ width: 44, height: 44, borderRadius: 11, background: "#1d81f2" }} />
+            </div>
             <div style={{ display: "flex", fontSize: 26, color: "#444444", letterSpacing: 1 }}>
               EveryKit Photos
             </div>
