@@ -121,7 +121,5 @@ same commit — "built in your browser" would no longer be the whole truth.
 
 ## Deploying
 
-Vercel project **`everykit-letters`**, free tier, **Root Directory** `letters`.
-
-For the human: add `letters.useeverykit.com` to that project and point a CNAME
-from `letters` to `cname.vercel-dns.com`. Set the environment variables above.
+Runs as PM2 process `everykit-letters` behind Caddy on the VPS, on port 3002. Deploys with `./deploy.sh` from the repo root.For the human: point an A record for `letters` at the VPS. Environment
+variables live in `/root/codes/EveryKit/.env.production`.

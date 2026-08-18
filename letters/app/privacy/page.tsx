@@ -62,11 +62,14 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-[19px] text-foreground">Analytics</h2>
           <p className="mt-2">
-            We use Vercel Analytics to count page views. It sets no cookies and
-            does not follow you between sites, which is why you are not being
-            asked to dismiss a banner. We can see that a page was viewed,
-            roughly from where, and on what sort of device. We cannot see who
-            you are or what you wrote.
+            There are none. No analytics script runs on this site, no cookies
+            are set, and nothing counts your visit. That is why you are not
+            being asked to dismiss a banner.
+          </p>
+          <p className="mt-2">
+            The server keeps ordinary web server logs, as every web server does.
+            If page counts are ever added back, this page will say so before
+            they are.
           </p>
         </section>
 

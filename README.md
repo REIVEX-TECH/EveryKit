@@ -79,23 +79,37 @@ Neither app requires a secret to run.
 
 ## Deploying
 
-One Vercel project per app, both on the free tier, each pointed at its folder
-via **Root Directory** in the project's settings:
+All three run on one VPS, as three `next start` processes behind Caddy, with
+Postgres on the same box:
 
-| Vercel project | Root Directory | Domain |
+| App | Port | Domain |
 | --- | --- | --- |
-| `everykit-hub` | `hub` | useeverykit.com |
-| `everykit-photos` | `photos` | photos.useeverykit.com |
-| `everykit-letters` | `letters` | letters.useeverykit.com |
+| hub | 3000 | useeverykit.com (and www, redirected) |
+| photos | 3001 | photos.useeverykit.com |
+| letters | 3002 | letters.useeverykit.com |
 
-Subdomains belong to their own project — do not attach `photos.` to the hub's.
+Nothing but Caddy is bound to a public interface. The apps listen on localhost,
+and Postgres listens on localhost only.
 
-Deploy the hub first. The kits read `useeverykit.com/kits.json` and post to
-`/api/subscribe`, and both fail silently by design — if the hub is not up, the
-cross-promotion strip does not render and no address is recorded. Correct
-behaviour, but it looks like a bug if you are not expecting it.
+| File | What it is |
+| --- | --- |
+| `ecosystem.config.js` | PM2 process definitions. Reads secrets from `.env.production`, which is git-ignored. |
+| `.env.production.example` | The shape of that file. |
+| `Caddyfile` | Copied to `/etc/caddy/Caddyfile`. Caddy obtains and renews the certificates itself. |
+| `deploy.sh` | Pull, install, build all three, then reload PM2. |
 
-Exact DNS records and environment variables are in [LAUNCH.md](LAUNCH.md).
+Deploying a change:
+
+```bash
+cd /root/codes/EveryKit && ./deploy.sh
+```
+
+Everything is built before anything is reloaded, and the script aborts on a
+failed build — so a broken commit leaves the running site untouched rather than
+taking it down.
+
+Exact DNS records, first-time setup and environment variables are in
+[LAUNCH.md](LAUNCH.md).
 
 ## The two documents
 

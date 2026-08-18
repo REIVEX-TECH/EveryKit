@@ -1,13 +1,16 @@
 import { Pool } from "pg";
 
 /**
- * One pool per warm serverless instance.
+ * One pool for the process.
  *
- * Vercel functions freeze and thaw, so a module-level pool is reused across
- * invocations on the same instance rather than opening a connection per
- * request. `max: 1` because each invocation handles one request and a pooled
- * Neon endpoint does the real multiplexing — a larger pool here just holds
- * connections open that nothing is using.
+ * This runs as a long-lived Node server under PM2, not a serverless function,
+ * so the pool is created once and lives as long as the process. It was capped
+ * at a single connection when this was destined for Vercel, where each
+ * invocation handled one request and a pooled endpoint did the multiplexing —
+ * here that cap would serialise every concurrent signup behind one connection.
+ *
+ * Ten is comfortable against Postgres's default 100 while leaving room for
+ * psql and anything else on the box.
  */
 declare global {
   var __everykitPool: Pool | undefined;
@@ -20,10 +23,11 @@ export function getPool(): Pool | null {
   if (!globalThis.__everykitPool) {
     globalThis.__everykitPool = new Pool({
       connectionString,
-      max: 1,
+      max: 10,
       idleTimeoutMillis: 10_000,
       connectionTimeoutMillis: 5_000,
-      // Hosted Postgres is TLS; a local container is not.
+      // Postgres is on this same machine over the loopback interface, so
+      // there is no TLS to negotiate. A remote database would need it.
       ssl: /localhost|127\.0\.0\.1/.test(connectionString)
         ? undefined
         : { rejectUnauthorized: false },

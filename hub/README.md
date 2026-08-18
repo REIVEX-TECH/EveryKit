@@ -63,17 +63,19 @@ empty data directory. After editing `db/schema.sql`, run
 No Docker? Any Postgres will do — create a database and run
 `psql "$DATABASE_URL" -f db/schema.sql` against it.
 
-### In production (Neon, free tier)
+### In production
 
-1. Create a project at neon.tech. Any region near your users.
-2. Copy the **pooled** connection string, the one with `-pooler` in the host.
-   Serverless functions open and drop connections constantly, and the direct
-   string will exhaust the connection limit under any real traffic.
-3. Apply the schema once:
-   `psql "postgres://…-pooler…/neondb?sslmode=require" -f db/schema.sql`
-4. Put the same string in the hub's Vercel project as `DATABASE_URL` and
-   redeploy. It is read at request time, but Vercel only picks up new
-   environment variables on a fresh deployment.
+Postgres runs on the same VPS as the apps, listening on localhost only. The
+role and database are created once by hand; the exact commands are in
+[LAUNCH.md](../LAUNCH.md).
+
+`DATABASE_URL` goes in `/root/codes/EveryKit/.env.production`, which is
+git-ignored and read by `ecosystem.config.js` at PM2 start. Changing it needs
+`pm2 reload ecosystem.config.js --update-env` — a plain reload keeps the
+environment the process started with.
+
+Only the hub holds it. The kits post to `/api/subscribe` and never see a
+database credential.
 
 Getting the list out is [`db/export.md`](../db/export.md).
 
@@ -134,9 +136,10 @@ curl -sI https://useeverykit.com/kits.json | grep -i access-control
 
 ## Deploying
 
-Vercel project **`everykit-hub`**, free tier, with **Root Directory** set to
-`hub`.
+Runs as PM2 process `everykit-hub` on port 3000, behind Caddy. Deploys with
+`./deploy.sh` from the repo root.
 
 For the human, not automated: attach `useeverykit.com` to this project and add
 `www.useeverykit.com` redirecting to the apex. Kit subdomains belong to their
-own Vercel projects — do not attach them here.
+own PM2 processes and their own Caddy blocks — see the repo root's
+`ecosystem.config.js` and `Caddyfile`.

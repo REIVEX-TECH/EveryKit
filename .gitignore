@@ -8,11 +8,13 @@ build/
 next-env.d.ts
 *.tsbuildinfo
 
-# Local environment. .env.example files are tracked on purpose — they are the
-# documentation of what each app needs.
+# Local environment. The .example files are tracked on purpose — they are the
+# documentation of what each app needs. Everything else here holds real
+# secrets, including .env.production on the VPS.
 .env
 .env.*
 !.env.example
+!.env.production.example
 
 # Vercel
 .vercel

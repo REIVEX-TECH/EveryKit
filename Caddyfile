@@ -1,0 +1,55 @@
+# EveryKit, three apps on one box.
+#
+# Caddy is here rather than nginx for one reason: it obtains and renews TLS
+# certificates by itself, with no certbot, no cron and no renewal that quietly
+# stops working eighteen months from now.
+#
+# Deployed by copying to /etc/caddy/Caddyfile:
+#   sudo cp /root/codes/EveryKit/Caddyfile /etc/caddy/Caddyfile
+#   sudo caddy validate --config /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+#
+# Certificates only issue once the domains resolve to this machine. Until DNS
+# is pointed here, Caddy retries in the background and logs the failure — that
+# is expected, not a fault.
+
+{
+	# Where Let's Encrypt sends expiry warnings. Change to a real mailbox.
+	email hello@useeverykit.com
+}
+
+# Shared settings. Compression matters most for the letter pages, which are
+# mostly text.
+(common) {
+	encode gzip zstd
+
+	header {
+		# Belt and braces alongside the per-app headers Next already sends.
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Content-Type-Options nosniff
+		# Caddy advertises itself by default; there is no reason to.
+		-Server
+	}
+}
+
+useeverykit.com {
+	import common
+	reverse_proxy localhost:3000
+}
+
+# The apex is canonical. www exists only to send people to it, and the redirect
+# is permanent so it is not re-followed on every visit.
+www.useeverykit.com {
+	import common
+	redir https://useeverykit.com{uri} permanent
+}
+
+photos.useeverykit.com {
+	import common
+	reverse_proxy localhost:3001
+}
+
+letters.useeverykit.com {
+	import common
+	reverse_proxy localhost:3002
+}

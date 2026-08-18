@@ -48,14 +48,11 @@ failing quietly; the file lists what finishing it involves.
 
 ## Deploying
 
-Vercel project **`everykit-photos`**, free tier, with **Root Directory** set to
-`photos`. The build needs no secrets.
+Runs as PM2 process `everykit-photos` behind Caddy on the VPS, on port 3001. Deploys with `./deploy.sh` from the repo root.
 
-For the human, not automated: in the Vercel dashboard add
-`photos.useeverykit.com` to this project, then create a DNS record — a CNAME
-from `photos` to `cname.vercel-dns.com`. Set `NEXT_PUBLIC_SITE_URL` and
-`NEXT_PUBLIC_HUB_URL` in the project's environment variables. The hub lives in a
-separate Vercel project; subdomains are not attached to this one.
+For the human, not automated: point an A record at the VPS for
+`photos.useeverykit.com` to this project, and set the environment variables in
+`/root/codes/EveryKit/.env.production`. Exact records are in [LAUNCH.md](../LAUNCH.md).
 
 ## How the crop maths works
 
