@@ -88,16 +88,16 @@ function app(name, folder, port, env) {
 
 module.exports = {
   apps: [
-    app("everykit-hub", "hub", 3000, {
+    app("everykit-hub", "hub", 3010, {
       NEXT_PUBLIC_SITE_URL: "https://useeverykit.com",
       // Only the hub talks to Postgres. The kits post to its endpoint and
       // never hold credentials.
       DATABASE_URL: secrets.DATABASE_URL || "",
     }),
-    app("everykit-photos", "photos", 3001, {
+    app("everykit-photos", "photos", 3011, {
       NEXT_PUBLIC_SITE_URL: "https://photos.useeverykit.com",
     }),
-    app("everykit-letters", "letters", 3002, {
+    app("everykit-letters", "letters", 3012, {
       NEXT_PUBLIC_SITE_URL: "https://letters.useeverykit.com",
       NEXT_PUBLIC_AI_POLISH_ENABLED: "false",
     }),
