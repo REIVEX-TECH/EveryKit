@@ -22,7 +22,7 @@ export function OtherSizes({ currentSlug }: { currentSlug?: string }) {
             <li key={spec.slug}>
               <Link
                 href={`/photo/${spec.slug}`}
-                className="text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
+                className="inline-block py-1.5 text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
               >
                 {specTitle(spec)} photo
                 <span className="text-text-light"> — {specSizeLabel(spec)}</span>

@@ -134,7 +134,7 @@ export default async function LetterPage({ params }: { params: Promise<Params> }
                 <li key={other.slug}>
                   <Link
                     href={`/letter/${other.slug}`}
-                    className="text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
+                    className="inline-block py-1.5 text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
                   >
                     {other.title}
                   </Link>
