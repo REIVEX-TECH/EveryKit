@@ -1,0 +1,130 @@
+/**
+ * The five kinds of QR code this kit makes. One entry per route, and the single
+ * source for the landing tiles, the routes themselves and their SEO pages.
+ */
+
+import type { QrKind } from "@/lib/qr/payloads";
+
+export type Faq = { q: string; a: string };
+
+export type Kind = {
+  slug: QrKind;
+  title: string;
+  /** One line, on the tile. */
+  blurb: string;
+  seoTitle: string;
+  description: string;
+  intro: string[];
+  faq: Faq[];
+};
+
+/** The two answers every page needs, in the order people ask them. */
+const SHARED_FAQ: Faq[] = [
+  {
+    q: "Do the codes expire?",
+    a: "No. The code contains your information directly — there is no short link in the middle that could stop working, no account behind it, and nothing to renew. A code made here works in ten years exactly as it does today, because nothing has to still be running for it to.",
+  },
+  {
+    q: "Is anything I type sent anywhere?",
+    a: "No. The code is drawn in your browser as you type. Nothing is uploaded, there is no server here that could receive it, and the picture you download is generated on your own device. You can check with your browser's network tab: no request carries what you entered.",
+  },
+];
+
+export const kinds: Kind[] = [
+  {
+    slug: "url",
+    title: "Link",
+    blurb: "Point a phone camera at a web address",
+    seoTitle: "QR code generator for a link — free, no expiry, no account",
+    description:
+      "Make a QR code for any web address. Free, permanent, no account, and nothing you type is uploaded.",
+    intro: [
+      "Paste a web address and the code appears as you type. Point a camera at it and the phone offers the link.",
+      "This is a plain QR code with the address inside it. It is not a short link that points at us, so there is nothing that can expire, break, or start counting your visitors.",
+    ],
+    faq: [
+      ...SHARED_FAQ,
+      { q: "Do I need to type https://?", a: "No. If you leave the scheme off, https is added for you, and the finished address is shown under the code so you can see exactly what was encoded." },
+      { q: "Can I edit it later?", a: "Not this code, no. The address is inside the picture, so changing where it points means making a new one. That is the trade for a code that never expires." },
+      { q: "Which size should I download?", a: "The SVG for anything printed — it stays sharp at any size. The PNG for anything on a screen." },
+    ],
+  },
+  {
+    slug: "text",
+    title: "Text",
+    blurb: "Any words, shown when scanned",
+    seoTitle: "Text QR code generator — free, works offline once made",
+    description:
+      "Put plain text in a QR code: a note, a serial number, a code. Made in your browser and never uploaded.",
+    intro: [
+      "Anything you type here goes into the code as plain text. A scanner shows the words rather than opening anything.",
+      "Useful for a serial number on a piece of equipment, an instruction on a label, or a note that has to survive without a network.",
+    ],
+    faq: [
+      ...SHARED_FAQ,
+      { q: "How much text fits?", a: "Around 1,800 characters at the default settings, but long text makes a dense code that needs a better camera and a bigger print. If it is more than a couple of sentences, a link to the text usually scans more reliably than the text itself." },
+      { q: "Do accents and other alphabets work?", a: "Yes. The text is encoded as UTF-8, so accents, Arabic, Chinese and emoji all survive the round trip." },
+    ],
+  },
+  {
+    slug: "wifi",
+    title: "Wi-Fi",
+    blurb: "Join a network without reading out the password",
+    seoTitle: "Wi-Fi QR code generator — join a network by scanning",
+    description:
+      "Make a QR code that connects a phone to your Wi-Fi. Handles passwords with punctuation correctly. Nothing is uploaded.",
+    intro: [
+      "Print this and guests join the network by pointing a camera at it, instead of you spelling out a password across a room.",
+      "Your password is not sent anywhere. It goes into the picture on this device, and the picture is yours.",
+    ],
+    faq: [
+      ...SHARED_FAQ,
+      { q: "Does it work on iPhone and Android?", a: "Yes. Both have read this format in the camera app for years. On iPhone the prompt appears at the top of the screen; on Android it usually appears as a notification or straight in the camera view." },
+      { q: "My password has punctuation in it — is that a problem?", a: "Not here. Semicolons, colons, commas, quotes and backslashes all have to be escaped in this format, and skipping that is the most common bug in Wi-Fi QR tools: the code scans, then the phone tries to join with only the first part of the password. This escapes all of them, and there are tests that decode the finished code to confirm the password survives." },
+      { q: "Should I pick WPA or WEP?", a: "WPA, unless the network is genuinely old — WPA covers WPA, WPA2 and WPA3. WEP is only for equipment from before about 2006." },
+      { q: "What does hidden mean?", a: "Tick it if the network does not appear in the list of nearby networks. Ticking it for a normal network can stop the code from working, so leave it off unless you know it applies." },
+    ],
+  },
+  {
+    slug: "vcard",
+    title: "Contact card",
+    blurb: "Save your details to someone's phone",
+    seoTitle: "vCard QR code generator — share contact details by scanning",
+    description:
+      "Put your name, number and email in a QR code that saves straight to a phone's contacts. Made in your browser.",
+    intro: [
+      "Scanning this offers to save you as a contact, with whichever fields you fill in. Good on a business card, a name badge, or an email signature.",
+      "Leave anything blank and it is left out of the card entirely, rather than saved as an empty field.",
+    ],
+    faq: [
+      ...SHARED_FAQ,
+      { q: "Which fields should I fill in?", a: "A name and one way to reach you is enough. Every extra field makes the code denser and harder to scan from a distance, so it is worth leaving out what you do not need." },
+      { q: "My name has a comma or an apostrophe in it", a: "That is handled. Commas and semicolons separate the parts of a name in this format, so a surname like \"Smith, Jr\" has to be escaped or it arrives as two separate name parts. The tests decode a finished card to check it comes back whole." },
+      { q: "Why is my code so dense?", a: "Contact cards carry more data than a link, so they produce a bigger grid. If it is hard to scan, remove a field or two, or print it larger." },
+    ],
+  },
+  {
+    slug: "whatsapp",
+    title: "WhatsApp",
+    blurb: "Open a chat, optionally with a message ready",
+    seoTitle: "WhatsApp QR code generator — open a chat by scanning",
+    description:
+      "Make a QR code that opens a WhatsApp chat with your number, with an optional message already typed. Nothing is uploaded.",
+    intro: [
+      "Scanning this opens WhatsApp on your number, with the message you set already in the box, ready to send.",
+      "The number has to be in full international form. That is the usual reason one of these opens WhatsApp to nothing, so it is checked before the code is drawn.",
+    ],
+    faq: [
+      ...SHARED_FAQ,
+      { q: "How do I write the number?", a: "Country code first, then the number without the leading zero. A London number written 020 7946 0000 becomes 44 20 7946 0000. Spaces, brackets, + and dashes are fine — they are stripped for you." },
+      { q: "Does the person need to have my number saved?", a: "No. That is the point of it: scanning opens a chat with you whether or not they have you in their contacts." },
+      { q: "Is this the same as WhatsApp's own code?", a: "No. WhatsApp's in-app code is tied to your account and changes when you reset it. This one is an ordinary link to your number, so it keeps working and can be printed." },
+    ],
+  },
+];
+
+const bySlug = new Map(kinds.map((kind) => [kind.slug, kind]));
+
+export function getKind(slug: string): Kind | undefined {
+  return bySlug.get(slug as QrKind);
+}

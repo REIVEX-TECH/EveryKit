@@ -147,6 +147,19 @@ function CategoryGlyph({ id }: { id: KitCategory | "all" }) {
       </svg>
     );
   }
+  if (id === "everyday") {
+    return (
+      <svg viewBox="0 0 24 24" {...common}>
+        <rect x="3" y="3" width="8" height="8" rx="2" fill="#1d81f2" />
+        <rect x="13" y="3" width="8" height="8" rx="2" fill="#ff8a4c" />
+        <rect x="3" y="13" width="8" height="8" rx="2" fill="#1d81f2" />
+        <rect x="14" y="14" width="3" height="3" rx="0.8" fill="#1d81f2" />
+        <rect x="18" y="14" width="3" height="3" rx="0.8" fill="#1d81f2" />
+        <rect x="14" y="18" width="3" height="3" rx="0.8" fill="#1d81f2" />
+        <rect x="18" y="18" width="3" height="3" rx="0.8" fill="#1d81f2" />
+      </svg>
+    );
+  }
   return (
     <svg viewBox="0 0 24 24" {...common}>
       <rect x="3" y="3" width="8" height="8" rx="2" fill="#1d81f2" />

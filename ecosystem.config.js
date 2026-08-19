@@ -104,5 +104,8 @@ module.exports = {
     app("everykit-pdf", "pdf", 3013, {
       NEXT_PUBLIC_SITE_URL: "https://pdf.useeverykit.com",
     }),
+    app("everykit-qr", "qr", 3014, {
+      NEXT_PUBLIC_SITE_URL: "https://qr.useeverykit.com",
+    }),
   ],
 };

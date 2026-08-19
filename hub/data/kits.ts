@@ -13,7 +13,7 @@ export type KitStatus = "live" | "soon";
  * strips parse this same file and ignore fields they do not know about, so new
  * ones may be added but existing names and shapes never change.
  */
-export type KitCategory = "photos" | "documents";
+export type KitCategory = "photos" | "documents" | "everyday";
 
 export type Kit = {
   slug: string;
@@ -63,6 +63,16 @@ export const kits: Kit[] = [
     icon: "/icons/pdf.svg",
     outputAlt: "Two pages being combined into a single document",
   },
+  {
+    slug: "qr",
+    name: "EveryKit QR",
+    tagline: "QR codes that never expire",
+    url: "https://qr.useeverykit.com",
+    status: "live",
+    category: "everyday",
+    icon: "/icons/qr.svg",
+    outputAlt: "A QR code, with the three squares a scanner looks for at its corners",
+  },
 ];
 
 /** Exactly the shape published at /kits.json, per the shared registry schema. */
@@ -87,4 +97,5 @@ export const CATEGORIES: Array<{ id: KitCategory | "all"; label: string }> = [
   { id: "all", label: "All" },
   { id: "photos", label: "Photos & ID" },
   { id: "documents", label: "Documents & letters" },
+  { id: "everyday", label: "Everyday" },
 ];
