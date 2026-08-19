@@ -83,6 +83,16 @@ export const kits: Kit[] = [
     icon: "/icons/images.svg",
     outputAlt: "A large photo being reduced to a smaller one",
   },
+  {
+    slug: "background",
+    name: "EveryKit Background",
+    tagline: "Remove backgrounds in your browser, nothing uploaded",
+    url: "https://background.useeverykit.com",
+    status: "live",
+    category: "photos",
+    icon: "/icons/background.svg",
+    outputAlt: "A person cut out from their background, on a chequerboard",
+  },
 ];
 
 /** Exactly the shape published at /kits.json, per the shared registry schema. */

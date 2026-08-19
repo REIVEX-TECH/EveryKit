@@ -110,5 +110,8 @@ module.exports = {
     app("everykit-images", "images", 3015, {
       NEXT_PUBLIC_SITE_URL: "https://images.useeverykit.com",
     }),
+    app("everykit-background", "background", 3018, {
+      NEXT_PUBLIC_SITE_URL: "https://background.useeverykit.com",
+    }),
   ],
 };
