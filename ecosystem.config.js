@@ -113,5 +113,8 @@ module.exports = {
     app("everykit-background", "background", 3018, {
       NEXT_PUBLIC_SITE_URL: "https://background.useeverykit.com",
     }),
+    app("everykit-text", "text", 3020, {
+      NEXT_PUBLIC_SITE_URL: "https://text.useeverykit.com",
+    }),
   ],
 };

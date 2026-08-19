@@ -93,6 +93,16 @@ export const kits: Kit[] = [
     icon: "/icons/background.svg",
     outputAlt: "A person cut out from their background, on a chequerboard",
   },
+  {
+    slug: "text",
+    name: "EveryKit Text",
+    tagline: "Count, convert and clean text in a click",
+    url: "https://text.useeverykit.com",
+    status: "live",
+    category: "everyday",
+    icon: "/icons/text.svg",
+    outputAlt: "Lines of text with a count beside them",
+  },
 ];
 
 /** Exactly the shape published at /kits.json, per the shared registry schema. */
