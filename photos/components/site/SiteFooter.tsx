@@ -6,6 +6,12 @@ import { HUB_URL, PARENT_NAME, PARENT_URL } from "@/lib/site";
  * three links. Nothing else belongs here — the per-country links that used to
  * sit in this footer now live in <OtherSizes />, which is a real navigation
  * section rather than footer furniture.
+ *
+ * The three nav links carry a 24px minimum height. At this type size a bare
+ * anchor is about 22px tall, under the WCAG 2.5.8 target minimum, and they are
+ * standalone navigation rather than links inside a sentence, so the inline
+ * exception does not cover them. The attribution link above them is inside a
+ * sentence and is left alone. The text size does not change; only the hit area.
  */
 export function SiteFooter() {
   return (
@@ -19,18 +25,18 @@ export function SiteFooter() {
         </p>
 
         <nav className="flex gap-6" aria-label="Footer">
-          <a href={HUB_URL} className="text-[14px] text-text-light no-underline hover:text-primary-dark">
+          <a href={HUB_URL} className="inline-flex min-h-[24px] items-center text-[14px] text-text-light no-underline hover:text-primary-dark">
             All kits
           </a>
           <Link
             href="/privacy"
-            className="text-[14px] text-text-light no-underline hover:text-primary-dark"
+            className="inline-flex min-h-[24px] items-center text-[14px] text-text-light no-underline hover:text-primary-dark"
           >
             Privacy
           </Link>
           <Link
             href="/terms"
-            className="text-[14px] text-text-light no-underline hover:text-primary-dark"
+            className="inline-flex min-h-[24px] items-center text-[14px] text-text-light no-underline hover:text-primary-dark"
           >
             Terms
           </Link>

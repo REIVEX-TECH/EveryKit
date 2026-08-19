@@ -4,6 +4,12 @@ import { PARENT_NAME, PARENT_URL } from "@/lib/site";
 /**
  * The shared EveryKit footer. Same shape the kits render, with "All kits"
  * pointing home rather than across a subdomain.
+ *
+ * The three nav links carry a 24px minimum height. At this type size a bare
+ * anchor is about 22px tall, under the WCAG 2.5.8 target minimum, and they are
+ * standalone navigation rather than links inside a sentence, so the inline
+ * exception does not cover them. The attribution link above them is inside a
+ * sentence and is left alone. The text size does not change; only the hit area.
  */
 export function SiteFooter() {
   return (
@@ -20,19 +26,19 @@ export function SiteFooter() {
           <nav className="flex gap-6" aria-label="Footer">
             <Link
               href="/"
-              className="text-[14px] text-text-light no-underline hover:text-primary-dark"
+              className="inline-flex min-h-[24px] items-center text-[14px] text-text-light no-underline hover:text-primary-dark"
             >
               All kits
             </Link>
             <Link
               href="/privacy"
-              className="text-[14px] text-text-light no-underline hover:text-primary-dark"
+              className="inline-flex min-h-[24px] items-center text-[14px] text-text-light no-underline hover:text-primary-dark"
             >
               Privacy
             </Link>
             <Link
               href="/terms"
-              className="text-[14px] text-text-light no-underline hover:text-primary-dark"
+              className="inline-flex min-h-[24px] items-center text-[14px] text-text-light no-underline hover:text-primary-dark"
             >
               Terms
             </Link>
