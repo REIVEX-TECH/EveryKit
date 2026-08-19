@@ -1,8 +1,8 @@
 /**
- * PM2 process definitions for the three EveryKit apps on the VPS.
+ * PM2 process definitions for the four EveryKit apps on the VPS.
  *
- * Each app is a normal `next start` behind Caddy, on its own localhost port.
- * Nothing here listens on a public interface — Caddy is the only thing bound
+ * Each app is a normal `next start` behind nginx, on its own localhost port.
+ * Nothing here listens on a public interface — nginx is the only thing bound
  * to 80 and 443, and it terminates TLS.
  *
  * Secrets are NOT in this file, because it is committed. Real values live in
@@ -73,7 +73,7 @@ function app(name, folder, port, env) {
     script: "node_modules/next/dist/bin/next",
     args: `start -p ${port}`,
     // One process each. These are stateless request handlers, but the box is
-    // small and three Next servers already have their own memory footprint;
+    // small and four Next servers already have their own memory footprint;
     // cluster mode can come later if traffic asks for it.
     instances: 1,
     exec_mode: "fork",
@@ -100,6 +100,9 @@ module.exports = {
     app("everykit-letters", "letters", 3012, {
       NEXT_PUBLIC_SITE_URL: "https://letters.useeverykit.com",
       NEXT_PUBLIC_AI_POLISH_ENABLED: "false",
+    }),
+    app("everykit-pdf", "pdf", 3013, {
+      NEXT_PUBLIC_SITE_URL: "https://pdf.useeverykit.com",
     }),
   ],
 };
