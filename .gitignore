@@ -44,3 +44,9 @@ desktop.ini
 
 # Agent/editor workspace config, kept local
 .claude/
+
+# The crop regression photo is a real person's face. It stays on the machine
+# that reproduces the bug and is never committed: this repo is public, and a
+# face pushed here would be permanent. The test that uses it skips when it is
+# absent, so CI stays green without it.
+photos/test/fixtures/regression-1.jpg
