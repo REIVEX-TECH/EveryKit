@@ -21,8 +21,13 @@ describe("kits registry", () => {
   });
 
   it("adds category and icon without removing anything", () => {
+    // Every category the directory can render. A kit filed under a name that is
+    // not here would be dropped from the page silently, which is why the list is
+    // asserted rather than the field merely being a string. Adding a shelf means
+    // adding it here and to the directory in the same commit.
+    const shelves = ["photos", "documents", "everyday"];
     for (const kit of registryPayload().kits) {
-      expect(["photos", "documents"]).toContain(kit.category);
+      expect(shelves).toContain(kit.category);
       expect(kit.icon.startsWith("/icons/")).toBe(true);
     }
   });

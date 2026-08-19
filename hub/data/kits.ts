@@ -123,6 +123,16 @@ export const kits: Kit[] = [
     icon: "/icons/invoice.svg",
     outputAlt: "An invoice with a totals block",
   },
+  {
+    slug: "ringtone",
+    name: "EveryKit Ringtone",
+    tagline: "Trim any song into a ringtone",
+    url: "https://ringtone.useeverykit.com",
+    status: "live",
+    category: "everyday",
+    icon: "/icons/ringtone.svg",
+    outputAlt: "A waveform with a short span of it marked as the part that is kept",
+  },
 ];
 
 /** Exactly the shape published at /kits.json, per the shared registry schema. */

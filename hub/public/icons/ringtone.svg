@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="EveryKit Ringtone">
+  <!-- A waveform with the kept span in the accent colour: the selection is the kit. -->
+  <rect x="6" y="21" width="3.4" height="6" rx="1.7" fill="#1d81f2"/>
+  <rect x="12" y="17" width="3.4" height="14" rx="1.7" fill="#1d81f2"/>
+  <rect x="18" y="11" width="3.4" height="26" rx="1.7" fill="#ff8a4c"/>
+  <rect x="24" y="15" width="3.4" height="18" rx="1.7" fill="#ff8a4c"/>
+  <rect x="30" y="8" width="3.4" height="32" rx="1.7" fill="#ff8a4c"/>
+  <rect x="36" y="19" width="3.4" height="10" rx="1.7" fill="#1d81f2"/>
+</svg>
