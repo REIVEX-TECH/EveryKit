@@ -15,7 +15,7 @@ import {
   type Cutout,
   type RemovalProgress,
 } from "@/lib/imaging/backgroundRemoval";
-import { evaluateCompliance, hasBlockingFailure } from "@/lib/imaging/compliance";
+import { evaluateCompliance } from "@/lib/imaging/compliance";
 import {
   UnsupportedImageError,
   canvasToBlob,
@@ -261,11 +261,27 @@ export function PhotoTool({ initialSlug, heading, intro, example }: Props) {
     (id) => !confirmed[id],
   );
 
-  const blockedReason = hasBlockingFailure(checks)
-    ? "Something above is failing. You can still download, but fix it first if you can."
-    : unconfirmed.length > 0
-      ? "Tick the four things only you can confirm before you send this off."
-      : null;
+  /*
+   * Name what failed, rather than pointing upwards at a list.
+   *
+   * "Something above is failing" made the reader scan five checks to find out
+   * which — and on a phone the checks are far below the result panel the
+   * message sits in, so it was pointing at something off screen. Each check
+   * already carries a specific detail; this just surfaces it.
+   */
+  const failing = checks.filter((check) => check.status === "fail");
+  const blockedReason =
+    failing.length === 1
+      ? // One failure: say which check, and what it actually measured. The
+        // detail on its own reads as a bare number with no subject.
+        `${failing[0].label} — ${failing[0].detail ?? "is failing."} You can still download.`
+      : failing.length > 1
+        ? // Several: name them, and leave the numbers to the list below rather
+          // than stacking four sentences of measurements into one paragraph.
+          `${failing.map((check) => check.label.toLowerCase()).join(", ")} — these are failing. You can still download.`
+        : unconfirmed.length > 0
+          ? "Tick the four things only you can confirm before you send this off."
+          : null;
 
   return (
     <div>

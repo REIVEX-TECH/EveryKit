@@ -161,9 +161,28 @@ export function computeCrop(
 ): CropPlan {
   const head = estimateHeadMetrics(face);
   const { fraction, isGeneric } = targetHeadFraction(spec);
+  const ratio = aspectRatio(spec);
 
-  let height = head.headHeightPx / fraction;
-  let width = height * aspectRatio(spec);
+  /*
+   * Size first, then place.
+   *
+   * The order matters and used to be the other way round: the frame was placed
+   * against the head, and then — if it turned out larger than the photo — it was
+   * shrunk about its own centre. A passport frame carries the head high, near
+   * the top edge, so shrinking about the frame's centre pulls the top edge down
+   * past the crown and the whole frame drifts off the subject. That is the
+   * failure this ordering removes, and it fires on exactly the photo people
+   * actually take: a close-up selfie, where the head is large enough that the
+   * ideal frame does not fit.
+   *
+   * Working out the final size before placing anything means the anchor below
+   * is computed against the height that is actually used.
+   */
+  const maxHeight = Math.min(image.height, image.width / ratio);
+  const idealHeight = head.headHeightPx / fraction;
+  const shrunk = idealHeight > maxHeight;
+  const height = Math.min(idealHeight, maxHeight);
+  const width = height * ratio;
 
   // Vertical anchor: the eye line where the spec gives one, a top margin otherwise.
   const eyeFrac = eyeFractionFromTop(spec);
@@ -175,29 +194,32 @@ export function computeCrop(
     top = head.crownY - topMargin * height;
   }
 
-  // The crown must stay in frame even if that means missing the eye band.
-  top = Math.min(top, head.crownY - MIN_CROWN_MARGIN * height);
-  top = Math.max(top, head.chinY - MAX_CHIN_POSITION * height);
-
-  let left = head.centerX - width / 2;
-
-  // Shrink first if the ideal frame is larger than the image, keeping the
-  // centre of the frame where it was so the head does not jump.
-  let shrunk = false;
-  const maxHeight = Math.min(image.height, image.width / aspectRatio(spec));
-  if (height > maxHeight) {
-    const cx = left + width / 2;
-    const cy = top + height / 2;
-    height = maxHeight;
-    width = height * aspectRatio(spec);
-    left = cx - width / 2;
-    top = cy - height / 2;
-    shrunk = true;
+  /*
+   * The two guards below pull in opposite directions, and on a large head they
+   * cannot both be satisfied: keeping 3% clear above the crown and the chin no
+   * lower than 95% needs a head shorter than 92% of the frame. Applying them in
+   * order let the second one win and push the crown out of frame, which is the
+   * worst outcome available — a passport photo missing the top of the head is
+   * rejected, whereas one with a tight margin is merely not ideal.
+   *
+   * So when they conflict, both are dropped and the head is centred instead.
+   * Containment first; the margins are a preference, not a requirement.
+   */
+  const marginBand = (MAX_CHIN_POSITION - MIN_CROWN_MARGIN) * height;
+  if (head.headHeightPx > marginBand) {
+    top = head.crownY - (height - head.headHeightPx) / 2;
+  } else {
+    // The crown must stay in frame even if that means missing the eye band.
+    top = Math.min(top, head.crownY - MIN_CROWN_MARGIN * height);
+    top = Math.max(top, head.chinY - MAX_CHIN_POSITION * height);
   }
 
+  // Horizontal anchor is the head's own centre, not the frame's.
+  const left = head.centerX - width / 2;
+
   // Then slide back inside the image.
-  const clampedLeft = clamp(left, 0, image.width - width);
-  const clampedTop = clamp(top, 0, image.height - height);
+  const clampedLeft = clamp(left, 0, Math.max(0, image.width - width));
+  const clampedTop = clamp(top, 0, Math.max(0, image.height - height));
   const clamped = clampedLeft !== left || clampedTop !== top;
 
   return {
