@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+/*
+ * EveryKit tokens. Flat colours only — no gradients anywhere in this product.
+ * One accent, used for the two actions that matter: upload and download.
+ */
+@theme {
+  --color-background: #ffffff;
+  --color-bg-soft: #f8fafc;
+  --color-foreground: #171717;
+  --color-text-light: #444444;
+  --color-primary: #1d81f2;
+  --color-primary-dark: #1769d4;
+  --color-accent: #ff8a4c;
+  --color-accent-dark: #f2762f;
+  --color-success: #22c55e;
+  --color-line: #e2e8f0;
+  --color-line-strong: #cbd5e1;
+  --color-warn: #b45309;
+  --color-danger: #dc2626;
+
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 16px;
+
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    letter-spacing: -0.011em;
+    line-height: 1.2;
+  }
+
+  /* One focus treatment everywhere, in the primary colour. */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: #cfe4ff;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .ek-shell {
+    max-width: 1040px;
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+
+  .ek-card {
+    background: var(--color-background);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+  }
+
+  /* Buttons are pills and carry no shadow. */
+  .ek-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 999px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 14px 24px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  }
+
+  .ek-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .ek-btn-accent {
+    background: var(--color-accent);
+    color: #3a1c08;
+  }
+
+  .ek-btn-accent:not(:disabled):hover {
+    background: var(--color-accent-dark);
+  }
+
+  .ek-btn-primary {
+    background: var(--color-primary);
+    color: #ffffff;
+  }
+
+  .ek-btn-primary:not(:disabled):hover {
+    background: var(--color-primary-dark);
+  }
+
+  .ek-btn-quiet {
+    background: var(--color-background);
+    border-color: var(--color-line-strong);
+    color: var(--color-foreground);
+  }
+
+  .ek-btn-quiet:not(:disabled):hover {
+    background: var(--color-bg-soft);
+  }
+
+  /*
+   * Link text uses the darker primary. The lighter --primary is 3.8:1 on white,
+   * which fails WCAG AA for body-size text; --primary-dark is 5.2:1. The token
+   * itself is unchanged and still carries focus rings and accents.
+   */
+  .ek-link {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .ek-link:hover {
+    color: var(--color-foreground);
+  }
+
+  /*
+   * The step label in the flow. Sentence case, never uppercase — these mark
+   * real positions in a six-step process, so they stay quiet and legible
+   * rather than becoming decoration.
+   */
+  .ek-step-number {
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--color-text-light);
+  }
+}
