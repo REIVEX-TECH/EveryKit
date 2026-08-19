@@ -103,6 +103,16 @@ export const kits: Kit[] = [
     icon: "/icons/text.svg",
     outputAlt: "Lines of text with a count beside them",
   },
+  {
+    slug: "sign",
+    name: "EveryKit Sign",
+    tagline: "Draw your signature, sign a PDF, done",
+    url: "https://sign.useeverykit.com",
+    status: "live",
+    category: "documents",
+    icon: "/icons/sign.svg",
+    outputAlt: "A signature written across a document",
+  },
 ];
 
 /** Exactly the shape published at /kits.json, per the shared registry schema. */

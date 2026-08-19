@@ -1,0 +1,101 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ToolSwitcher } from "@/components/site/ToolSwitcher";
+import { MoreFromEveryKit } from "@/components/site/MoreFromEveryKit";
+import { SignatureMaker } from "@/components/sign/SignatureMaker";
+import { getTool, tools } from "@/data/tools";
+import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+
+const tool = getTool("draw")!;
+
+export const metadata: Metadata = {
+  title: { absolute: `${SITE_NAME}, draw or type your signature` },
+  description: tool.description,
+  alternates: { canonical: absoluteUrl("/") },
+};
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: tool.faq.map((entry) => ({
+    "@type": "Question",
+    name: entry.q,
+    acceptedAnswer: { "@type": "Answer", text: entry.a },
+  })),
+};
+
+const appJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: SITE_NAME,
+  url: SITE_URL,
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Any",
+  description:
+    "Browser-based signature maker and PDF signer. Nothing is uploaded.",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+};
+
+
+export default function Page() {
+  const others = tools.filter((other) => other.slug !== tool.slug);
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(appJsonLd) }}
+      />
+
+      <ToolSwitcher current="draw" />
+
+      <div className="ek-shell py-10 sm:py-12">
+        <h1 className="text-[30px] leading-tight sm:text-[34px]">Make your signature</h1>
+        {tool.intro.map((paragraph) => (
+          <p key={paragraph} className="mt-3 max-w-[60ch] text-[16px] text-text-light">
+            {paragraph}
+          </p>
+        ))}
+
+        <div className="mt-8">
+          <SignatureMaker mode="draw" />
+        </div>
+
+        <section className="mt-14 max-w-[820px]">
+          <h2 className="text-[22px]">Questions</h2>
+          <dl className="mt-5 flex flex-col gap-5">
+            {tool.faq.map((entry) => (
+              <div key={entry.q}>
+                <dt className="text-[16px] font-semibold">{entry.q}</dt>
+                <dd className="mt-1 max-w-[64ch] text-[15px] text-text-light">{entry.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="text-[18px]">Also here</h2>
+          <ul className="mt-3 flex flex-col gap-1">
+            {others.map((other) => (
+              <li key={other.slug}>
+                <Link
+                  href={other.href}
+                  className="inline-block py-1.5 text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
+                >
+                  {other.title}
+                  <span className="text-text-light">, {other.blurb.toLowerCase()}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <MoreFromEveryKit />
+      </div>
+    </>
+  );
+}

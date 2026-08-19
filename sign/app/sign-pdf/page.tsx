@@ -1,0 +1,83 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ToolSwitcher } from "@/components/site/ToolSwitcher";
+import { SignPage } from "@/components/sign/SignPage";
+import { getTool, tools } from "@/data/tools";
+import { absoluteUrl } from "@/lib/site";
+
+const tool = getTool("sign-pdf")!;
+
+export const metadata: Metadata = {
+  title: tool.seoTitle,
+  description: tool.description,
+  alternates: { canonical: absoluteUrl("/sign-pdf") },
+};
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: tool.faq.map((entry) => ({
+    "@type": "Question",
+    name: entry.q,
+    acceptedAnswer: { "@type": "Answer", text: entry.a },
+  })),
+};
+
+
+export default function Page() {
+  const others = tools.filter((other) => other.slug !== tool.slug);
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+
+      <ToolSwitcher current="sign-pdf" />
+
+      <div className="ek-shell py-10 sm:py-12">
+        <h1 className="text-[30px] leading-tight sm:text-[34px]">Sign a PDF</h1>
+        {tool.intro.map((paragraph) => (
+          <p key={paragraph} className="mt-3 max-w-[60ch] text-[16px] text-text-light">
+            {paragraph}
+          </p>
+        ))}
+
+        <div className="mt-8">
+          <SignPage />
+        </div>
+
+        <section className="mt-14 max-w-[820px]">
+          <h2 className="text-[22px]">Questions</h2>
+          <dl className="mt-5 flex flex-col gap-5">
+            {tool.faq.map((entry) => (
+              <div key={entry.q}>
+                <dt className="text-[16px] font-semibold">{entry.q}</dt>
+                <dd className="mt-1 max-w-[64ch] text-[15px] text-text-light">{entry.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="text-[18px]">Also here</h2>
+          <ul className="mt-3 flex flex-col gap-1">
+            {others.map((other) => (
+              <li key={other.slug}>
+                <Link
+                  href={other.href}
+                  className="inline-block py-1.5 text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
+                >
+                  {other.title}
+                  <span className="text-text-light">, {other.blurb.toLowerCase()}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+      </div>
+    </>
+  );
+}

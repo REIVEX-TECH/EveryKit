@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="EveryKit Sign">
+  <!-- A signature stroke across a page, with the pen that made it. -->
+  <path d="M10 8h20l8 8v24a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z" fill="#1d81f2" opacity="0.18"/>
+  <path d="M30 8l8 8h-8z" fill="#1d81f2" opacity="0.35"/>
+  <path d="M13 32c4-7 7-11 9-11s1 8 4 8 4-6 8-9" fill="none" stroke="#1d81f2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M31 37l8-8 3 3-8 8-4 1z" fill="#ff8a4c"/>
+</svg>

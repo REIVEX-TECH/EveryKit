@@ -116,5 +116,8 @@ module.exports = {
     app("everykit-text", "text", 3020, {
       NEXT_PUBLIC_SITE_URL: "https://text.useeverykit.com",
     }),
+    app("everykit-sign", "sign", 3016, {
+      NEXT_PUBLIC_SITE_URL: "https://sign.useeverykit.com",
+    }),
   ],
 };
