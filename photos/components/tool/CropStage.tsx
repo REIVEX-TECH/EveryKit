@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Minus, Plus, RotateCcw } from "lucide-react";
 import { clamp, type CropRect, type ImageSize } from "@/lib/imaging/cropMath";
+import { stageLayout } from "@/lib/imaging/stageLayout";
 import type { PhotoSpec } from "@/data/specs";
 import { SpecOverlay } from "./SpecOverlay";
 
@@ -69,21 +70,16 @@ export function CropStage({
 
   const aspect = spec.widthMm / spec.heightMm;
 
-  // The crop window, sized to fit the stage while keeping the spec's shape.
-  const windowSize = useMemo(() => {
-    if (stageWidth === 0) return { width: 0, height: 0 };
-    let height = STAGE_HEIGHT * WINDOW_FILL;
-    let width = height * aspect;
-    const maxWidth = stageWidth * WINDOW_FILL;
-    if (width > maxWidth) {
-      width = maxWidth;
-      height = width / aspect;
-    }
-    return { width, height };
-  }, [stageWidth, aspect]);
-
-  /** Screen pixels per source pixel. */
-  const k = windowSize.width > 0 ? windowSize.width / rect.width : 0;
+  /*
+   * The geometry comes from `stageLayout`, which is a pure function so a test
+   * can assert the region these layers actually show is the region the renderer
+   * exports. Keeping the maths inline here is what made that untestable.
+   */
+  const layout = useMemo(
+    () => stageLayout(rect, sourceSize, aspect, stageWidth, STAGE_HEIGHT, WINDOW_FILL),
+    [rect, sourceSize, aspect, stageWidth],
+  );
+  const windowSize = { width: layout.windowWidth, height: layout.windowHeight };
 
   /** Smallest and largest the crop window may get, in source pixels. */
   const rectBounds = useMemo(() => {
@@ -214,10 +210,7 @@ export function CropStage({
   }, [zoomBy]);
 
   // Image position, in screen pixels, for the two layers below.
-  const displayWidth = sourceSize.width * k;
-  const displayHeight = sourceSize.height * k;
-  const originX = (stageWidth - windowSize.width) / 2 - rect.x * k;
-  const originY = (STAGE_HEIGHT - windowSize.height) / 2 - rect.y * k;
+  const { displayWidth, displayHeight, originX, originY } = layout;
 
   // 100 is the whole photo in frame; higher is closer in.
   const minZoom = 100;
@@ -266,8 +259,8 @@ export function CropStage({
             <div
               style={{
                 position: "absolute",
-                left: (stageWidth - windowSize.width) / 2,
-                top: (STAGE_HEIGHT - windowSize.height) / 2,
+                left: layout.windowLeft,
+                top: layout.windowTop,
                 width: windowSize.width,
                 height: windowSize.height,
                 overflow: "hidden",
@@ -280,8 +273,8 @@ export function CropStage({
                 draggable={false}
                 style={{
                   position: "absolute",
-                  left: -rect.x * k,
-                  top: -rect.y * k,
+                  left: originX - layout.windowLeft,
+                  top: originY - layout.windowTop,
                   width: displayWidth,
                   height: displayHeight,
                 }}
