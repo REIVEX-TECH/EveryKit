@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LandingPicker } from "@/components/pdf/LandingPicker";
 import { OnDeviceDiagram } from "@/components/pdf/OnDeviceDiagram";
+import { ToolSwitcher } from "@/components/site/ToolSwitcher";
 import { tools } from "@/data/tools";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
@@ -34,6 +35,8 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      <ToolSwitcher current={null} />
 
       <div className="ek-shell py-10 sm:py-14">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)] lg:items-start lg:gap-12">

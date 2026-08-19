@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { QrWorkbench } from "@/components/qr/QrWorkbench";
+import { ToolSwitcher } from "@/components/site/ToolSwitcher";
 import { kinds } from "@/data/kinds";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
@@ -31,6 +32,8 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      <ToolSwitcher current="url" />
 
       <div className="ek-shell py-10 sm:py-14">
         <h1 className="max-w-[20ch] text-[32px] leading-tight sm:text-[38px]">

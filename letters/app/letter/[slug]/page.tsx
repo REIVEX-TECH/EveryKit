@@ -71,7 +71,19 @@ export default async function LetterPage({ params }: { params: Promise<Params> }
       />
 
       <div className="ek-shell py-12 sm:py-16">
-        <div className="max-w-[640px]">
+        {/*
+          Near the top on purpose. Most people reach a letter page from search,
+          so if it is the wrong kind of letter there is no back button to take
+          them to the list.
+        */}
+        <Link
+          href="/#types"
+          className="inline-flex min-h-[24px] items-center gap-1 text-[14px] text-primary no-underline hover:text-primary-dark hover:underline"
+        >
+          <span aria-hidden="true">←</span>Change letter type
+        </Link>
+
+        <div className="mt-6 max-w-[640px]">
           <h1 className="text-[32px] sm:text-[38px]">{type.title}</h1>
           <p className="mt-3 text-[17px] text-text-light">{type.whoItsFor}.</p>
           {type.seoNotes.map((note) => (

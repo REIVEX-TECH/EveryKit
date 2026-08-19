@@ -67,6 +67,18 @@ export default async function CountryPage({ params }: { params: Promise<Params> 
       />
 
       <div className="ek-shell py-12 sm:py-16">
+        {/*
+          Near the top on purpose. Someone who arrived here from search wanting
+          a different country has no back button to use, and the full list sits
+          a long way down the page.
+        */}
+        <a
+          href="#other-sizes"
+          className="inline-flex min-h-[24px] items-center gap-1 text-[14px] text-primary no-underline hover:text-primary-dark hover:underline"
+        >
+          All sizes<span aria-hidden="true">↓</span>
+        </a>
+
         <PhotoTool
           initialSlug={spec.slug}
           heading={`${specTitle(spec)} photo, made in your browser`}

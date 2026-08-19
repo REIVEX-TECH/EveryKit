@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Workbench } from "@/components/pdf/Workbench";
+import { ToolSwitcher } from "@/components/site/ToolSwitcher";
 import { getTool, tools } from "@/data/tools";
 import { absoluteUrl } from "@/lib/site";
 
@@ -55,6 +56,8 @@ export default async function ToolPage({ params }: Params) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
+
+      <ToolSwitcher current={tool.slug} />
 
       <div className="ek-shell max-w-[820px] py-10 sm:py-12">
         <h1 className="text-[30px] leading-tight sm:text-[34px]">{tool.title}</h1>

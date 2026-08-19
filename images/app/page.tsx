@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Workbench } from "@/components/images/Workbench";
+import { ToolSwitcher } from "@/components/site/ToolSwitcher";
 import { tools } from "@/data/tools";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
@@ -30,6 +31,8 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      <ToolSwitcher current="resize" />
 
       <div className="ek-shell py-10 sm:py-14">
         <h1 className="max-w-[22ch] text-[32px] leading-tight sm:text-[38px]">

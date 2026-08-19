@@ -52,7 +52,7 @@ export default function HomePage() {
               uploaded — it&apos;s built in your browser.
             </p>
 
-            <div className="mt-8">
+            <div id="types" className="mt-8 scroll-mt-8">
               <TypeGrid
                 types={letterTypes.map(({ slug, title, whoItsFor }) => ({
                   slug,

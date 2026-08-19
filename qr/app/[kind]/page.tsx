@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { QrWorkbench } from "@/components/qr/QrWorkbench";
+import { ToolSwitcher } from "@/components/site/ToolSwitcher";
 import { getKind, kinds } from "@/data/kinds";
 import { absoluteUrl } from "@/lib/site";
 
@@ -55,6 +56,8 @@ export default async function KindPage({ params }: Params) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
+
+      <ToolSwitcher current={kind.slug} />
 
       <div className="ek-shell py-10 sm:py-12">
         <h1 className="text-[30px] leading-tight sm:text-[34px]">{kind.title} QR code</h1>
