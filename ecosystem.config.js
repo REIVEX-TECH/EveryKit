@@ -107,5 +107,8 @@ module.exports = {
     app("everykit-qr", "qr", 3014, {
       NEXT_PUBLIC_SITE_URL: "https://qr.useeverykit.com",
     }),
+    app("everykit-images", "images", 3015, {
+      NEXT_PUBLIC_SITE_URL: "https://images.useeverykit.com",
+    }),
   ],
 };

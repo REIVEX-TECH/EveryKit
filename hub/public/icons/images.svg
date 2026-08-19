@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="EveryKit Images">
+  <!-- One picture behind another, at two sizes: the resize that is most of
+       what this kit does. -->
+  <rect x="4" y="10" width="26" height="22" rx="3" fill="#1d81f2" opacity="0.45"/>
+  <rect x="16" y="18" width="28" height="22" rx="3" fill="#1d81f2"/>
+  <circle cx="25" cy="26" r="3" fill="#ffffff"/>
+  <path d="M19 37l7-8 5.5 6 4-4L41 37v0a1 1 0 0 1-1 1H20a1 1 0 0 1-1-1z" fill="#ff8a4c"/>
+</svg>

@@ -73,6 +73,16 @@ export const kits: Kit[] = [
     icon: "/icons/qr.svg",
     outputAlt: "A QR code, with the three squares a scanner looks for at its corners",
   },
+  {
+    slug: "images",
+    name: "EveryKit Images",
+    tagline: "Resize, convert and clean up photos",
+    url: "https://images.useeverykit.com",
+    status: "live",
+    category: "photos",
+    icon: "/icons/images.svg",
+    outputAlt: "A large photo being reduced to a smaller one",
+  },
 ];
 
 /** Exactly the shape published at /kits.json, per the shared registry schema. */
