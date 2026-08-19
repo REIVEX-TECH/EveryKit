@@ -53,6 +53,16 @@ export const kits: Kit[] = [
     icon: "/icons/letters.svg",
     outputAlt: "A page of a formal letter",
   },
+  {
+    slug: "pdf",
+    name: "EveryKit PDF",
+    tagline: "Merge, split and shrink PDFs",
+    url: "https://pdf.useeverykit.com",
+    status: "live",
+    category: "documents",
+    icon: "/icons/pdf.svg",
+    outputAlt: "Two pages being combined into a single document",
+  },
 ];
 
 /** Exactly the shape published at /kits.json, per the shared registry schema. */
