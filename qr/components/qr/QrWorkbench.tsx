@@ -273,10 +273,6 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
                     gateFor();
                     setGateFor(null);
                   }}
-                  onCancel={() => {
-                    gateFor();
-                    setGateFor(null);
-                  }}
                 />
               ) : null}
 

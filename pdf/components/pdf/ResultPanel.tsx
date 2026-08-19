@@ -167,11 +167,6 @@ export function ResultPanel({ files, note, lockedReason, onStartOver }: Props) {
             gateFor.forEach(saveFile);
             setGateFor(null);
           }}
-          onCancel={() => {
-            // Skipping still hands over the file. It was always theirs.
-            gateFor.forEach(saveFile);
-            setGateFor(null);
-          }}
         />
       ) : null}
 

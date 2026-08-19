@@ -100,8 +100,7 @@ export default function HomePage() {
             </li>
             <li>
               It does not store your photo. Close the tab and the image is gone.
-              We do ask for your email before a download, which you can skip —
-              the{" "}
+              We do ask for your email before a download, once per session — the{" "}
               <Link href="/privacy" className="ek-link">
                 privacy page
               </Link>{" "}

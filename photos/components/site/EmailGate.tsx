@@ -4,21 +4,27 @@ import { useId, useState } from "react";
 import { hasGivenEmail, isValidEmail, rememberEmailGiven, submitEmail } from "@/lib/emailCapture";
 
 type Props = {
-  /** Runs once the gate is satisfied — or immediately, if it cannot be. */
+  /** Runs once a validly formatted address has been submitted. */
   onDone: () => void;
-  onCancel: () => void;
   /** What the user was about to do, so the button says something concrete. */
   actionLabel: string;
 };
 
 /**
- * Asked once, at the point someone takes their file.
+ * Asked once a session, at the point someone takes their file.
  *
- * "Skip" is a real button, not a dark pattern in disguise: the file is theirs
- * either way, and pretending otherwise would be a lie we would then have to
- * keep. The address is worth having only from people who meant to give it.
+ * There is no skip. An address that passes the format check has to be
+ * submitted before the action runs, and the submit button stays disabled until
+ * one is typed.
+ *
+ * The one thing that is not a bypass, and must never be removed: if the
+ * request to the hub fails or times out, the action still runs. That is in
+ * `submitEmail`, which resolves either way and never throws, with a 3s cap.
+ * The distinction is deliberate — the gate is a condition on the *user*, not on
+ * our server being up. Someone who typed their address has done their part, and
+ * an outage on our side must not cost them the file they made.
  */
-export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
+export function EmailGate({ onDone, actionLabel }: Props) {
   const [email, setEmail] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [busy, setBusy] = useState(false);
@@ -30,8 +36,8 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
     if (!valid || busy) return;
     setBusy(true);
     // Whatever comes back, the session is marked and the action proceeds. A
-    // failed request must not cost the user their download or show them an
-    // error about something that is not their problem.
+    // failed request must not cost the user their file or show them an error
+    // about something that is not their problem.
     await submitEmail(email, honeypot);
     rememberEmailGiven();
     setBusy(false);
@@ -44,8 +50,8 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
         Email
       </label>
       <p className="mt-1 text-[13px] text-text-light">
-        Where should we tell you about new kits? One email when a kit launches.
-        No spam.
+        An email address is needed to continue. One email when a kit launches —
+        nothing else, and we do not pass it on.
       </p>
 
       <div className="mt-3 flex flex-wrap gap-2">
@@ -54,6 +60,7 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
           type="email"
           inputMode="email"
           autoComplete="email"
+          required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="you@example.com"
@@ -76,22 +83,13 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
           onChange={(event) => setHoneypot(event.target.value)}
         />
       </div>
-
-      <button
-        type="button"
-        onClick={onCancel}
-        className="mt-3 text-[13px] text-text-light underline underline-offset-2 hover:text-primary-dark"
-      >
-        Skip and download anyway
-      </button>
     </form>
   );
 }
 
 /**
- * Wraps an action behind the gate. Returns the gate to render, or null when the
- * action should just run — which is the case once per session after the first
- * time, and always for anyone who skipped.
+ * Wraps an action behind the gate. Returns the gate to render, or runs the
+ * action straight away once an address has been given in this session.
  */
 export function useEmailGate() {
   const [pending, setPending] = useState<(() => void) | null>(null);
@@ -110,12 +108,5 @@ export function useEmailGate() {
     action?.();
   }
 
-  function skip(): void {
-    const action = pending;
-    setPending(null);
-    rememberEmailGiven();
-    action?.();
-  }
-
-  return { gateOpen: pending !== null, guard, complete, skip };
+  return { gateOpen: pending !== null, guard, complete };
 }

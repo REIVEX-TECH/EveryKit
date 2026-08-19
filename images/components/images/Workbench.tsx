@@ -295,7 +295,6 @@ export function Workbench({ tool }: { tool: ToolSlug }) {
             <EmailGate
               actionLabel="Save"
               onDone={() => { gateFor(); setGateFor(null); }}
-              onCancel={() => { gateFor(); setGateFor(null); }}
             />
           ) : null}
 

@@ -270,7 +270,7 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
       </div>
 
       {gate.gateOpen ? (
-        <EmailGate actionLabel="Download" onDone={gate.complete} onCancel={gate.skip} />
+        <EmailGate actionLabel="Download" onDone={gate.complete} />
       ) : null}
 
       <p aria-live="polite" className="mt-2 min-h-[20px] text-[13px] text-text-light">

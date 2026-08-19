@@ -38,9 +38,10 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-[19px] text-foreground">Your email address</h2>
           <p className="mt-2">
-            The kits ask for an email address before you download what you made.
-            It is optional — every kit has a skip link, and the file is the same
-            whether you give it or not.
+            The kits ask for an email address before you download what you made,
+            and it is required — there is no skip link. You are asked once per
+            session in a kit; after that, the downloads in that session go
+            straight through.
           </p>
           <p className="mt-2">
             If you do give it, we keep one row: the address, which kit you were
