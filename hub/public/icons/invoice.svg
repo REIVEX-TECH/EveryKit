@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="EveryKit Invoice">
+  <!-- A billing document with a totals rule: the sum is the whole point. -->
+  <path d="M11 5h18l8 8v30a2 2 0 0 1-2 2H11a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" fill="#1d81f2"/>
+  <path d="M29 5l8 8h-8z" fill="#ff8a4c"/>
+  <rect x="15" y="19" width="10" height="2.4" rx="1.2" fill="#ffffff" opacity="0.85"/>
+  <rect x="15" y="25" width="16" height="2.4" rx="1.2" fill="#ffffff" opacity="0.85"/>
+  <rect x="15" y="31" width="16" height="1.4" rx="0.7" fill="#ffffff" opacity="0.55"/>
+  <rect x="21" y="35" width="10" height="3" rx="1.5" fill="#ff8a4c"/>
+</svg>

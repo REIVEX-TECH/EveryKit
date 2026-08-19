@@ -113,6 +113,16 @@ export const kits: Kit[] = [
     icon: "/icons/sign.svg",
     outputAlt: "A signature written across a document",
   },
+  {
+    slug: "invoice",
+    name: "EveryKit Invoice",
+    tagline: "A clean PDF invoice in two minutes",
+    url: "https://invoice.useeverykit.com",
+    status: "live",
+    category: "documents",
+    icon: "/icons/invoice.svg",
+    outputAlt: "An invoice with a totals block",
+  },
 ];
 
 /** Exactly the shape published at /kits.json, per the shared registry schema. */

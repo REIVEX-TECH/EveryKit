@@ -8,7 +8,7 @@
  * for, because a lead is worth less than a working tool.
  */
 
-import { HUB_URL } from "./site";
+import { HUB_URL, KIT_SLUG } from "./site";
 
 /** Asked once per session, then never again in that tab. */
 const SESSION_KEY = "ek_email_given";
@@ -16,8 +16,14 @@ const SESSION_KEY = "ek_email_given";
 /** Past this the request is abandoned and the download proceeds. */
 const TIMEOUT_MS = 3000;
 
-/** Which kit this is, recorded so the hub knows what brought someone in. */
-const KIT = "pdf";
+/**
+ * Which kit this is, recorded so the hub knows what brought someone in.
+ *
+ * Taken from KIT_SLUG rather than written out again. Four kits shipped with a
+ * copied literal still saying "pdf", which quietly filed their signups under
+ * the wrong kit, and a second copy of a value is the only way that happens.
+ */
+const KIT = KIT_SLUG;
 
 export const MAX_EMAIL_LENGTH = 254;
 

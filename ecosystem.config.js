@@ -119,5 +119,8 @@ module.exports = {
     app("everykit-sign", "sign", 3016, {
       NEXT_PUBLIC_SITE_URL: "https://sign.useeverykit.com",
     }),
+    app("everykit-invoice", "invoice", 3017, {
+      NEXT_PUBLIC_SITE_URL: "https://invoice.useeverykit.com",
+    }),
   ],
 };
