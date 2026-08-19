@@ -273,6 +273,8 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
                     gateFor();
                     setGateFor(null);
                   }}
+                  // Dismissed: the code is not saved. A cancel, not a skip.
+                  onCancel={() => setGateFor(null)}
                 />
               ) : null}
 

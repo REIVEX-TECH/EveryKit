@@ -143,7 +143,7 @@ export function ExportPanel({ doc, slug, isoDate }: Props) {
       </div>
 
       {gate.gateOpen ? (
-        <EmailGate actionLabel="Continue" onDone={gate.complete} />
+        <EmailGate actionLabel="Continue" onDone={gate.complete} onCancel={gate.cancel} />
       ) : null}
 
       {PAYMENTS_ENABLED && !unlocked ? (

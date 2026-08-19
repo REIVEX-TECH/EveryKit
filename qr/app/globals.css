@@ -85,6 +85,38 @@
     border-radius: var(--radius-card);
   }
 
+  /*
+   * The email dialog. A native <dialog>, so the focus trap, the Escape key and
+   * the focus restore come from the browser rather than from us.
+   *
+   * The element defaults to a fit-content box pinned to the top of the viewport,
+   * so it has to be centred by hand. The margin:auto pair does that in the top
+   * layer without any transform, which keeps the text crisp.
+   */
+  .ek-dialog {
+    /*
+     * Sized against the containing block rather than vw/dvh. For a top-layer
+     * dialog that block is the viewport, and unlike the viewport units it is
+     * the same box the auto margins centre within. On a phone the two can
+     * differ, and a 100vw-based width overflowed the right edge by a few
+     * pixels because it was wider than the box it was being centred in.
+     */
+    width: calc(100% - 32px);
+    max-width: 26rem;
+    max-height: calc(100% - 32px);
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    background: var(--color-background);
+    color: var(--color-foreground);
+    box-shadow: 0 10px 30px rgb(15 23 42 / 0.12);
+  }
+
+  .ek-dialog::backdrop {
+    background: rgb(15 23 42 / 0.45);
+  }
+
   /* Buttons are pills and carry no shadow. */
   .ek-btn {
     display: inline-flex;

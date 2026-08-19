@@ -167,6 +167,8 @@ export function ResultPanel({ files, note, lockedReason, onStartOver }: Props) {
             gateFor.forEach(saveFile);
             setGateFor(null);
           }}
+          // Dismissed: the files are not saved. This is a cancel, not a skip.
+          onCancel={() => setGateFor(null)}
         />
       ) : null}
 

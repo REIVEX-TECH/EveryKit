@@ -295,6 +295,8 @@ export function Workbench({ tool }: { tool: ToolSlug }) {
             <EmailGate
               actionLabel="Save"
               onDone={() => { gateFor(); setGateFor(null); }}
+              // Dismissed: nothing is saved. A cancel, not a skip.
+              onCancel={() => setGateFor(null)}
             />
           ) : null}
 
