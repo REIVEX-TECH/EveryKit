@@ -36,7 +36,7 @@ export function ComplianceList({ checks, confirmed, onConfirmChange }: Props) {
       <section>
         <h3 className="text-[15px] font-semibold text-foreground">What you need to confirm</h3>
         <p className="mt-1 text-[13px] text-text-light">
-          We can&apos;t check these for you — the embassy can.
+          We can&apos;t check these for you, but the embassy can.
         </p>
         <ul className="mt-4 space-y-3">
           {SELF_CONFIRM_ITEMS.map((item) => (

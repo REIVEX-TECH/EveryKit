@@ -206,7 +206,7 @@ export function buildWhatsApp(input: WhatsAppInput): Result<string> {
     return fail("A phone number can only contain digits, spaces, brackets, + and -.");
   }
   if (digits.startsWith("0")) {
-    return fail("Start with the country code rather than a 0 — 44 rather than 044.");
+    return fail("Start with the country code rather than a 0, so 44 rather than 044.");
   }
   if (digits.length < 8 || digits.length > 15) {
     return fail("That is not a full international number. Include the country code.");

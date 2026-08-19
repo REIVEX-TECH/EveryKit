@@ -41,7 +41,7 @@ export function MoreFromEveryKit() {
               <div className="ek-card block bg-bg-soft p-4">
                 <p className="text-[15px] font-semibold text-text-light">
                   {kit.name}{" "}
-                  <span className="font-normal text-text-light">— coming soon</span>
+                  <span className="font-normal text-text-light">(coming soon)</span>
                 </p>
                 <p className="mt-1 text-[14px] text-text-light">{kit.tagline}</p>
               </div>

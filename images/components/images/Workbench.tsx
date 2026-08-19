@@ -231,7 +231,7 @@ export function Workbench({ tool }: { tool: ToolSlug }) {
           className="ek-btn ek-btn-accent disabled:cursor-not-allowed disabled:opacity-50"
         >
           {status === "working"
-            ? `Working — ${progress} of ${files.length}`
+            ? `Working, ${progress} of ${files.length}`
             : labelFor(tool, files.length)}
         </button>
         {status === "working" && files.length > MANY ? (
@@ -340,7 +340,7 @@ function Settings(props: {
     return (
       <p className="max-w-[60ch] text-[14px] text-text-light">
         There is nothing to set. The metadata comes out and the picture is copied through
-        untouched — no quality setting, because nothing is re-compressed.
+        untouched. There is no quality setting, because nothing is re-compressed.
       </p>
     );
   }
@@ -443,9 +443,9 @@ function Settings(props: {
             onChange={(event) => props.setFormat(event.target.value as OutputFormat)}
             className="mt-2 w-full rounded-[10px] border border-line bg-background px-3 py-2 text-[15px] outline-none focus:border-primary sm:w-auto"
           >
-            <option value="image/jpeg">JPG — photographs</option>
-            <option value="image/png">PNG — screenshots, transparency</option>
-            <option value="image/webp">WebP — smallest</option>
+            <option value="image/jpeg">JPG, for photographs</option>
+            <option value="image/png">PNG, for screenshots and transparency</option>
+            <option value="image/webp">WebP, the smallest</option>
           </select>
           {props.format === "image/png" ? (
             <p className="mt-2 max-w-[56ch] text-[13px] text-text-light">
@@ -460,7 +460,7 @@ function Settings(props: {
       {props.format !== "image/png" ? (
         <div>
           <label htmlFor="quality" className="block text-[14px] font-semibold">
-            Quality — {props.quality}
+            Quality: {props.quality}
           </label>
           <input
             id="quality"

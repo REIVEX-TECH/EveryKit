@@ -117,7 +117,7 @@ function FormField({
       <label htmlFor={id} className="text-[14px] text-foreground">
         {field.label}
         {field.required ? null : (
-          <span className="text-text-light"> — optional</span>
+          <span className="text-text-light"> (optional)</span>
         )}
       </label>
       {field.help ? (

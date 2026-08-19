@@ -5,7 +5,7 @@ import { CATEGORIES, kits } from "@/data/kits";
 import { PARENT_NAME, PARENT_URL, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `${SITE_NAME} — small tools for everyday problems`,
+  title: `${SITE_NAME}: small tools for everyday problems`,
   description:
     "Small single-purpose web tools that do one everyday job in about a minute: passport photos, formal letters. Files are processed in your browser and never uploaded.",
   alternates: { canonical: absoluteUrl("/") },

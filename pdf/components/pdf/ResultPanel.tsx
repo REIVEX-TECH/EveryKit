@@ -92,7 +92,7 @@ export function ResultPanel({ files, note, lockedReason, onStartOver }: Props) {
 
       {lockedReason && !PAYMENTS_ENABLED ? (
         <p className="mt-3 inline-block rounded-full bg-bg-soft px-3 py-1 text-[12px] text-text-light">
-          launch week — free
+          launch week, free
         </p>
       ) : null}
 

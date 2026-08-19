@@ -29,9 +29,9 @@ export const landlordRepairRequest: LetterType = {
     { id: "detail", label: "What exactly is wrong", type: "textarea", required: true, rows: 4, group: "The problem", help: "What it does, what you have tried, and how it affects living there." },
     { id: "since", label: "When it started", type: "date", required: true, group: "The problem" },
     { id: "severity", label: "How bad is it", type: "select", required: true, group: "The problem", options: [
-      { value: "urgent", label: "Urgent — no heating, water or power, or a safety risk" },
-      { value: "significant", label: "Significant — it affects daily living" },
-      { value: "minor", label: "Minor — it should be fixed but can wait" },
+      { value: "urgent", label: "Urgent: no heating, water or power, or a safety risk" },
+      { value: "significant", label: "Significant: it affects daily living" },
+      { value: "minor", label: "Minor: it should be fixed but can wait" },
     ] },
     { id: "reportedBefore", label: "I have reported this before", type: "checkbox", group: "The problem" },
     { id: "reportDetail", label: "When and how you reported it", type: "textarea", rows: 2, group: "The problem", help: "Dates and who you told. This is the part that matters if it escalates." },
@@ -65,7 +65,7 @@ export const landlordRepairRequest: LetterType = {
       sender: compact([clean(v.tenantName), ...clean(v.propertyAddress).split("\n")]),
       recipient: compact(clean(v.landlordBlock).split("\n")),
       date: formatDate(ctx.today, ctx.dateFormat),
-      subject: `Repair required at ${firstLine} — ${clean(v.issue)}`,
+      subject: `Repair required at ${firstLine}: ${clean(v.issue)}`,
       salutation,
       body: compact([
         paragraph(
@@ -115,7 +115,7 @@ export const landlordRepairRequest: LetterType = {
   },
   faq: [
     { q: "Why put a repair request in writing?", a: "Because a verbal report leaves no trace. If the repair drags on and you end up at a council, a deposit scheme or a tribunal, the first question asked is when you reported it, and a dated letter answers it." },
-    { q: "How long does a landlord have to fix something?", a: "It varies by country and by how serious the fault is. Genuine emergencies — no heat, no water, no power, anything unsafe — are measured in days. Set a date in the letter rather than leaving it open." },
+    { q: "How long does a landlord have to fix something?", a: "It varies by country and by how serious the fault is. Genuine emergencies, meaning no heat, no water, no power or anything unsafe, are measured in days. Set a date in the letter rather than leaving it open." },
     { q: "Can I withhold rent until it is fixed?", a: "Usually a bad idea. In many places it puts you in breach and at risk of eviction even when the landlord is in the wrong. Take advice before withholding anything." },
     { q: "What if they still do nothing?", a: "Escalate to whoever regulates housing where you live, often a council's environmental health team. Name that step in the letter only if you intend to take it." },
     { q: "Email or post?", a: "Email is fine and timestamps itself. For anything serious, post a copy as well with proof of delivery." },
@@ -193,7 +193,7 @@ export const noticeToVacate: LetterType = {
       sender: compact([clean(v.tenantName), ...clean(v.propertyAddress).split("\n")]),
       recipient: compact(clean(v.landlordBlock).split("\n")),
       date: formatDate(clean(v.noticeDate) || ctx.today, ctx.dateFormat),
-      subject: `Notice to end tenancy — ${firstLine}`,
+      subject: `Notice to end tenancy at ${firstLine}`,
       salutation,
       body: compact([
         paragraph(

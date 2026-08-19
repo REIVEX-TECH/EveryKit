@@ -130,9 +130,24 @@ describe.each(letterTypes.map((type) => [type.slug, type] as const))(
         const text = renderText(type.build(type.example, ctx(tone))).toLowerCase();
         for (const word of [
           "seamless", "empower", "unlock", "leverage", "supercharge", "simply",
+          "effortless", "elevate", "streamline",
+          "whether you're", "whether you’re", "in today's", "in today’s",
+          "say goodbye to",
         ]) {
           expect([type.slug, word, text.includes(word)]).toEqual([type.slug, word, false]);
         }
+      });
+
+      it("uses no dash as punctuation", () => {
+        // The single clearest tell of generated prose, and a letter is the one
+        // thing here that gets read by a stranger deciding whether to act on it.
+        // Hyphens inside words are fine; an em or en dash never is.
+        const text = renderText(type.build(type.example, ctx(tone)));
+        const dashes = [...text].filter((c) => c === "—" || c === "–");
+        expect([type.slug, dashes]).toEqual([type.slug, []]);
+
+        // A hyphen with spaces round it is a dash wearing a disguise.
+        expect([type.slug, / - /.test(text)]).toEqual([type.slug, false]);
       });
 
       it("does not grovel or play at legalese", () => {

@@ -3,7 +3,7 @@ import { SITE_NAME } from "@/lib/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${SITE_NAME} — merge, split and shrink PDFs`,
+    name: `${SITE_NAME}: merge, split and shrink PDFs`,
     short_name: SITE_NAME,
     description:
       "Merge, split, reorder and compress PDFs. Runs in your browser, so the file is never uploaded.",

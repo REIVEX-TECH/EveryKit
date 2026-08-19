@@ -214,7 +214,7 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
           const after = out[0].length;
           setNote(
             [
-              `${formatBytes(before)} before, ${formatBytes(after)} after — ${describeChange(before, after)}.`,
+              `${formatBytes(before)} before, ${formatBytes(after)} after, ${describeChange(before, after)}.`,
               workerNote,
             ]
               .filter(Boolean)

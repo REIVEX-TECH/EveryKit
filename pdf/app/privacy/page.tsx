@@ -46,7 +46,7 @@ export default function PrivacyPage() {
             Two requests do go to useeverykit.com. One reads the list of other kits, to show
             the strip at the end. The other sends your email address, but only if you type
             one in. Both are limited by a content security policy that names every host this
-            page is allowed to contact — a list your files are not on, and could not be
+            page is allowed to contact. Your files are not on that list, and could not be
             added to without changing this page too.
           </p>
         </section>
@@ -54,8 +54,8 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-[19px] text-foreground">Your email address</h2>
           <p className="mt-2">
-            Before a download we ask for your email address, and it is required —
-            there is no skip link. You are asked once per session; after that the
+            Before a download we ask for your email address, and it is required.
+            There is no skip link. You are asked once per session; after that the
             downloads in that session go straight through.
           </p>
           <p className="mt-2">

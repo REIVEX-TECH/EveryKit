@@ -7,7 +7,7 @@ import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   // Absolute, so the layout template does not append the site name twice.
-  title: { absolute: `${SITE_NAME} — QR codes that never expire` },
+  title: { absolute: `${SITE_NAME}: QR codes that never expire` },
   description:
     "Make a QR code for a link, Wi-Fi, contact details or WhatsApp. No account, no expiry, no short link in the middle, and nothing you type is uploaded.",
   alternates: { canonical: absoluteUrl("/") },
@@ -78,8 +78,8 @@ export default function Home() {
           </p>
           <p className="mt-3 text-[16px] text-text-light">
             These codes hold your information directly. The trade is honest and worth stating:
-            you cannot change where one points after it is printed, and nobody — including us —
-            can tell you how many times it was scanned. In exchange it keeps working whatever
+            you cannot change where one points after it is printed, and nobody,
+            including us, can tell you how many times it was scanned. In exchange it keeps working whatever
             happens to this site.
           </p>
         </section>

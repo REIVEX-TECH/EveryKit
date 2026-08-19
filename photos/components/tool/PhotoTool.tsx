@@ -274,11 +274,11 @@ export function PhotoTool({ initialSlug, heading, intro, example }: Props) {
     failing.length === 1
       ? // One failure: say which check, and what it actually measured. The
         // detail on its own reads as a bare number with no subject.
-        `${failing[0].label} — ${failing[0].detail ?? "is failing."} You can still download.`
+        `${failing[0].label}. ${failing[0].detail ?? "This check is failing."} You can still download.`
       : failing.length > 1
         ? // Several: name them, and leave the numbers to the list below rather
           // than stacking four sentences of measurements into one paragraph.
-          `${failing.map((check) => check.label.toLowerCase()).join(", ")} — these are failing. You can still download.`
+          `These checks are failing: ${failing.map((check) => check.label.toLowerCase()).join(", ")}. You can still download.`
         : unconfirmed.length > 0
           ? "Tick the four things only you can confirm before you send this off."
           : null;

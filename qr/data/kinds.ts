@@ -22,7 +22,7 @@ export type Kind = {
 const SHARED_FAQ: Faq[] = [
   {
     q: "Do the codes expire?",
-    a: "No. The code contains your information directly — there is no short link in the middle that could stop working, no account behind it, and nothing to renew. A code made here works in ten years exactly as it does today, because nothing has to still be running for it to.",
+    a: "No. The code contains your information directly. There is no short link in the middle that could stop working, no account behind it, and nothing to renew. A code made here works in ten years exactly as it does today, because nothing has to still be running for it to.",
   },
   {
     q: "Is anything I type sent anywhere?",
@@ -35,7 +35,7 @@ export const kinds: Kind[] = [
     slug: "url",
     title: "Link",
     blurb: "Point a phone camera at a web address",
-    seoTitle: "QR code generator for a link — free, no expiry, no account",
+    seoTitle: "QR code generator for a link, with no expiry and no account",
     description:
       "Make a QR code for any web address. Free, permanent, no account, and nothing you type is uploaded.",
     intro: [
@@ -46,14 +46,14 @@ export const kinds: Kind[] = [
       ...SHARED_FAQ,
       { q: "Do I need to type https://?", a: "No. If you leave the scheme off, https is added for you, and the finished address is shown under the code so you can see exactly what was encoded." },
       { q: "Can I edit it later?", a: "Not this code, no. The address is inside the picture, so changing where it points means making a new one. That is the trade for a code that never expires." },
-      { q: "Which size should I download?", a: "The SVG for anything printed — it stays sharp at any size. The PNG for anything on a screen." },
+      { q: "Which size should I download?", a: "The SVG for anything printed, because it stays sharp at any size. The PNG for anything on a screen." },
     ],
   },
   {
     slug: "text",
     title: "Text",
     blurb: "Any words, shown when scanned",
-    seoTitle: "Text QR code generator — free, works offline once made",
+    seoTitle: "Text QR code generator, free, and it works offline once made",
     description:
       "Put plain text in a QR code: a note, a serial number, a code. Made in your browser and never uploaded.",
     intro: [
@@ -70,7 +70,7 @@ export const kinds: Kind[] = [
     slug: "wifi",
     title: "Wi-Fi",
     blurb: "Join a network without reading out the password",
-    seoTitle: "Wi-Fi QR code generator — join a network by scanning",
+    seoTitle: "Wi-Fi QR code generator, so guests join by scanning",
     description:
       "Make a QR code that connects a phone to your Wi-Fi. Handles passwords with punctuation correctly. Nothing is uploaded.",
     intro: [
@@ -80,8 +80,8 @@ export const kinds: Kind[] = [
     faq: [
       ...SHARED_FAQ,
       { q: "Does it work on iPhone and Android?", a: "Yes. Both have read this format in the camera app for years. On iPhone the prompt appears at the top of the screen; on Android it usually appears as a notification or straight in the camera view." },
-      { q: "My password has punctuation in it — is that a problem?", a: "Not here. Semicolons, colons, commas, quotes and backslashes all have to be escaped in this format, and skipping that is the most common bug in Wi-Fi QR tools: the code scans, then the phone tries to join with only the first part of the password. This escapes all of them, and there are tests that decode the finished code to confirm the password survives." },
-      { q: "Should I pick WPA or WEP?", a: "WPA, unless the network is genuinely old — WPA covers WPA, WPA2 and WPA3. WEP is only for equipment from before about 2006." },
+      { q: "My password has punctuation in it. Is that a problem?", a: "Not here. Semicolons, colons, commas, quotes and backslashes all have to be escaped in this format, and skipping that is the most common bug in Wi-Fi QR tools: the code scans, then the phone tries to join with only the first part of the password. This escapes all of them, and there are tests that decode the finished code to confirm the password survives." },
+      { q: "Should I pick WPA or WEP?", a: "WPA, unless the network is genuinely old. WPA covers WPA, WPA2 and WPA3. WEP is only for equipment from before about 2006." },
       { q: "What does hidden mean?", a: "Tick it if the network does not appear in the list of nearby networks. Ticking it for a normal network can stop the code from working, so leave it off unless you know it applies." },
     ],
   },
@@ -89,7 +89,7 @@ export const kinds: Kind[] = [
     slug: "vcard",
     title: "Contact card",
     blurb: "Save your details to someone's phone",
-    seoTitle: "vCard QR code generator — share contact details by scanning",
+    seoTitle: "vCard QR code generator, so people save your details by scanning",
     description:
       "Put your name, number and email in a QR code that saves straight to a phone's contacts. Made in your browser.",
     intro: [
@@ -107,7 +107,7 @@ export const kinds: Kind[] = [
     slug: "whatsapp",
     title: "WhatsApp",
     blurb: "Open a chat, optionally with a message ready",
-    seoTitle: "WhatsApp QR code generator — open a chat by scanning",
+    seoTitle: "WhatsApp QR code generator, so people open a chat by scanning",
     description:
       "Make a QR code that opens a WhatsApp chat with your number, with an optional message already typed. Nothing is uploaded.",
     intro: [
@@ -116,7 +116,7 @@ export const kinds: Kind[] = [
     ],
     faq: [
       ...SHARED_FAQ,
-      { q: "How do I write the number?", a: "Country code first, then the number without the leading zero. A London number written 020 7946 0000 becomes 44 20 7946 0000. Spaces, brackets, + and dashes are fine — they are stripped for you." },
+      { q: "How do I write the number?", a: "Country code first, then the number without the leading zero. A London number written 020 7946 0000 becomes 44 20 7946 0000. Spaces, brackets, + and dashes are fine, because they are stripped for you." },
       { q: "Does the person need to have my number saved?", a: "No. That is the point of it: scanning opens a chat with you whether or not they have you in their contacts." },
       { q: "Is this the same as WhatsApp's own code?", a: "No. WhatsApp's in-app code is tied to your account and changes when you reset it. This one is an ordinary link to your number, so it keeps working and can be printed." },
     ],

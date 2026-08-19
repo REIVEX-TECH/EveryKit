@@ -116,7 +116,7 @@ export async function runStrip(file: File): Promise<Done> {
     height: 0,
     // Not lower-cased: the names contain acronyms, and "removed exif ... often
     // gps" is what lower-casing a list of them produces.
-    note: `Removed: ${report.kinds.join(", ")}. The picture itself is untouched — not re-saved, not re-compressed.`,
+    note: `Removed: ${report.kinds.join(", ")}. The picture itself is untouched, not re-saved and not re-compressed.`,
   };
 }
 

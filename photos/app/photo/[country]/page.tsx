@@ -30,7 +30,7 @@ export async function generateMetadata({
   const spec = getSpec(country);
   if (!spec) return {};
 
-  const title = `${specTitle(spec)} photo online — ${specSizeLabel(spec)}, free preview`;
+  const title = `${specTitle(spec)} photo online, ${specSizeLabel(spec)}, free preview`;
   return {
     title,
     description: `Make a ${specTitle(spec)} photo from a selfie: ${specSizeLabel(spec)}, ${spec.pixelWidth} x ${spec.pixelHeight} pixels at ${spec.dpi} DPI. Cropped in your browser, never uploaded.`,
@@ -85,7 +85,7 @@ export default async function CountryPage({ params }: { params: Promise<Params> 
           intro={
             <>
               <p className="mt-4 text-[17px] text-text-light">
-                {specSizeLabel(spec)} — {spec.pixelWidth} x {spec.pixelHeight}{" "}
+                {specSizeLabel(spec)}, {spec.pixelWidth} x {spec.pixelHeight}{" "}
                 pixels at {spec.dpi} DPI, which is what {spec.country} asks for.
               </p>
               <p className="mt-3 text-[15px] text-text-light">

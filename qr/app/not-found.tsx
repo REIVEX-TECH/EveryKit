@@ -24,7 +24,7 @@ export default function NotFound() {
               className="inline-block py-1.5 text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
             >
               {kind.title}
-              <span className="text-text-light"> — {kind.blurb}</span>
+              <span className="block text-text-light">{kind.blurb}</span>
             </Link>
           </li>
         ))}

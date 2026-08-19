@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
+import { KIT_NAME } from "@/lib/site";
 
 export const alt =
-  "EveryKit PDF — two documents becoming one, with the whole operation drawn inside the outline of a single device";
+  "EveryKit PDF, two documents becoming one, with the whole operation drawn inside the outline of a single device";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -57,7 +58,7 @@ export default function OpengraphImage() {
           <span style={{ fontWeight: 600 }}>Every</span>
           <span style={{ fontWeight: 600, color: PRIMARY }}>Kit</span>
           <span style={{ color: LINE, margin: "0 14px" }}>|</span>
-          <span style={{ color: MUTED }}>PDF</span>
+          <span style={{ color: MUTED }}>{KIT_NAME}</span>
         </div>
 
         <div style={{ display: "flex", fontSize: 62, fontWeight: 600, color: TEXT, marginTop: 24 }}>

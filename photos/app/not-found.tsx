@@ -29,7 +29,7 @@ export default function NotFound() {
               className="inline-block py-1.5 text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
             >
               {specTitle(spec)}
-              <span className="text-text-light"> — {specSizeLabel(spec)}</span>
+              <span className="block text-text-light">{specSizeLabel(spec)}</span>
             </Link>
           </li>
         ))}

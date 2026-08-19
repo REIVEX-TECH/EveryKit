@@ -34,7 +34,7 @@ export default function PrivacyPage() {
           <h2 className="text-[19px] text-foreground">What does get requested</h2>
           <p className="mt-2">
             To be precise rather than merely reassuring: the tool downloads two
-            things the first time you use them — the face detection model, and,
+            things the first time you use them, the face detection model and,
             if you ask for a white background, the segmentation model. Those are
             ordinary file downloads from public CDNs. They carry no information
             about you and none of your image data goes with them. Your
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
           <h2 className="text-[19px] text-foreground">Your email address</h2>
           <p className="mt-2">
             Before a download we ask for your email address, and it is
-            required — there is no skip link. You are asked once per session;
+            required. There is no skip link. You are asked once per session,
             after that the downloads in that session go straight through.
           </p>
           <p className="mt-2">

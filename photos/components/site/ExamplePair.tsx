@@ -134,7 +134,7 @@ export function ExamplePair({ spec }: Props) {
             >
               {guides.isGeneric
                 ? "head"
-                : `${round(guides.headMinMm)}–${round(guides.headMaxMm)} mm`}
+                : `${round(guides.headMinMm)} to ${round(guides.headMaxMm)} mm`}
             </text>
 
             <rect

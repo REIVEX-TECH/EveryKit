@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "EveryKit Photos — a loose selfie beside the same face cropped to 2 by 2 inches with measurement guides";
+  "EveryKit Photos, a loose selfie beside the same face cropped to 2 by 2 inches with measurement guides";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -177,7 +177,7 @@ function Panel({
               color: GUIDE,
             }}
           >
-            25–35 mm
+            25 to 35 mm
           </div>
         </>
       ) : null}

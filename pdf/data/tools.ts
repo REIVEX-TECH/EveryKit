@@ -35,7 +35,7 @@ export type Tool = {
  */
 const UPLOAD_ANSWER: Faq = {
   q: "Are my files uploaded?",
-  a: "No. Everything happens inside your browser tab — the file is read from your disk, worked on in memory, and saved back to your disk. It is never sent to us or to anyone else, and there is no server here that could receive it. You can confirm it yourself: open your browser's developer tools, look at the Network tab, and run any tool. No request carries your file.",
+  a: "No. Everything happens inside your browser tab. The file is read from your disk, worked on in memory, and saved back to your disk. It is never sent to us or to anyone else, and there is no server here that could receive it. You can confirm it yourself: open your browser's developer tools, look at the Network tab, and run any tool. No request carries your file.",
 };
 
 export const tools: Tool[] = [
@@ -43,7 +43,7 @@ export const tools: Tool[] = [
     slug: "merge",
     title: "Merge PDFs",
     blurb: "Combine files into one, in the order you choose",
-    seoTitle: "Merge PDF files online — free, files never uploaded",
+    seoTitle: "Merge PDF files online, free, and never uploaded",
     description:
       "Combine PDFs into a single file, reordering them first. Runs entirely in your browser, so nothing is uploaded.",
     intro: [
@@ -54,7 +54,7 @@ export const tools: Tool[] = [
       UPLOAD_ANSWER,
       { q: "How many files can I merge?", a: "Twenty in one go, and up to 60 MB in total. Beyond that the browser starts to struggle with memory, so the tool says so rather than freezing." },
       { q: "Does the order matter?", a: "Yes, and you set it. Drag the files into the order you want before merging; the result follows that order exactly." },
-      { q: "Will it change the quality?", a: "No. Pages are copied across as they are — same text, same images, same resolution. Merging is not a re-encode." },
+      { q: "Will it change the quality?", a: "No. Pages are copied across as they are, with the same text, the same images and the same resolution. Merging is not a re-encode." },
       { q: "What about password-protected files?", a: "A file that needs a password to open cannot be read. Remove the password in your PDF reader first, then merge." },
     ],
     multiple: true,
@@ -64,11 +64,11 @@ export const tools: Tool[] = [
     slug: "split",
     title: "Split a PDF",
     blurb: "Cut one file into several, by page ranges",
-    seoTitle: "Split PDF by page range — free, files never uploaded",
+    seoTitle: "Split a PDF by page range, free, and never uploaded",
     description:
       "Split a PDF into separate files by page range, or pull every page into its own file. Runs in your browser; nothing is uploaded.",
     intro: [
-      "Type the ranges you want — 1-3, 4-6 gives you two files — or split every page into its own.",
+      "Type the ranges you want. Typing 1-3, 4-6 gives you two files. You can also split every page into its own file.",
       "Nothing is uploaded. The file is opened, cut and saved without leaving your device.",
     ],
     faq: [
@@ -85,7 +85,7 @@ export const tools: Tool[] = [
     slug: "extract",
     title: "Extract pages",
     blurb: "Pick the pages you want into a new PDF",
-    seoTitle: "Extract pages from a PDF — free, files never uploaded",
+    seoTitle: "Extract pages from a PDF, free, and never uploaded",
     description:
       "Select the pages you want and save them as a new PDF. Runs in your browser, so the file is never uploaded.",
     intro: [
@@ -105,12 +105,12 @@ export const tools: Tool[] = [
     slug: "organize",
     title: "Organise pages",
     blurb: "Reorder and rotate the pages of one file",
-    seoTitle: "Reorder and rotate PDF pages — free, files never uploaded",
+    seoTitle: "Reorder and rotate PDF pages, free, and never uploaded",
     description:
       "Drag pages into a new order and rotate the ones that came in sideways. Runs in your browser; nothing is uploaded.",
     intro: [
       "Drag pages into the order you want, turn the ones that scanned sideways, and remove any you do not need.",
-      "The rotation is written into the file, not just the preview — it opens the right way up everywhere.",
+      "The rotation is written into the file, not just the preview, so it opens the right way up everywhere.",
     ],
     faq: [
       UPLOAD_ANSWER,
@@ -125,7 +125,7 @@ export const tools: Tool[] = [
     slug: "images-to-pdf",
     title: "Images to PDF",
     blurb: "Turn photos into one PDF, in your order",
-    seoTitle: "Convert JPG and PNG images to PDF — free, files never uploaded",
+    seoTitle: "Convert JPG and PNG images to PDF, free, and never uploaded",
     description:
       "Turn JPG, PNG or WebP images into a single PDF at A4, Letter, or fitted to each image. Runs in your browser.",
     intro: [
@@ -135,7 +135,7 @@ export const tools: Tool[] = [
     faq: [
       UPLOAD_ANSWER,
       { q: "Which image formats work?", a: "JPG, PNG and WebP. WebP is converted to PNG first, since PDF has no native WebP support." },
-      { q: "Which page size should I pick?", a: "A4 or Letter if the result will be printed — each image is centred on a standard page. Fit-to-image if it will be read on a screen, which avoids white borders." },
+      { q: "Which page size should I pick?", a: "A4 or Letter if the result will be printed, with each image centred on a standard page. Fit-to-image if it will be read on a screen, which avoids white borders." },
       { q: "Are the images re-compressed?", a: "JPGs are embedded as they are, with no quality loss. PNGs are embedded losslessly. WebP is converted to PNG, which is also lossless." },
     ],
     multiple: true,
@@ -145,7 +145,7 @@ export const tools: Tool[] = [
     slug: "compress",
     title: "Compress a PDF",
     blurb: "Make a file smaller by re-encoding its images",
-    seoTitle: "Compress a PDF — free, files never uploaded",
+    seoTitle: "Compress a PDF, free, and never uploaded",
     description:
       "Shrink a PDF by re-encoding the images inside it. Shows the real before and after size. Runs in your browser.",
     intro: [

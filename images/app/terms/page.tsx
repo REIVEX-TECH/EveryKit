@@ -24,7 +24,7 @@ export default function TermsPage() {
             rather than only into the preview.
           </p>
           <p className="mt-2">
-            Your file is not uploaded. That is not a policy we could quietly change — there
+            Your file is not uploaded. That is not a policy we could quietly change, because there
             is no server here that receives documents.
           </p>
         </section>

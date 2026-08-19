@@ -128,7 +128,7 @@ export const complaintProductService: LetterType = {
       recipient: compact(clean(v.companyBlock).split("\n")),
       date: formatDate(ctx.today, ctx.dateFormat),
       subject: has(v.orderRef)
-        ? `Complaint regarding ${clean(v.item)} — order ${clean(v.orderRef)}`
+        ? `Complaint regarding ${clean(v.item)}, order ${clean(v.orderRef)}`
         : `Complaint regarding ${clean(v.item)}`,
       salutation,
       body: compact([
@@ -151,7 +151,7 @@ export const complaintProductService: LetterType = {
     { q: "What should a complaint letter include?", a: "What you bought and when, the order or account reference, what went wrong in plain facts, what you want done about it, and a date by which you want an answer. Everything else is padding." },
     { q: "Should I be angry in the letter?", a: "No. The person reading it did not build the product, and a letter that insults them gets handled slowly and grudgingly. Firm and specific gets better results than furious." },
     { q: "How long should I give them to respond?", a: "Fourteen days is the common expectation and is long enough to be reasonable. Say the date rather than the number of days, so there is nothing to argue about." },
-    { q: "What if they ignore it?", a: "Escalate to whatever body covers the trade — an ombudsman, a regulator, or your card issuer for a chargeback. Having written first, with a date, is usually a precondition for any of those." },
+    { q: "What if they ignore it?", a: "Escalate to whatever body covers the trade, such as an ombudsman, a regulator, or your card issuer for a chargeback. Having written first, with a date, is usually a precondition for any of those." },
     { q: "Email or letter?", a: "Either, but keep proof. Email gives you a timestamp; a posted letter sent with proof of delivery is stronger if the matter is likely to escalate." },
   ],
   example: {
@@ -224,7 +224,7 @@ export const refundRequest: LetterType = {
       recipient: compact(clean(v.companyBlock).split("\n")),
       date: formatDate(ctx.today, ctx.dateFormat),
       subject: has(v.orderRef)
-        ? `Refund of ${clean(v.amount)} — order ${clean(v.orderRef)}`
+        ? `Refund of ${clean(v.amount)}, order ${clean(v.orderRef)}`
         : `Refund of ${clean(v.amount)}`,
       salutation,
       body: compact([
@@ -283,7 +283,7 @@ export const refundRequest: LetterType = {
     { q: "How long does a company have to refund me?", a: "It depends where you are and what you bought. In much of Europe a trader has 14 days from accepting a cancellation. Rather than argue the law in the letter, name a date and say what you will do after it." },
     { q: "What if they keep saying it is processing?", a: "Ask for the date it was issued and the reference. A refund that has genuinely been sent has both, and your bank can trace it. One that has neither has not been sent." },
     { q: "Can my bank get the money back?", a: "Often, yes. Card payments can be disputed through chargeback, and in some countries larger purchases carry additional protection. Card issuers usually expect you to have asked the seller first." },
-    { q: "Should I threaten legal action?", a: "Only if you mean it. Name a concrete next step you will actually take — a chargeback, an ombudsman — because an empty threat weakens everything else in the letter." },
+    { q: "Should I threaten legal action?", a: "Only if you mean it. Name a concrete next step you will actually take, such as a chargeback or an ombudsman, because an empty threat weakens everything else in the letter." },
   ],
   example: {
     customerName: "Owen Pritchard",
@@ -413,7 +413,7 @@ export const bankTransactionDispute: LetterType = {
   },
   faq: [
     { q: "How quickly should I report an unrecognised charge?", a: "As soon as you see it. Protections for unauthorised transactions generally depend on prompt reporting, and some schemes set hard time limits measured from the statement date." },
-    { q: "Is it safe to put my account number in a letter?", a: "Use the last four digits, or the account number for a current account. Never send a full card number and never send the security code — no bank needs either to investigate." },
+    { q: "Is it safe to put my account number in a letter?", a: "Use the last four digits, or the account number for a current account. Never send a full card number and never send the security code. No bank needs either to investigate." },
     { q: "What is the difference between a dispute and a chargeback?", a: "A dispute is you telling the bank something is wrong. A chargeback is the mechanism the bank may use to claw the money back from the merchant's bank. You raise the first; the bank decides on the second." },
     { q: "Should I cancel the card?", a: "If the charge was unauthorised, yes, and say so in the letter. If it is a billing dispute with a merchant you do know, cancelling the card does not cancel the underlying agreement." },
     { q: "What if the bank rejects my dispute?", a: "Ask for the decision and the reason in writing, then take it to the relevant ombudsman or regulator. The written record is what makes that possible." },

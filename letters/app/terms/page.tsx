@@ -34,8 +34,8 @@ export default function TermsPage() {
             your situation.
           </p>
           <p className="mt-2">
-            Where money, a deadline or your housing is at stake — a notice
-            period, a dispute, an appeal — get advice as well. Use the letter to
+            Where money, a deadline or your housing is at stake, such as a notice
+            period, a dispute or an appeal, get advice as well. Use the letter to
             say the thing clearly, not to work out whether to say it.
           </p>
         </section>
@@ -45,7 +45,7 @@ export default function TermsPage() {
           <p className="mt-2">
             The letter is assembled from what you typed. If a date, a name or a
             reference is wrong in the form, it will be wrong in the letter.
-            Check those in particular — they are what actually goes wrong.
+            Check those in particular. They are what actually goes wrong.
           </p>
         </section>
 

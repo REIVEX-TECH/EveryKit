@@ -9,7 +9,7 @@ import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   // Absolute, so the layout template does not append the site name twice.
   title: {
-    absolute: `${SITE_NAME} — merge, split and shrink PDFs without uploading them`,
+    absolute: `${SITE_NAME}: merge, split and shrink PDFs without uploading them`,
   },
   description:
     "Merge, split, extract, reorder and compress PDFs, and turn images into one. Every file is opened on your own device and none of them are uploaded.",
@@ -46,7 +46,7 @@ export default function Home() {
             </h1>
             <p className="mt-3 max-w-[52ch] text-[17px] text-text-light">
               Merge, split, reorder or shrink a PDF in a few seconds. The file is opened by
-              your browser and stays on this device — there is no server here that could
+              your browser and stays on this device. There is no server here that could
               receive it.
             </p>
 

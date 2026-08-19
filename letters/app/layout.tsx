@@ -14,9 +14,9 @@ const plexSans = IBM_Plex_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: `${SITE_NAME} — ${SITE_TAGLINE.toLowerCase()}`, template: `%s | ${SITE_NAME}` },
+  title: { default: `${SITE_NAME}: ${SITE_TAGLINE.toLowerCase()}`, template: `%s | ${SITE_NAME}` },
   description:
-    "Fill a short form and get a properly written formal letter — visa invitations, resignations, complaints, notice to a landlord. Built in your browser.",
+    "Fill a short form and get a properly written formal letter: visa invitations, resignations, complaints, notice to a landlord. Built in your browser.",
   applicationName: SITE_NAME,
   openGraph: { type: "website", siteName: SITE_NAME, url: SITE_URL },
   twitter: { card: "summary_large_image" },

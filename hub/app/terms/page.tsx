@@ -45,9 +45,9 @@ export default function TermsPage() {
           <h2 className="text-[19px] text-foreground">Liability</h2>
           <p className="mt-2">
             These are small tools offered as is. We are not responsible for what
-            follows from using one — a rejected application, a missed deadline,
-            or the cost of starting again. If that risk does not suit your
-            situation, use a professional service.
+            follows from using one, such as a rejected application, a missed
+            deadline, or the cost of starting again. If that risk does not suit
+            your situation, use a professional service.
           </p>
         </section>
 

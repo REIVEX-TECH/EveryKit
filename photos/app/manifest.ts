@@ -3,7 +3,7 @@ import { SITE_NAME } from "@/lib/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${SITE_NAME} — passport and visa photos`,
+    name: `${SITE_NAME}: passport and visa photos`,
     short_name: SITE_NAME,
     description:
       "Crop a phone selfie to the exact passport or visa photo size your application asks for. Runs in your browser, so the photo is never uploaded.",

@@ -32,7 +32,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const type = getLetterType(slug);
   if (!type) return {};
-  const title = `${type.title} — free template and generator`;
+  const title = `${type.title}, free template and generator`;
   return {
     title,
     description: `${type.seoNotes[0]} Fill a short form and the letter writes itself, in your browser.`,

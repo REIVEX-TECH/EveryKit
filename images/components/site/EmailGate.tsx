@@ -50,7 +50,7 @@ export function EmailGate({ onDone, actionLabel }: Props) {
         Email
       </label>
       <p className="mt-1 text-[13px] text-text-light">
-        An email address is needed to continue. One email when a kit launches —
+        An email address is needed to continue. One email when a kit launches,
         nothing else, and we do not pass it on.
       </p>
 

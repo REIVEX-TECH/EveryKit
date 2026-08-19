@@ -5,9 +5,9 @@ import { letterTypes } from "@/data/letters";
 import { PARENT_NAME, PARENT_URL, SITE_NAME, absoluteUrl, hubUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `Formal letters, written for you — free templates | ${SITE_NAME}`,
+  title: `Formal letters, written for you, free templates | ${SITE_NAME}`,
   description:
-    "Fourteen formal letters — visa invitations, resignations, complaints, notice to a landlord — written properly from a short form. Built in your browser.",
+    "Fourteen formal letters, covering visa invitations, resignations, complaints and notice to a landlord, written properly from a short form. Built in your browser.",
   alternates: { canonical: absoluteUrl("/") },
   openGraph: { url: absoluteUrl("/") },
 };
@@ -44,12 +44,12 @@ export default function HomePage() {
             <h1 className="text-[34px] sm:text-[40px]">Formal letters, written for you</h1>
             <p className="mt-4 text-[17px] text-text-light">
               Most people do not write formal letters often enough to know the
-              conventions — what to include, how to open, how firm to sound.
+              conventions: what to include, how to open, how firm to sound.
               Answer a few questions and the letter comes out right.
             </p>
             <p className="mt-3 text-[15px] text-text-light">
               Fourteen kinds, free to read and copy. Your letter is never
-              uploaded — it&apos;s built in your browser.
+              uploaded, because it&apos;s built in your browser.
             </p>
 
             <div id="types" className="mt-8 scroll-mt-8">
@@ -103,7 +103,7 @@ export default function HomePage() {
           <ul className="mt-4 max-w-[640px] space-y-2 text-[15px] text-text-light">
             <li>
               It is not legal advice. A letter can be well written and still be
-              the wrong move — for anything with a deadline or money at stake,
+              the wrong move. For anything with a deadline or money at stake,
               take advice as well.
             </li>
             <li>

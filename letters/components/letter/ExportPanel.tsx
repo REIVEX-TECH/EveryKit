@@ -131,13 +131,13 @@ export function ExportPanel({ doc, slug, isoDate }: Props) {
               Download Word
             </button>
             <span className="rounded-full border border-line px-3 py-1 text-[12px] text-text-light">
-              {PAYMENTS_ENABLED ? "paid — thank you" : "launch week — free"}
+              {PAYMENTS_ENABLED ? "paid, thank you" : "launch week, free"}
             </span>
           </>
         ) : (
           <button type="button" className="ek-btn ek-btn-accent" onClick={onBuy}>
             <Download size={17} aria-hidden="true" />
-            Get the PDF and Word file — {PRICE_LABEL}
+            Get the PDF and Word file for {PRICE_LABEL}
           </button>
         )}
       </div>
@@ -160,7 +160,7 @@ export function ExportPanel({ doc, slug, isoDate }: Props) {
 
       {done ? (
         <div ref={doneRef} className="mt-2 border-t border-line pt-4">
-          <p className="text-[14px] text-foreground">That&apos;s it — you&apos;re done.</p>
+          <p className="text-[14px] text-foreground">That&apos;s it. You&apos;re done.</p>
           <p className="mt-1 text-[14px] text-text-light">
             Read it once more before you send it. Names and dates are the things
             that go wrong.

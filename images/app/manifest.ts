@@ -3,7 +3,7 @@ import { SITE_NAME } from "@/lib/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${SITE_NAME} — resize, convert and clean up photos`,
+    name: `${SITE_NAME}: resize, convert and clean up photos`,
     short_name: SITE_NAME,
     description:
       "Resize, convert and strip metadata from photos. Runs in your browser, so nothing is uploaded.",

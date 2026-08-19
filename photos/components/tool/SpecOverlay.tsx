@@ -66,7 +66,7 @@ export function SpecOverlay({ spec, width, height }: Props) {
       </g>
 
       <Label x={bracketX + 9} y={(crownTop + chinBottom) / 2}>
-        {g.isGeneric ? "head" : `${fmt(g.headMinMm)}–${fmt(g.headMaxMm)} mm`}
+        {g.isGeneric ? "head" : `${fmt(g.headMinMm)} to ${fmt(g.headMaxMm)} mm`}
       </Label>
       <Label x={width - 8} y={crownTop - 7} anchor="end">
         top of head

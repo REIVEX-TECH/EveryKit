@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "EveryKit Letters — a formal letter with the parts that came from form fields tinted";
+  "EveryKit Letters, a formal letter with the parts that came from form fields tinted";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

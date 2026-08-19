@@ -78,7 +78,7 @@ export function LetterWorkbench({ slug, today }: { slug: string; today: string }
         </fieldset>
 
         <p className="mt-8 text-[13px] text-text-light">
-          Your letter is never uploaded — it&apos;s built in your browser.
+          Your letter is never uploaded, because it&apos;s built in your browser.
           Nothing you type here is saved, so refreshing starts again.
         </p>
       </div>

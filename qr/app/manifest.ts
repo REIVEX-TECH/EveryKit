@@ -3,7 +3,7 @@ import { SITE_NAME } from "@/lib/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${SITE_NAME} — QR codes that never expire`,
+    name: `${SITE_NAME}: QR codes that never expire`,
     short_name: SITE_NAME,
     description:
       "Make QR codes for links, Wi-Fi, contact details and WhatsApp. Runs in your browser, and the codes never expire.",

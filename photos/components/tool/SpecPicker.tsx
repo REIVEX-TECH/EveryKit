@@ -68,7 +68,7 @@ export function SpecPicker({ spec, onChange }: Props) {
           ) : (
             matches.map((s) => (
               <option key={s.slug} value={s.slug} className="rounded-[6px] px-2 py-1.5">
-                {specTitle(s)} — {specSizeLabel(s)}
+                {specTitle(s)}, {specSizeLabel(s)}
               </option>
             ))
           )}

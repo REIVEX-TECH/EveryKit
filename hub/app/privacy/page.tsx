@@ -30,8 +30,8 @@ export default function PrivacyPage() {
           </p>
           <p className="mt-2">
             This is about your files, and it is the one promise the whole thing
-            is built around. It is not a claim that we collect nothing at all —
-            see below.
+            is built around. It is not a claim that we collect nothing at all.
+            See below.
           </p>
         </section>
 
@@ -39,8 +39,8 @@ export default function PrivacyPage() {
           <h2 className="text-[19px] text-foreground">Your email address</h2>
           <p className="mt-2">
             The kits ask for an email address before you download what you made,
-            and it is required — there is no skip link. You are asked once per
-            session in a kit; after that, the downloads in that session go
+            and it is required. There is no skip link. You are asked once per
+            session in a kit, and after that the downloads in that session go
             straight through.
           </p>
           <p className="mt-2">

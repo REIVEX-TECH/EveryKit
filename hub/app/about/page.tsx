@@ -32,7 +32,7 @@ export default function AboutPage() {
         </p>
         <p>
           You get the result free to look at, and pay once for the finished
-          file — no account, no subscription, nothing to cancel.
+          file. No account, no subscription, nothing to cancel.
         </p>
         <p>
           Questions go to{" "}

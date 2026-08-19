@@ -18,14 +18,14 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-[19px] text-foreground">Your letter</h2>
           <p className="mt-2">
-            Your letter is never uploaded — it is built in your browser. Every
+            Your letter is never uploaded, because it is built in your browser. Every
             word you type stays in the tab. The templates, the assembling, the
             PDF and the Word file are all produced on your own device, because
             there is no server here to send them to.
           </p>
           <p className="mt-2">
             That matters more here than in most places. A resignation, a visa
-            appeal, a complaint, a child&apos;s absence from school — these are
+            appeal, a complaint, a child&apos;s absence from school. These are
             private, and none of it reaches us.
           </p>
           <p className="mt-2">
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
           <h2 className="text-[19px] text-foreground">Your email address</h2>
           <p className="mt-2">
             Before you copy or download a letter we ask for your email address,
-            and it is required — there is no skip link. You are asked once per
+            and it is required. There is no skip link. You are asked once per
             session; after that, copying and downloading go straight through.
           </p>
           <p className="mt-2">

@@ -42,7 +42,7 @@ export const employmentVerificationRequest: LetterType = {
     { id: "hrName", label: "Who you are asking", type: "text", group: "The request", placeholder: "Ms Farida Khan", help: "A name if you have one. Leave blank and it opens \"Dear Sir or Madam\"." },
     { id: "companyBlock", label: "Company name and address", type: "textarea", required: true, rows: 3, group: "The request" },
     { id: "neededFor", label: "What you need it for", type: "text", required: true, group: "The request", placeholder: "a rental application", help: "HR writes a better letter when they know who is reading it." },
-    { id: "mustInclude", label: "What the letter must state", type: "textarea", required: true, rows: 4, group: "The request", help: "One item per line. Salary, start date, contract type — whatever the recipient asked for." },
+    { id: "mustInclude", label: "What the letter must state", type: "textarea", required: true, rows: 4, group: "The request", help: "One item per line. Salary, start date, contract type, or whatever the recipient asked for." },
     { id: "deadline", label: "When you need it by", type: "date", group: "The request" },
     { id: "addressedTo", label: "Who it should be addressed to", type: "text", group: "The request", placeholder: "Brightwater Lettings" },
     { id: "collection", label: "How you would like it", type: "select", group: "The request", options: [
@@ -65,7 +65,7 @@ export const employmentVerificationRequest: LetterType = {
       sender: compact([clean(v.employeeName), ...clean(v.employeeAddress).split("\n")]),
       recipient: compact(clean(v.companyBlock).split("\n")),
       date: formatDate(ctx.today, ctx.dateFormat),
-      subject: `Request for an employment verification letter — ${clean(v.employeeName)}`,
+      subject: `Request for an employment verification letter, for ${clean(v.employeeName)}`,
       salutation,
       body: compact([
         paragraph(
@@ -120,7 +120,7 @@ export const employmentVerificationRequest: LetterType = {
 export const nocRequest: LetterType = {
   slug: "noc-request",
   title: "No-objection certificate request",
-  whoItsFor: "You need your employer to say they do not object — for a visa, travel or outside work",
+  whoItsFor: "You need your employer to say they do not object, for a visa, travel or outside work",
   seoNotes: [
     "A no-objection certificate is a short letter from your employer confirming they know what you are doing and have no objection to it. Visa offices across South Asia and the Gulf ask for one, and so do many employers before approving outside work.",
     "This is the request you send to get it. The certificate itself is written by your employer, on their letterhead.",
@@ -164,7 +164,7 @@ export const nocRequest: LetterType = {
       sender: compact([clean(v.employeeName), clean(v.jobTitle), clean(v.department)]),
       recipient: compact(clean(v.companyBlock).split("\n")),
       date: formatDate(ctx.today, ctx.dateFormat),
-      subject: `Request for a no-objection certificate — ${clean(v.employeeName)}`,
+      subject: `Request for a no-objection certificate, for ${clean(v.employeeName)}`,
       salutation,
       body: compact([
         paragraph(
@@ -206,10 +206,10 @@ export const nocRequest: LetterType = {
     };
   },
   faq: [
-    { q: "What is a no-objection certificate?", a: "A short letter from your employer stating that they are aware of what you are doing — travelling, applying for a visa, taking outside work — and do not object. It is not a legal document, but many consulates and employers treat it as required." },
+    { q: "What is a no-objection certificate?", a: "A short letter from your employer stating that they are aware of what you are doing, whether travelling, applying for a visa or taking outside work, and do not object. It is not a legal document, but many consulates and employers treat it as required." },
     { q: "Who writes it, me or my employer?", a: "Your employer writes and signs it on their letterhead. You write the request, which is what this generates." },
     { q: "Does it need a company stamp?", a: "Most consulates that ask for one expect letterhead, a signature and a company stamp. Ask for all three so it does not come back." },
-    { q: "Will an NOC guarantee my visa?", a: "No. It answers one question — whether your employer knows and objects — and nothing more." },
+    { q: "Will an NOC guarantee my visa?", a: "No. It answers one question, whether your employer knows and objects, and nothing more." },
     { q: "Do I need one if I am self-employed?", a: "No. You would instead provide your business registration and tax filings, since there is no employer to object." },
   ],
   example: {
@@ -287,7 +287,7 @@ export const resignation: LetterType = {
       sender: compact([clean(v.employeeName), clean(v.jobTitle), clean(v.department)]),
       recipient: compact(clean(v.companyBlock).split("\n")),
       date: formatDate(clean(v.noticeDate) || ctx.today, ctx.dateFormat),
-      subject: `Resignation — ${clean(v.employeeName)}, ${clean(v.jobTitle)}`,
+      subject: `Resignation: ${clean(v.employeeName)}, ${clean(v.jobTitle)}`,
       salutation,
       body: compact([
         paragraph(
@@ -320,7 +320,7 @@ export const resignation: LetterType = {
     { q: "How do I work out my last working day?", a: "Count your contractual notice period from the day you hand the letter in, not from the end of the month. One month's notice given on 17 August ends on 17 September. This tool does that for you." },
     { q: "Do I have to give a reason for leaving?", a: "No. A resignation is valid without one. A short reason keeps things warm; a long one invites a conversation you may not want in writing." },
     { q: "Should I mention what went wrong?", a: "Not here. A resignation letter goes on your file and may be read by people who were not involved. Raise problems separately, in an exit interview or a written grievance." },
-    { q: "Email or printed?", a: "Send it by email so the date is recorded, and offer a signed copy. Some employers require a signed original — check your contract." },
+    { q: "Email or printed?", a: "Send it by email so the date is recorded, and offer a signed copy. Some employers require a signed original, so check your contract." },
     { q: "Can I leave sooner than my notice period?", a: "Only by agreement. Ask separately rather than announcing a shorter date in the letter, which reads as a decision rather than a request." },
   ],
   example: {

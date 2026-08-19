@@ -3,7 +3,7 @@ import { SITE_NAME } from "@/lib/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${SITE_NAME} — formal letters, written for you`,
+    name: `${SITE_NAME}: formal letters, written for you`,
     short_name: SITE_NAME,
     description:
       "Fill a short form and get a properly written formal letter. Built in your browser.",

@@ -16,7 +16,7 @@ export const schoolAbsence: LetterType = {
   title: "School absence letter",
   whoItsFor: "You need to explain why your child was, or will be, off school",
   seoNotes: [
-    "Schools need a written reason for an absence, kept on file. Short is fine — the date, the child, the class and the reason are the whole of it.",
+    "Schools need a written reason for an absence, kept on file. Short is fine. The date, the child, the class and the reason are the whole of it.",
     "Say whether the absence has already happened or is coming up, because the two are handled differently and a request for leave in term time usually needs approval.",
   ],
   fields: [
@@ -42,7 +42,7 @@ export const schoolAbsence: LetterType = {
       { value: "religious", label: "A religious observance" },
       { value: "family", label: "An unavoidable family commitment" },
     ] },
-    { id: "detail", label: "Anything the school should know", type: "textarea", rows: 3, group: "About the absence", help: "Optional. Schools rarely need medical detail — enough to record it is plenty." },
+    { id: "detail", label: "Anything the school should know", type: "textarea", rows: 3, group: "About the absence", help: "Optional. Schools rarely need medical detail, and enough to record it is plenty." },
     { id: "catchUp", label: "How they will catch up", type: "text", group: "About the absence", placeholder: "we will collect the week's work on Friday", help: "Optional, and it helps for a planned absence." },
     { id: "teacherName", label: "Who you are writing to", type: "text", group: "Addressing it", placeholder: "Mrs Okafor" },
     { id: "schoolBlock", label: "School name and address", type: "textarea", required: true, rows: 3, group: "Addressing it" },
@@ -77,7 +77,7 @@ export const schoolAbsence: LetterType = {
       sender: compact([clean(v.parentName), has(v.contactNumber) && clean(v.contactNumber)]),
       recipient: compact(clean(v.schoolBlock).split("\n")),
       date: formatDate(ctx.today, ctx.dateFormat),
-      subject: `Absence — ${clean(v.childName)}, ${clean(v.className)}`,
+      subject: `Absence: ${clean(v.childName)}, ${clean(v.className)}`,
       salutation,
       body: compact([
         paragraph(
@@ -220,7 +220,7 @@ export const authorizationLetter: LetterType = {
   },
   faq: [
     { q: "Is an authorization letter the same as a power of attorney?", a: "No. This covers one named task and carries no legal authority over your affairs. A power of attorney is a formal instrument, usually witnessed or notarised, and is what you need for anything financial or medical." },
-    { q: "Does it need to be notarised?", a: "For collecting documents, usually not. Banks, land registries and government offices often do require notarisation — check before you send someone across a city." },
+    { q: "Does it need to be notarised?", a: "For collecting documents, usually not. Banks, land registries and government offices often do require notarisation, so check before you send someone across a city." },
     { q: "What should the person bring with them?", a: "This letter, their own identification, and often a copy of yours. Say in the letter which identification they will carry so the office knows what to expect." },
     { q: "Should I put an expiry date on it?", a: "Yes. An authorization with no end date stays valid indefinitely and is awkward to withdraw. Give it a window that covers the task and no more." },
     { q: "Can one letter authorise several things?", a: "It can, but each one has to be written out. Anything not named in the letter is not authorised, which is the point of writing it down." },

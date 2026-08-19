@@ -6,7 +6,7 @@ import { tools } from "@/data/tools";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: { absolute: `${SITE_NAME} — resize, convert and clean up photos` },
+  title: { absolute: `${SITE_NAME}: resize, convert and clean up photos` },
   description:
     "Resize photos, convert between JPG, PNG and WebP, and strip EXIF data. One or a whole batch at a time, in your browser, with nothing uploaded.",
   alternates: { canonical: absoluteUrl("/") },
@@ -40,7 +40,7 @@ export default function Home() {
         </h1>
         <p className="mt-3 max-w-[58ch] text-[17px] text-text-light">
           Drop in one photo or a hundred. They are read from your disk, worked on inside this
-          tab, and saved back — no upload, and no server here that could receive them.
+          tab, and saved back. There is no upload, and no server here that could receive them.
         </p>
 
         <div className="mt-8">

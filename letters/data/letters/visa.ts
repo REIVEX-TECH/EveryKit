@@ -85,7 +85,7 @@ export const visaInvitation: LetterType = {
       sender: compact([clean(v.hostName), ...clean(v.hostAddress).split("\n")]),
       recipient: compact(clean(v.consulate).split("\n")),
       date: formatDate(ctx.today, ctx.dateFormat),
-      subject: `Invitation to visit — ${clean(v.guestName)}`,
+      subject: `Invitation to visit, for ${clean(v.guestName)}`,
       salutation,
       body: compact([
         paragraph(
@@ -162,7 +162,7 @@ export const visaCoverLetter: LetterType = {
     { id: "occupation", label: "What you do", type: "text", required: true, group: "About you", placeholder: "a civil engineer at Meridian Construction", help: "Your job, or your course if you are studying." },
     { id: "country", label: "Country you are applying to visit", type: "text", required: true, group: "The trip" },
     { id: "visaType", label: "Visa type", type: "text", required: true, group: "The trip", placeholder: "short-stay visitor visa" },
-    { id: "purpose", label: "Why you are going", type: "textarea", required: true, rows: 3, group: "The trip", help: "One or two sentences. Tourism, a conference, seeing family — be specific about what you will actually do." },
+    { id: "purpose", label: "Why you are going", type: "textarea", required: true, rows: 3, group: "The trip", help: "One or two sentences. Tourism, a conference, seeing family. Be specific about what you will actually do." },
     { id: "arrival", label: "Arrival date", type: "date", required: true, group: "The trip" },
     { id: "departure", label: "Departure date", type: "date", required: true, group: "The trip" },
     { id: "itinerary", label: "Where you will be", type: "textarea", rows: 3, group: "The trip", help: "Optional. Cities and rough dates. Skip it if your plans are simple." },
@@ -197,7 +197,7 @@ export const visaCoverLetter: LetterType = {
       sender: compact([clean(v.applicantName), ...clean(v.applicantAddress).split("\n")]),
       recipient: compact(clean(v.consulate).split("\n")),
       date: formatDate(ctx.today, ctx.dateFormat),
-      subject: `Application for a ${clean(v.visaType)} — ${clean(v.applicantName)}`,
+      subject: `Application for a ${clean(v.visaType)}, for ${clean(v.applicantName)}`,
       salutation,
       body: compact([
         paragraph(
@@ -237,7 +237,7 @@ export const visaCoverLetter: LetterType = {
     { q: "Is a cover letter required for a visa application?", a: "Rarely required, often decisive. Most consulates do not list it, but it is the one document where you can connect the rest of the file together and answer the officer's questions before they ask them." },
     { q: "How long should it be?", a: "One page. An officer may spend a couple of minutes on your file, and a letter that runs to three pages gets skimmed rather than read." },
     { q: "What are 'ties to my home country' and why do they matter?", a: "They are the reasons you would come back: a job held open, dependants, a course to finish, a business, property. Most refusals under the visitor rules come down to the officer not being satisfied you would leave, so this is the paragraph worth spending time on." },
-    { q: "Should I mention a previous refusal?", a: "If you have one, address it briefly and factually rather than hoping it goes unnoticed — it will not. Say what has changed since." },
+    { q: "Should I mention a previous refusal?", a: "If you have one, address it briefly and factually rather than hoping it goes unnoticed, because it will not. Say what has changed since." },
     { q: "Do I sign it?", a: "Yes. Print it, sign above your typed name, and put it at the front of the file." },
   ],
   example: {
@@ -314,7 +314,7 @@ export const visaAppeal: LetterType = {
       sender: compact([clean(v.applicantName), ...clean(v.applicantAddress).split("\n")]),
       recipient: compact(clean(v.consulate).split("\n")),
       date: formatDate(ctx.today, ctx.dateFormat),
-      subject: `Appeal against refusal — ${clean(v.visaType)}, reference ${clean(v.referenceNumber)}`,
+      subject: `Appeal against refusal of a ${clean(v.visaType)}, reference ${clean(v.referenceNumber)}`,
       salutation,
       body: compact([
         sentence(
@@ -345,7 +345,7 @@ export const visaAppeal: LetterType = {
   faq: [
     { q: "Can I appeal a visa refusal?", a: "It depends on the country and the visa. Some refusals carry a formal right of appeal with a deadline, some allow only an administrative review, and for many visitor visas the practical route is a fresh application that fixes the problem. The refusal notice says which applies to you." },
     { q: "What actually changes a refusal decision?", a: "New evidence, or showing the officer misread what was already there. Repeating the original application in stronger language changes nothing." },
-    { q: "How long do I have?", a: "The deadline is on the notice and is often short — sometimes 14 or 28 days. Send it well inside the window and keep proof of when you sent it." },
+    { q: "How long do I have?", a: "The deadline is on the notice and is often short, sometimes 14 or 28 days. Send it well inside the window and keep proof of when you sent it." },
     { q: "Should I be apologetic?", a: "No, and you should not be indignant either. State the reason given, answer it, and enclose what supports your answer." },
     { q: "Is reapplying better than appealing?", a: "Often, when the refusal was about a missing document or a weak part of the file that you can now put right. An appeal is the better route when the decision was wrong on the evidence already submitted." },
   ],
@@ -430,11 +430,11 @@ export const financialSponsorship: LetterType = {
     };
   },
   faq: [
-    { q: "Who signs a sponsorship letter?", a: "The sponsor — the person putting up the money. It is not signed by the student or traveller being sponsored." },
+    { q: "Who signs a sponsorship letter?", a: "The sponsor, meaning the person putting up the money. It is not signed by the student or traveller being sponsored." },
     { q: "How much detail about my income is needed?", a: "Enough for the reader to believe the commitment. Your job, your income and the bank holding the funds, with statements attached. A large figure with no visible source raises more questions than it answers." },
     { q: "Does the amount have to match my bank statements?", a: "It has to be supported by them. If you commit to a figure your account has never held, the letter works against the application." },
     { q: "Is a sponsorship letter legally binding?", a: "It is an undertaking, and some countries treat it as enforceable against the sponsor. Do not commit to more than you can actually pay." },
-    { q: "Does it need to be notarised?", a: "Universities usually accept a signed letter with statements. Some consulates want it notarised or on a stamped affidavit — check the specific requirement before you pay for one." },
+    { q: "Does it need to be notarised?", a: "Universities usually accept a signed letter with statements. Some consulates want it notarised or on a stamped affidavit, so check the specific requirement before you pay for one." },
   ],
   example: {
     sponsorName: "Rajesh Menon",

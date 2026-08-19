@@ -207,7 +207,7 @@ export const specs: PhotoSpec[] = [
     eyeLineFromBottomMm: null,
     background: "white",
     notes: [
-      "4.5 x 3.5 cm — 45 mm high by 35 mm wide — on a white background.",
+      "4.5 x 3.5 cm, meaning 45 mm high by 35 mm wide, on a white background.",
       "The photo must show the full head, from the top of the hair to the bottom of the chin, facing forward with the eyes open.",
       "No chin-to-crown measurement is published, so this tool uses a general portrait ratio.",
       "Applications filed in India usually have the photo captured at the Passport Seva Kendra instead.",
@@ -274,7 +274,7 @@ export const specs: PhotoSpec[] = [
     eyeLineFromBottomMm: null,
     background: "white",
     notes: [
-      "4.5 x 3.5 cm — 45 mm high by 35 mm wide — on a plain white background, following the ICAO standard.",
+      "4.5 x 3.5 cm, meaning 45 mm high by 35 mm wide, on a plain white background, following the ICAO standard.",
       "You will often see 43 x 55 mm quoted for UAE visas. That size does not appear in the ICP's own photo specification, so this tool uses the published one.",
       "The ICP does not state a single chin-to-crown range, so this tool uses a general portrait ratio.",
       "Eyes open, no frame around the photo, and hands out of shot above shoulder level.",
@@ -299,7 +299,7 @@ export const specs: PhotoSpec[] = [
     eyeLineFromBottomMm: null,
     background: "white",
     notes: [
-      "4 x 6 cm — 40 mm wide by 60 mm high — on a white background, with no exceptions on the background.",
+      "4 x 6 cm, meaning 40 mm wide by 60 mm high, on a white background, with no exceptions on the background.",
       "The face must fill 60 to 70 percent of the photo, which is 36 to 42 mm from chin to crown.",
       "Taken within the last 6 months, facing the camera directly.",
       "You will often see 2 x 2 inches quoted for Saudi visas. The Ministry of Foreign Affairs publishes 4 x 6 cm, which is what this tool produces.",

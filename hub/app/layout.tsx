@@ -15,7 +15,7 @@ const plexSans = IBM_Plex_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — ${SITE_TAGLINE.toLowerCase()}`,
+    default: `${SITE_NAME}: ${SITE_TAGLINE.toLowerCase()}`,
     template: `%s | ${SITE_NAME}`,
   },
   description:

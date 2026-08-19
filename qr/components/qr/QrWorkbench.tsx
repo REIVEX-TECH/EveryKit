@@ -238,7 +238,7 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
 
               <p className="mt-3 break-all text-[12px] text-text-light">
                 {kind === "wifi" || kind === "vcard"
-                  ? `${describeKind(kind)} — ${code.matrix.size} x ${code.matrix.size} modules`
+                  ? `${describeKind(kind)}, ${code.matrix.size} x ${code.matrix.size} modules`
                   : code.payload}
               </p>
 

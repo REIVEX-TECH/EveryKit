@@ -93,7 +93,7 @@ export default async function ToolPage({ params }: Params) {
                   className="inline-block py-1.5 text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
                 >
                   {other.title}
-                  <span className="text-text-light"> — {other.blurb}</span>
+                  <span className="block text-text-light">{other.blurb}</span>
                 </Link>
               </li>
             ))}

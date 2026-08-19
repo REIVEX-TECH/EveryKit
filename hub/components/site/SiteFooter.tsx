@@ -49,8 +49,7 @@ export function SiteFooter() {
           Built by{" "}
           <a className="ek-link" href={PARENT_URL} rel="noopener">
             {PARENT_NAME}
-          </a>{" "}
-          — a product engineering studio
+          </a>, a product engineering studio
         </p>
       </div>
     </footer>

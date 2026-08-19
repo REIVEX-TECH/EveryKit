@@ -38,7 +38,7 @@ export function LetterMiniature() {
           </div>
           <div className="mb-2">18 August 2026</div>
           <div className="mb-2 font-semibold">
-            Invitation to visit — <Filled>Nadia Iqbal</Filled>
+            Invitation to visit, for <Filled>Nadia Iqbal</Filled>
           </div>
           <div className="mb-2">Dear Sir or Madam,</div>
           <p className="mb-2">

@@ -249,14 +249,14 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
               Print sheet
             </button>
             <span className="rounded-full border border-line px-3 py-1 text-[12px] text-text-light">
-              {PAYMENTS_ENABLED ? "paid — thank you" : "launch week — free"}
+              {PAYMENTS_ENABLED ? "paid, thank you" : "launch week, free"}
             </span>
           </>
         ) : (
           <>
             <button type="button" className="ek-btn ek-btn-accent py-2.5" onClick={onBuy}>
               <Download size={17} aria-hidden="true" />
-              Get the clean file — {PRICE_LABEL}
+              Get the clean file for {PRICE_LABEL}
             </button>
             <button
               type="button"
@@ -293,7 +293,7 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
       {/* Secondary, so it sits below the way out. */}
       <details className="mt-4 border-t border-line pt-3">
         <summary className="cursor-pointer text-[13px] text-text-light">
-          Print sheet — {layout.count} {layout.count === 1 ? "copy" : "copies"} on 4 x 6 inch paper
+          Print sheet: {layout.count} {layout.count === 1 ? "copy" : "copies"} on 4 x 6 inch paper
         </summary>
         <canvas
           ref={sheetRef}
@@ -308,7 +308,7 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
 
       {done ? (
         <div className="mt-3 border-t border-line pt-3">
-          <p className="text-[14px] text-foreground">That&apos;s it — you&apos;re done.</p>
+          <p className="text-[14px] text-foreground">That&apos;s it. You&apos;re done.</p>
           <p className="mt-1 text-[13px] text-text-light">
             Check the file opens at {specSizeLabel(spec)} before you submit it.
           </p>

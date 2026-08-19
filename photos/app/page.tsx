@@ -7,7 +7,7 @@ import { DEFAULT_SPEC_SLUG, getSpecOrDefault } from "@/data/specs";
 import { PARENT_NAME, PARENT_URL, SITE_NAME, absoluteUrl, hubUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `Passport and visa photos from a selfie — free preview | ${SITE_NAME}`,
+  title: `Passport and visa photos from a selfie, free preview | ${SITE_NAME}`,
   description:
     "Crop a phone selfie to the exact passport or visa photo size your application asks for. Runs in your browser, so the photo is never uploaded. Free preview, print sheet included.",
   alternates: { canonical: absoluteUrl("/") },
@@ -55,7 +55,7 @@ export default function HomePage() {
             <>
               <p className="mt-4 text-[17px] text-text-light">
                 Upload a selfie and get the exact file your application asks for
-                — 600 x 600 px, exactly 2 x 2 inches at 300 DPI for a US
+                , at 600 x 600 px, exactly 2 x 2 inches at 300 DPI for a US
                 passport, and fifteen other sizes.
               </p>
               <p className="mt-3 text-[15px] text-text-light">
@@ -90,8 +90,8 @@ export default function HomePage() {
           <ul className="mt-4 max-w-[640px] space-y-2 text-[15px] text-text-light">
             <li>
               It cannot promise your photo will be accepted. It gets the size,
-              head height and resolution right. The rest — your expression,
-              glasses, how recent the photo is — is on you, and the checklist
+              head height and resolution right. The rest, meaning your
+              expression, glasses and how recent the photo is, is on you, and the checklist
               says so.
             </li>
             <li>
@@ -100,7 +100,7 @@ export default function HomePage() {
             </li>
             <li>
               It does not store your photo. Close the tab and the image is gone.
-              We do ask for your email before a download, once per session — the{" "}
+              We do ask for your email before a download, once per session. The{" "}
               <Link href="/privacy" className="ek-link">
                 privacy page
               </Link>{" "}
