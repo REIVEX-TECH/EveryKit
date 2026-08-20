@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="EveryKit Calc">
+  <!-- A calculator: the keys and the display everybody reads as arithmetic. -->
+  <rect x="9" y="4" width="30" height="40" rx="4" fill="#1d81f2"/>
+  <rect x="14" y="9" width="20" height="7" rx="2" fill="#ffffff"/>
+  <rect x="14" y="21" width="6" height="6" rx="1.6" fill="#ffffff"/>
+  <rect x="24" y="21" width="6" height="6" rx="1.6" fill="#ffffff"/>
+  <rect x="14" y="31" width="6" height="6" rx="1.6" fill="#ffffff"/>
+  <rect x="24" y="31" width="6" height="6" rx="1.6" fill="#ff8a4c"/>
+</svg>

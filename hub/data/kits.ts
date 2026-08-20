@@ -153,6 +153,16 @@ export const kits: Kit[] = [
     icon: "/icons/study.svg",
     outputAlt: "A graduation cap above a row of calculator keys",
   },
+  {
+    slug: "calc",
+    name: "EveryKit Calc",
+    tagline: "Everyday calculators that just answer",
+    url: "https://calc.useeverykit.com",
+    status: "live",
+    category: "everyday",
+    icon: "/icons/calc.svg",
+    outputAlt: "A calculator with an answer on its display",
+  },
 ];
 
 /** Exactly the shape published at /kits.json, per the shared registry schema. */
