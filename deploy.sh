@@ -19,7 +19,7 @@ echo "==> Pulling"
 # something was committed on the box and needs sorting out by hand.
 git pull --ff-only
 
-for app in letters photos pdf qr images background text sign invoice ringtone hub; do
+for app in letters photos pdf qr images background text sign invoice ringtone dev hub; do
 	echo "==> Installing dependencies: $app"
 	# `npm ci` installs exactly the lockfile and removes anything stale, which
 	# is what you want on a server. It needs package-lock.json to be in sync.
@@ -28,7 +28,7 @@ done
 
 # Built in dependency order of least to most important: if the hub build is the
 # one that breaks, the kits have already built and the failure is obvious.
-for app in letters photos pdf qr images background text sign invoice ringtone hub; do
+for app in letters photos pdf qr images background text sign invoice ringtone dev hub; do
 	echo "==> Building: $app"
 	npm run build --prefix "$app"
 done

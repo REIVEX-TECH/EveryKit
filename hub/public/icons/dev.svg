@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="EveryKit Dev">
+  <!-- Angle brackets around a slash: the mark every developer reads as code. -->
+  <path d="M17 14L7 24l10 10" fill="none" stroke="#1d81f2" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M31 14l10 10-10 10" fill="none" stroke="#1d81f2" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M27 11l-6 26" fill="none" stroke="#ff8a4c" stroke-width="4.5" stroke-linecap="round"/>
+</svg>

@@ -25,7 +25,7 @@ describe("kits registry", () => {
     // not here would be dropped from the page silently, which is why the list is
     // asserted rather than the field merely being a string. Adding a shelf means
     // adding it here and to the directory in the same commit.
-    const shelves = ["photos", "documents", "everyday"];
+    const shelves = ["photos", "documents", "everyday", "developers"];
     for (const kit of registryPayload().kits) {
       expect(shelves).toContain(kit.category);
       expect(kit.icon.startsWith("/icons/")).toBe(true);

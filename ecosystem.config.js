@@ -129,5 +129,8 @@ module.exports = {
     app("everykit-ringtone", "ringtone", 3019, {
       NEXT_PUBLIC_SITE_URL: "https://ringtone.useeverykit.com",
     }),
+    app("everykit-dev", "dev", 3021, {
+      NEXT_PUBLIC_SITE_URL: "https://dev.useeverykit.com",
+    }),
   ],
 };

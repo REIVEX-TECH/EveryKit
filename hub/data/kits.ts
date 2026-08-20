@@ -13,7 +13,7 @@ export type KitStatus = "live" | "soon";
  * strips parse this same file and ignore fields they do not know about, so new
  * ones may be added but existing names and shapes never change.
  */
-export type KitCategory = "photos" | "documents" | "everyday";
+export type KitCategory = "photos" | "documents" | "everyday" | "developers";
 
 export type Kit = {
   slug: string;
@@ -133,6 +133,16 @@ export const kits: Kit[] = [
     icon: "/icons/ringtone.svg",
     outputAlt: "A waveform with a short span of it marked as the part that is kept",
   },
+  {
+    slug: "dev",
+    name: "EveryKit Dev",
+    tagline: "Small developer tools, nothing leaves your browser",
+    url: "https://dev.useeverykit.com",
+    status: "live",
+    category: "developers",
+    icon: "/icons/dev.svg",
+    outputAlt: "Ten small tool squares laid out like a launcher",
+  },
 ];
 
 /** Exactly the shape published at /kits.json, per the shared registry schema. */
@@ -158,4 +168,5 @@ export const CATEGORIES: Array<{ id: KitCategory | "all"; label: string }> = [
   { id: "photos", label: "Photos & ID" },
   { id: "documents", label: "Documents & letters" },
   { id: "everyday", label: "Everyday" },
+  { id: "developers", label: "For developers" },
 ];
