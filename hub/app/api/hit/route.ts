@@ -3,6 +3,24 @@ import { MAX_BODY_BYTES, normaliseKit, normalisePath } from "@/lib/pageviews";
 import { isAllowedOrigin } from "@/lib/subscribe";
 
 /**
+ * The hub counts its own pages through this endpoint too, so a request from
+ * the very origin serving it is allowed whatever the allowlist says.
+ *
+ * Without this the hub could only count itself on the exact production domain:
+ * a staging host, a preview, or a local production build got a 403 for its own
+ * page view and a console error to go with it. The allowlist exists to say
+ * which *other* origins may write here, and same origin is not one of those.
+ */
+function isSameOrigin(request: Request, origin: string | null): boolean {
+  if (!origin) return false;
+  try {
+    return new URL(origin).host === new URL(request.url).host;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * The page counter.
  *
  * What is stored: a day, a kit, a path, and how many times. What is not stored,
@@ -49,7 +67,7 @@ function ok(origin: string | null, status = 200): Response {
 
 export async function OPTIONS(request: Request): Promise<Response> {
   const origin = request.headers.get("origin");
-  if (!isAllowedOrigin(origin, isProduction)) {
+  if (!isAllowedOrigin(origin, isProduction) && !isSameOrigin(request, origin)) {
     // No CORS headers back, so the browser blocks the POST that would follow.
     return new Response(null, { status: 403 });
   }
@@ -62,7 +80,7 @@ export async function POST(request: Request): Promise<Response> {
   // Same allowlist as /api/subscribe: the apex or any single-label subdomain of
   // it. A missing Origin is tolerated because same-origin callers omit it on
   // some clients, and it earns no CORS headers back.
-  if (origin && !isAllowedOrigin(origin, isProduction)) {
+  if (origin && !isAllowedOrigin(origin, isProduction) && !isSameOrigin(request, origin)) {
     return new Response(null, { status: 403 });
   }
 

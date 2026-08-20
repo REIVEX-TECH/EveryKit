@@ -20,17 +20,23 @@ type Props = {
 };
 
 /**
- * The directory: category boxes on top, an app-icon grid below.
+ * The directory: a centred row of category chips, an app-icon grid below.
  *
  * Filtering is component state, not a route. There is one page of tools and
  * every tool is in the server-rendered HTML — a crawler sees all of them
  * whatever is selected, and nobody waits for a navigation to change shelf.
+ *
+ * The chips are real buttons carrying `aria-pressed`, so the filter is a set of
+ * toggles to a screen reader and reachable by tab and space like any other
+ * control. The tool count sits in each chip's accessible name rather than on
+ * screen: it was a second line of type per chip, and the grid underneath
+ * answers the same question by being visible.
  */
 export function KitDirectory({ kits, categories }: Props) {
   const [active, setActive] = useState<KitCategory | "all">("all");
 
-  // A shelf with nothing live on it is not a shelf. With two tools this keeps
-  // the row honest rather than padding it out.
+  // A shelf with nothing live on it is not a shelf. This keeps the row honest
+  // rather than padding it out with an empty category.
   const shown = useMemo(
     () =>
       categories.filter(
@@ -53,8 +59,11 @@ export function KitDirectory({ kits, categories }: Props) {
 
   return (
     <div>
-      {/* Sized to their content, never a full-width empty shell. */}
-      <div role="group" aria-label="Filter by category" className="flex flex-wrap gap-3">
+      <div
+        role="group"
+        aria-label="Filter by category"
+        className="flex flex-wrap justify-center gap-2"
+      >
         {shown.map((category) => {
           const selected = active === category.id;
           const count = counts.get(category.id) ?? 0;
@@ -63,34 +72,38 @@ export function KitDirectory({ kits, categories }: Props) {
               key={category.id}
               type="button"
               aria-pressed={selected}
+              // The count is here and not on screen, so the chip still answers
+              // "how many" to anyone who cannot scan the grid below it.
+              aria-label={`${category.label}, ${count} ${count === 1 ? "tool" : "tools"}`}
               onClick={() => setActive(category.id)}
-              className={`ek-card flex items-center gap-3 px-4 py-3 text-left transition-colors ${
-                selected ? "border-primary bg-background" : "bg-bg-soft hover:border-line-strong"
+              // Not `transition-colors`: that shorthand includes outline-color,
+              // and a chip whose outline-color is being transitioned keeps the
+              // ring at its starting currentColor when focus arrives, so the
+              // focus ring came out near black instead of the primary blue the
+              // design system asks for. Measured: rgb(23,23,23) with the
+              // shorthand, rgb(29,129,242) without it. Only the two colours
+              // that actually change on hover are animated.
+              className={`rounded-full px-4 py-2 text-[14px] font-semibold transition-[background-color,border-color] duration-150 ${
+                selected
+                  ? "bg-primary-dark text-white"
+                  : "border border-line bg-background text-foreground hover:border-line-strong"
               }`}
             >
-              <CategoryGlyph id={category.id} />
-              <span>
-                <span className="block text-[15px] font-semibold text-foreground">
-                  {category.label}
-                </span>
-                <span className="block text-[13px] text-text-light">
-                  {count} {count === 1 ? "tool" : "tools"}
-                </span>
-              </span>
+              {category.label}
             </button>
           );
         })}
       </div>
 
-      <ul className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+      <ul className="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {visible.map((kit) => (
           <li key={kit.slug}>
             {kit.status === "live" ? (
-              <a href={kit.url} className="group block no-underline">
+              <a href={kit.url} className="group block text-center no-underline">
                 <Tile kit={kit} />
               </a>
             ) : (
-              <div>
+              <div className="text-center">
                 <Tile kit={kit} muted />
               </div>
             )}
@@ -105,67 +118,28 @@ function Tile({ kit, muted = false }: { kit: DirectoryKit; muted?: boolean }) {
   return (
     <>
       <span
-        className={`ek-card flex aspect-square items-center justify-center bg-background transition-colors ${
+        className={`ek-card mx-auto flex h-[84px] w-[84px] items-center justify-center rounded-[18px] bg-background transition-colors ${
           muted ? "opacity-45" : "group-hover:border-primary"
         }`}
       >
+        {/*
+          Decorative: the kit's name is right underneath in text, so describing
+          the glyph as well would have a screen reader say the same thing twice.
+          The tagline follows it off screen, which is the part a picture cannot
+          carry.
+        */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={kit.icon} alt={kit.outputAlt} width={48} height={48} className="h-12 w-12" />
+        <img src={kit.icon} alt="" width={40} height={40} className="h-10 w-10" />
       </span>
-      <span className="mt-3 flex items-baseline gap-2">
-        <span className="text-[15px] font-semibold text-foreground">{kit.name}</span>
-        {muted ? (
-          <span className="rounded-full border border-line px-2 py-0.5 text-[11px] text-text-light">
-            soon
-          </span>
-        ) : null}
+      <span className="mt-2.5 block text-[13px] leading-snug text-foreground">
+        {kit.name}
+        <span className="sr-only">, {kit.tagline}</span>
       </span>
-      <span className="mt-0.5 block text-[13px] text-text-light">{kit.tagline}</span>
+      {muted ? (
+        <span className="mt-1 inline-block rounded-full border border-line px-2 py-0.5 text-[11px] text-text-light">
+          soon
+        </span>
+      ) : null}
     </>
-  );
-}
-
-/** Small, quiet marks in the same corner-radius language as the brand. */
-function CategoryGlyph({ id }: { id: KitCategory | "all" }) {
-  const common = { width: 22, height: 22, "aria-hidden": true } as const;
-  if (id === "photos") {
-    return (
-      <svg viewBox="0 0 24 24" {...common}>
-        <rect x="4" y="3" width="16" height="18" rx="3" fill="#1d81f2" />
-        <circle cx="12" cy="10" r="3" fill="#ffffff" />
-        <path d="M6.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5z" fill="#ffffff" />
-      </svg>
-    );
-  }
-  if (id === "documents") {
-    return (
-      <svg viewBox="0 0 24 24" {...common}>
-        <path d="M6 2h8l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" fill="#1d81f2" />
-        <path d="M14 2l5 5h-5z" fill="#ff8a4c" />
-        <rect x="8" y="11" width="8" height="1.6" rx="0.8" fill="#ffffff" />
-        <rect x="8" y="15" width="8" height="1.6" rx="0.8" fill="#ffffff" />
-      </svg>
-    );
-  }
-  if (id === "everyday") {
-    return (
-      <svg viewBox="0 0 24 24" {...common}>
-        <rect x="3" y="3" width="8" height="8" rx="2" fill="#1d81f2" />
-        <rect x="13" y="3" width="8" height="8" rx="2" fill="#ff8a4c" />
-        <rect x="3" y="13" width="8" height="8" rx="2" fill="#1d81f2" />
-        <rect x="14" y="14" width="3" height="3" rx="0.8" fill="#1d81f2" />
-        <rect x="18" y="14" width="3" height="3" rx="0.8" fill="#1d81f2" />
-        <rect x="14" y="18" width="3" height="3" rx="0.8" fill="#1d81f2" />
-        <rect x="18" y="18" width="3" height="3" rx="0.8" fill="#1d81f2" />
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 24 24" {...common}>
-      <rect x="3" y="3" width="8" height="8" rx="2" fill="#1d81f2" />
-      <rect x="13" y="3" width="8" height="8" rx="2" fill="#ff8a4c" />
-      <rect x="3" y="13" width="8" height="8" rx="2" fill="#1d81f2" />
-      <rect x="13" y="13" width="8" height="8" rx="2" fill="#1d81f2" />
-    </svg>
   );
 }
