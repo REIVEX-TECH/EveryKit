@@ -15,6 +15,15 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=3600, s-maxage=3600" },
         ],
       },
+      // Everything under the dashboard, out of every index. Two entries rather
+      // than one pattern because /admin itself has no trailing segment to match.
+      ...["/admin", "/admin/:path*", "/api/admin/:path*"].map((source) => ({
+        source,
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      })),
       {
         source: "/:path*",
         headers: [

@@ -93,6 +93,10 @@ module.exports = {
       // Only the hub talks to Postgres. The kits post to its endpoint and
       // never hold credentials.
       DATABASE_URL: secrets.DATABASE_URL || "",
+      // The dashboard. Only the hub has these, and no kit ever sees them.
+      ADMIN_EMAIL: secrets.ADMIN_EMAIL || "",
+      ADMIN_PASSWORD_HASH: secrets.ADMIN_PASSWORD_HASH || "",
+      SESSION_SECRET: secrets.SESSION_SECRET || "",
     }),
     app("everykit-photos", "photos", 3011, {
       NEXT_PUBLIC_SITE_URL: "https://photos.useeverykit.com",

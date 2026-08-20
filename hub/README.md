@@ -5,6 +5,8 @@ The front door of EveryKit at **useeverykit.com**. It does three things:
 1. Routes people to the right kit in one click.
 2. Serves `/kits.json`, the registry every kit reads.
 3. Says what the brand promises in one screen.
+4. Owns the two endpoints every kit calls, `/api/subscribe` and `/api/hit`, and
+   the `/admin` dashboard that reads what they write.
 
 It is not a tool and not a marketing site. Resist adding sections.
 
@@ -36,7 +38,13 @@ kit while you test the "More from EveryKit" strip.
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | `https://useeverykit.com` | Origin for canonicals, the sitemap and OpenGraph. |
-| `DATABASE_URL` | none | Postgres, for the one table of email addresses. Without it `/api/subscribe` answers 500 and every kit falls back to handing over the file anyway. |
+| `DATABASE_URL` | none | Postgres, for the two tables. Without it `/api/subscribe` answers 500, every kit falls back to handing over the file anyway, and `/admin` says so instead of crashing. |
+| `ADMIN_EMAIL` | none | The one address that can sign in to `/admin`. |
+| `ADMIN_PASSWORD_HASH` | none | A bcrypt hash, from `npm run hash-password`. Never the password. |
+| `SESSION_SECRET` | none | Signs the admin session cookie. Changing it logs the session out, which is also how you revoke one. |
+
+Without all three admin variables, nobody can sign in: the dashboard fails shut
+rather than falling back to anything.
 
 ## The database
 

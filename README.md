@@ -125,9 +125,17 @@ document, not a changelog.
 
 ## What is stored
 
-One thing: an email address, if you give it, in one table. The hub owns it and
-the kits never hold database credentials — they POST to `/api/subscribe` and
-carry on whether it answers or not.
+Two tables, and between them they hold one piece of personal data.
+
+An email address, if you give it, in `emails`. The hub owns it and the kits
+never hold database credentials — they POST to `/api/subscribe` and carry on
+whether it answers or not.
+
+Page counts, in `pageviews`: a date, a kit, a path and a number. Every kit posts
+to `/api/hit` once per page shown and the endpoint reads nothing else about the
+caller — no address, no user agent, no referrer, no cookie, no id. Two people
+and one person twice are the same row, permanently. That is the whole of the
+analytics, it is first party, and there is no vendor involved.
 
 Your files are a different matter and the promise there is unchanged: photos and
 letters are processed entirely in the browser and never uploaded. There is no
@@ -139,6 +147,9 @@ See the email capture convention in [CLAUDE.md](CLAUDE.md), and
 
 ## What is not here
 
-No accounts, no admin dashboard, no unsubscribe automation, no email sending, no
-cookies, no analytics on the email table. One table, one endpoint, and the
-capture points inside the kits.
+No accounts, no unsubscribe automation, no email sending, no third-party
+analytics, and nothing per-visitor anywhere.
+
+There is one dashboard, at `useeverykit.com/admin`, for the one person who runs
+this. It is server rendered, guarded by a signed cookie, noindexed, and linked
+from nowhere in the UI. It reads the two tables and writes nothing.

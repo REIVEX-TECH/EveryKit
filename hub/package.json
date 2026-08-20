@@ -9,9 +9,11 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "hash-password": "node scripts/hash-password.mjs"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "next": "15.5.23",
     "pg": "^8.23.0",
     "react": "^19.2.0",
