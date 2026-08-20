@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AppGlyph, tintFor } from "@/components/AppIcon";
 import type { KitCategory } from "@/data/kits";
 
 export type DirectoryKit = {
@@ -20,7 +21,8 @@ type Props = {
 };
 
 /**
- * The directory: a centred row of category chips, an app-icon grid below.
+ * The directory: a centred row of category chips, and below them the kits laid
+ * out the way a phone lays out its apps.
  *
  * Filtering is component state, not a route. There is one page of tools and
  * every tool is in the server-rendered HTML — a crawler sees all of them
@@ -95,15 +97,29 @@ export function KitDirectory({ kits, categories }: Props) {
         })}
       </div>
 
-      <ul className="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      {/*
+        Four across on a phone, eight at the full content width, which is what
+        puts the icons at roughly the size a home screen uses at each. The
+        column count is the only thing that changes: the tile sizes itself from
+        the column, so nothing has to be re-tuned per breakpoint.
+      */}
+      <ul className="mt-10 grid grid-cols-4 gap-x-3 gap-y-6 sm:grid-cols-6 sm:gap-x-4 lg:grid-cols-8">
         {visible.map((kit) => (
           <li key={kit.slug}>
             {kit.status === "live" ? (
-              <a href={kit.url} className="group block text-center no-underline">
+              <a
+                href={kit.url}
+                // The whole tile is the link, icon and label together, so the
+                // target is the square plus its caption rather than a 56px
+                // icon with a hairline of text under it.
+                title={kit.name}
+                aria-label={kit.name}
+                className="group flex flex-col items-center no-underline"
+              >
                 <Tile kit={kit} />
               </a>
             ) : (
-              <div className="text-center">
+              <div className="flex flex-col items-center" title={kit.name}>
                 <Tile kit={kit} muted />
               </div>
             )}
@@ -114,29 +130,45 @@ export function KitDirectory({ kits, categories }: Props) {
   );
 }
 
+/**
+ * One app icon and its name.
+ *
+ * The square is sized in pixels rather than by the column, so a wide column at
+ * a middling viewport does not inflate the icons past the size that makes this
+ * read as a launcher. It is centred in whatever column it lands in.
+ *
+ * The corner radius is a percentage, which keeps the same proportion at both
+ * sizes and lands in the 22 to 24 percent range a phone icon uses. It is a
+ * rounded rectangle rather than a true superellipse: a real squircle needs a
+ * clip path per size, and at 56 and 64 pixels nobody can tell the two apart.
+ *
+ * One shadow, the card token this site already uses, and nothing else. No
+ * gradient, no inner highlight, no glass.
+ */
 function Tile({ kit, muted = false }: { kit: DirectoryKit; muted?: boolean }) {
   return (
     <>
       <span
-        className={`ek-card mx-auto flex h-[84px] w-[84px] items-center justify-center rounded-[18px] bg-background transition-colors ${
-          muted ? "opacity-45" : "group-hover:border-primary"
+        style={{ backgroundColor: tintFor(kit.slug) }}
+        className={`flex h-14 w-14 items-center justify-center rounded-[23%] shadow-card transition-transform duration-150 lg:h-16 lg:w-16 ${
+          muted ? "opacity-40" : "group-hover:-translate-y-0.5"
         }`}
       >
-        {/*
-          Decorative: the kit's name is right underneath in text, so describing
-          the glyph as well would have a screen reader say the same thing twice.
-          The tagline follows it off screen, which is the part a picture cannot
-          carry.
-        */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={kit.icon} alt="" width={40} height={40} className="h-10 w-10" />
+        <AppGlyph slug={kit.slug} name={kit.name} />
       </span>
-      <span className="mt-2.5 block text-[13px] leading-snug text-foreground">
+
+      {/*
+        One line, clipped with an ellipsis when the column is narrower than the
+        name. The full name is still the text in the DOM and is repeated in the
+        title and the accessible name, so nothing is lost to the clipping but
+        the pixels.
+      */}
+      <span className="mt-2 block w-full truncate text-center text-[12px] leading-tight text-text-light">
         {kit.name}
-        <span className="sr-only">, {kit.tagline}</span>
       </span>
+
       {muted ? (
-        <span className="mt-1 inline-block rounded-full border border-line px-2 py-0.5 text-[11px] text-text-light">
+        <span className="mt-1 rounded-full border border-line px-1.5 py-0.5 text-[10px] text-text-light">
           soon
         </span>
       ) : null}
