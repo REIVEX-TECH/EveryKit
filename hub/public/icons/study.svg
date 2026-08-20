@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="EveryKit Study">
+  <!-- A graduation cap: the one shape everybody reads as studying. -->
+  <path d="M24 8L4 17l20 9 20-9z" fill="#1d81f2"/>
+  <path d="M13 22.8V31c0 3.6 4.9 6.4 11 6.4S35 34.6 35 31v-8.2l-11 4.9z" fill="#1d81f2" opacity="0.45"/>
+  <path d="M41 18.6v9.6" fill="none" stroke="#ff8a4c" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="41" cy="31" r="2.6" fill="#ff8a4c"/>
+</svg>

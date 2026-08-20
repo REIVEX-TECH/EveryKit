@@ -132,5 +132,8 @@ module.exports = {
     app("everykit-dev", "dev", 3021, {
       NEXT_PUBLIC_SITE_URL: "https://dev.useeverykit.com",
     }),
+    app("everykit-study", "study", 3022, {
+      NEXT_PUBLIC_SITE_URL: "https://study.useeverykit.com",
+    }),
   ],
 };

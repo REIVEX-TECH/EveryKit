@@ -45,6 +45,7 @@ const TINTS: Record<string, string> = {
   invoice: BLUES[2],
   ringtone: BLUES[4],
   dev: BLUES[1],
+  study: BLUES[3],
 };
 
 /**
@@ -170,6 +171,13 @@ const GLYPHS: Record<string, ReactElement> = {
     <>
       <path d="M8.6 8.4L4.8 12l3.8 3.6M15.4 8.4l3.8 3.6-3.8 3.6" {...stroke} />
       <path d="M13.4 5.6l-2.8 12.8" {...stroke} />
+    </>
+  ),
+  study: (
+    <>
+      <path d="M12 4.2L3.4 8.4 12 12.6l8.6-4.2z" {...stroke} />
+      <path d="M6.6 10.4v4.8c0 1.8 2.4 3.2 5.4 3.2s5.4-1.4 5.4-3.2v-4.8" {...stroke} />
+      <path d="M20.6 8.4v5" {...stroke} />
     </>
   ),
 };
