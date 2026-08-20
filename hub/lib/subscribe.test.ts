@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { kits } from "@/data/kits";
 import {
   MAX_EMAIL_LENGTH,
   isAllowedOrigin,
@@ -46,6 +47,18 @@ describe("normaliseEmail", () => {
 });
 
 describe("normaliseKit", () => {
+  it("accepts every kit in the registry", () => {
+    // It used to be a hardcoded list of three, so the eight kits added since
+    // were all being filed under "hub". The registry is the only list now.
+    for (const kit of kits) {
+      expect(normaliseKit(kit.slug)).toBe(kit.slug);
+    }
+  });
+
+  it("is case and whitespace insensitive", () => {
+    expect(normaliseKit(" Photos ")).toBe("photos");
+  });
+
   it("keeps the known kits", () => {
     expect(normaliseKit("photos")).toBe("photos");
     expect(normaliseKit("letters")).toBe("letters");

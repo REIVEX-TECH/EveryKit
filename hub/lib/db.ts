@@ -52,3 +52,26 @@ export async function recordEmail(email: string, kit: string): Promise<void> {
     [email, kit],
   );
 }
+
+/**
+ * Count one page view.
+ *
+ * The whole write is an increment of one integer on one row keyed by
+ * (day, kit, path). Nothing about the request reaches this function: it takes
+ * two validated strings and there is no third parameter for a caller to start
+ * passing an address into.
+ *
+ * `current_date` is Postgres's, so a day boundary is the database's one rather
+ * than the visitor's, which is what makes two rows for the same day impossible.
+ */
+export async function recordPageview(kit: string, path: string): Promise<void> {
+  const pool = getPool();
+  if (!pool) throw new Error("DATABASE_URL is not set");
+  await pool.query(
+    `INSERT INTO pageviews (day, kit, path, count)
+     VALUES (current_date, $1, $2, 1)
+     ON CONFLICT (day, kit, path) DO UPDATE
+       SET count = pageviews.count + 1`,
+    [kit, path],
+  );
+}

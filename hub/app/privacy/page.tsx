@@ -61,16 +61,21 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-[19px] text-foreground">Analytics</h2>
+          <h2 className="text-[19px] text-foreground">Page counts</h2>
           <p className="mt-2">
-            There are none. No analytics script runs on this site, no cookies
-            are set, and nothing counts your visit. That is why you are not
-            being asked to dismiss a banner.
+            We count page views in aggregate: which page, which day, how many times.
+            Nothing about you is stored. No cookie is set, no identifier is created, and
+            your address, your browser and where you came from are all read by nothing and
+            written nowhere.
           </p>
           <p className="mt-2">
-            The server keeps ordinary web server logs, as every web server does.
-            If page counts are ever added back, this page will say so before
-            they are.
+            The record is four columns wide: a date, a kit, a path, and a number. Two
+            people and one person twice look exactly the same in it, to us as much as to
+            anyone else, which is why there is no banner here to dismiss.
+          </p>
+          <p className="mt-2">
+            There is no analytics script on this site and no third-party service involved.
+            The server also keeps ordinary web server logs, as every web server does.
           </p>
         </section>
 

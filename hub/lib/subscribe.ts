@@ -3,14 +3,26 @@
  * tested without standing up a server or a database.
  */
 
+import { kits } from "@/data/kits";
+
 /** Long enough for real addresses, short enough that nobody posts a novel. */
 export const MAX_EMAIL_LENGTH = 254;
 
 /** Bodies above this are rejected unread. A JSON object with two short strings. */
 export const MAX_BODY_BYTES = 2048;
 
-export const KITS = ["hub", "photos", "letters"] as const;
-export type Kit = (typeof KITS)[number];
+/**
+ * Which kit a signup may be filed under, derived from the registry so that
+ * adding a kit to `data/kits.ts` remains the only step.
+ *
+ * This was a hardcoded list of three, written when there were three. Every kit
+ * added since sent a slug this list did not know, and `normaliseKit` filed all
+ * of them under "hub" — so the one signal we keep about what pulls people in
+ * has been recording the wrong answer for eight kits.
+ */
+export function kitSlugs(): string[] {
+  return ["hub", ...kits.map((kit) => kit.slug)];
+}
 
 /**
  * Deliberately not RFC 5322. That grammar accepts addresses no mail server
@@ -32,8 +44,10 @@ export function normaliseEmail(input: unknown): string | null {
   return email;
 }
 
-export function normaliseKit(input: unknown): Kit {
-  return (KITS as readonly string[]).includes(input as string) ? (input as Kit) : "hub";
+export function normaliseKit(input: unknown): string {
+  if (typeof input !== "string") return "hub";
+  const kit = input.trim().toLowerCase();
+  return kitSlugs().includes(kit) ? kit : "hub";
 }
 
 /**

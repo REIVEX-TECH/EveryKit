@@ -24,7 +24,10 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const isProduction = process.env.VERCEL_ENV === "production";
+// NODE_ENV, not VERCEL_ENV: nothing sets VERCEL_ENV on a VPS, so this read as
+// "not production" on the live hub and the origin allowlist was letting
+// localhost through in the one place it was meant to keep it out.
+const isProduction = process.env.NODE_ENV === "production";
 
 function corsHeaders(origin: string | null): Record<string, string> {
   if (!isAllowedOrigin(origin, isProduction)) return {};

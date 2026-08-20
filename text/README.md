@@ -43,10 +43,10 @@ None are required; every one has a working default.
 - `components/text/Workbench.tsx` — one client component driving all four tools.
 - `app/[tool]/page.tsx` — four statically generated routes with `FAQPage` JSON-LD.
 
-This kit reaches the network for nothing. The CSP `connect-src` keeps the hub,
-for the cross-promotion strip and the email ask, and the checkout host; there is
-no CDN and no model. Typing produces zero requests, which was checked in the
-browser rather than assumed.
+This kit talks to nothing but the hub. The CSP `connect-src` keeps the hub, for
+the cross-promotion strip, the aggregate page count and the email ask, plus the
+checkout host; there is no CDN and no model. Typing produces zero requests, which
+was checked in the browser rather than assumed.
 
 ### The decisions worth knowing about
 
