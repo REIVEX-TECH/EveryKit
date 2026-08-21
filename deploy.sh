@@ -40,6 +40,11 @@ pm2 reload ecosystem.config.js --update-env
 
 pm2 save
 
+# The edge comes last, and after PM2 on purpose: a new kit's nginx block must
+# never point at a port nothing is listening on yet.
+echo "==> Edge: nginx config and TLS"
+"$ROOT/deploy/edge.sh"
+
 echo
 echo "==> Done"
 pm2 status
