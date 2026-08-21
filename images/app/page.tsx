@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Workbench } from "@/components/images/Workbench";
-import { ToolSwitcher } from "@/components/site/ToolSwitcher";
+import { ToolGrid } from "@/components/images/ToolGrid";
 import { tools } from "@/data/tools";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
@@ -32,40 +31,72 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <ToolSwitcher current="resize" />
-
       <div className="ek-shell py-10 sm:py-14">
-        <h1 className="max-w-[22ch] text-[32px] leading-tight sm:text-[38px]">
-          Resize, convert and clean up photos
-        </h1>
-        <p className="mt-3 max-w-[58ch] text-[17px] text-text-light">
-          Drop in one photo or a hundred. They are read from your disk, worked on inside this
-          tab, and saved back. There is no upload, and no server here that could receive them.
-        </p>
-
-        <div className="mt-8">
-          <Workbench tool="resize" />
+        <div className="text-center">
+          <h1 className="mx-auto max-w-[340px] text-[32px] leading-[1.15] sm:max-w-[500px] sm:text-[40px]">
+            Resize, convert and clean up photos
+          </h1>
+          <p className="mx-auto mt-4 max-w-[54ch] text-[17px] text-text-light">
+            Drop in one photo or a hundred. They are read from your disk, worked on inside this
+            tab, and saved back.
+          </p>
         </div>
 
-        <section className="mt-14">
-          <h2 className="text-[22px]">The other tools</h2>
-          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-            {tools
-              .filter((tool) => tool.slug !== "resize")
-              .map((tool) => (
-                <li key={tool.slug}>
-                  <Link
-                    href={`/${tool.slug}`}
-                    className="ek-card flex h-full flex-col p-4 no-underline transition-colors hover:border-line-strong"
-                  >
-                    <span className="text-[16px] font-semibold text-foreground">{tool.title}</span>
-                    <span className="mt-1 text-[14px] text-text-light">{tool.blurb}</span>
-                  </Link>
-                </li>
-              ))}
+        <div className="mt-10">
+          <ToolGrid />
+        </div>
+
+        <p className="mt-10 flex items-center justify-center gap-2 text-[15px] text-text-light">
+          <Tick />
+          No upload, and no server here that could receive them.
+        </p>
+
+        <section className="mt-16 max-w-[64ch]">
+          <h2 className="text-[22px]">What the EXIF tool actually removes</h2>
+          <p className="mt-3 text-[16px] text-text-light">
+            A photo from a phone carries the camera, the settings, the time, and often the exact
+            place it was taken. Sharing one online shares all of that unless something strips it,
+            and most services strip only some.
+          </p>
+          <p className="mt-3 text-[16px] text-text-light">
+            This removes the metadata without re-encoding the picture, so the pixels come back
+            byte for byte identical and only the tags are gone.
+          </p>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="text-[18px]">Every tool</h2>
+          <ul className="mt-3 flex flex-col gap-1">
+            {tools.map((tool) => (
+              <li key={tool.slug}>
+                <Link
+                  href={`/${tool.slug}`}
+                  className="inline-block py-1.5 text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
+                >
+                  {tool.title}
+                  <span className="text-text-light">, {tool.blurb.toLowerCase()}</span>
+                </Link>
+              </li>
+            ))}
           </ul>
         </section>
       </div>
     </>
+  );
+}
+
+/** The success token as a mark, where its contrast is fine. */
+function Tick() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0">
+      <path
+        d="M4 10.5l4 4 8-9"
+        fill="none"
+        stroke="#22c55e"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

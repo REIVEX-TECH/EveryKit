@@ -73,6 +73,32 @@
 }
 
 @layer components {
+  /*
+   * A horizontal row that scrolls without showing a scrollbar.
+   *
+   * Hidden deliberately rather than left to the platform: on a trackpad the
+   * native bar is invisible until you scroll, and on a phone it is invisible
+   * always, so it was never doing the job of saying "there is more". The fade
+   * and the chevron in ToolSwitcher do that instead, and a bar underneath them
+   * would only be a second, worse answer.
+   */
+  .ek-scroll-row {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /*
+     * Room at the right for the fade and the chevron. Without it, tabbing to a
+     * pill scrolls exactly enough to touch the edge, which parks the focused
+     * pill underneath the fade: the ring would be there and half covered. The
+     * browser honours this when it scrolls an element into view, so the fix is
+     * one property rather than a scroll handler.
+     */
+    scroll-padding-inline-end: 68px;
+  }
+
+  .ek-scroll-row::-webkit-scrollbar {
+    display: none;
+  }
+
   .ek-shell {
     max-width: 1040px;
     margin-inline: auto;

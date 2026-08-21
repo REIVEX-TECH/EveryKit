@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ToolSwitcher } from "@/components/site/ToolSwitcher";
+import { ToolGrid } from "@/components/text/ToolGrid";
 import { tools } from "@/data/tools";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
@@ -32,45 +32,72 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <ToolSwitcher current={null} />
-
       <div className="ek-shell py-10 sm:py-14">
-        <h1 className="max-w-[20ch] text-[32px] leading-tight sm:text-[38px]">
-          Small text tools that load instantly
-        </h1>
-        <p className="mt-3 max-w-[58ch] text-[17px] text-text-light">
-          Four things people need constantly. Each one computes as you type, in this
-          page, with nothing sent anywhere.
+        <div className="text-center">
+          <h1 className="mx-auto max-w-[340px] text-[32px] leading-[1.15] sm:max-w-[480px] sm:text-[40px]">
+            Small text tools that load instantly
+          </h1>
+          <p className="mx-auto mt-4 max-w-[54ch] text-[17px] text-text-light">
+            Four things people need constantly. Each one computes as you type, in this page, with
+            nothing sent anywhere.
+          </p>
+        </div>
+
+        <div className="mt-10">
+          <ToolGrid />
+        </div>
+
+        <p className="mt-10 flex items-center justify-center gap-2 text-[15px] text-text-light">
+          <Tick />
+          Typing here produces no network requests at all.
         </p>
 
-        <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-          {tools.map((tool) => (
-            <li key={tool.slug}>
-              <Link
-                href={`/${tool.slug}`}
-                className="ek-card flex h-full flex-col p-5 no-underline transition-colors hover:border-line-strong"
-              >
-                <span className="text-[17px] font-semibold text-foreground">{tool.title}</span>
-                <span className="mt-1 text-[14px] text-text-light">{tool.blurb}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        <section className="mt-14 max-w-[64ch]">
+        <section className="mt-16 max-w-[64ch]">
           <h2 className="text-[22px]">Why these are worth having</h2>
           <p className="mt-3 text-[16px] text-text-light">
-            Tools like these usually arrive wrapped in adverts, and most of them get
-            the awkward cases wrong. The counter here understands the Urdu full stop,
-            so a paragraph of Urdu is not reported as one sentence. It counts an emoji
-            as the one character it looks like. The case converter leaves NASA alone
-            rather than turning it into Nasa.
+            Tools like these usually arrive wrapped in adverts, and most of them get the awkward
+            cases wrong. The counter here understands the Urdu full stop, so a paragraph of Urdu
+            is not reported as one sentence. It counts an emoji as the one character it looks
+            like. The case converter leaves NASA alone rather than turning it into Nasa.
           </p>
           <p className="mt-3 text-[16px] text-text-light">
             None of that is clever, it is just the part everybody skips.
           </p>
         </section>
+
+        <section className="mt-12">
+          <h2 className="text-[18px]">Every tool</h2>
+          <ul className="mt-3 flex flex-col gap-1">
+            {tools.map((tool) => (
+              <li key={tool.slug}>
+                <Link
+                  href={`/${tool.slug}`}
+                  className="inline-block py-1.5 text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
+                >
+                  {tool.title}
+                  <span className="text-text-light">, {tool.blurb.toLowerCase()}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     </>
+  );
+}
+
+/** The success token as a mark, where its contrast is fine. */
+function Tick() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0">
+      <path
+        d="M4 10.5l4 4 8-9"
+        fill="none"
+        stroke="#22c55e"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

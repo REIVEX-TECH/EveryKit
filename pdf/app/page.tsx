@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LandingPicker } from "@/components/pdf/LandingPicker";
 import { OnDeviceDiagram } from "@/components/pdf/OnDeviceDiagram";
-import { ToolSwitcher } from "@/components/site/ToolSwitcher";
+import { ToolGrid } from "@/components/pdf/ToolGrid";
 import { tools } from "@/data/tools";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
@@ -36,67 +35,69 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <ToolSwitcher current={null} />
-
       <div className="ek-shell py-10 sm:py-14">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)] lg:items-start lg:gap-12">
-          <div>
-            <h1 className="text-[32px] leading-tight sm:text-[38px]">
-              PDF tools that never upload your file
-            </h1>
-            <p className="mt-3 max-w-[52ch] text-[17px] text-text-light">
-              Merge, split, reorder or shrink a PDF in a few seconds. The file is opened by
-              your browser and stays on this device. There is no server here that could
-              receive it.
-            </p>
-
-            <div className="mt-6">
-              <LandingPicker />
-            </div>
-          </div>
-
-          <div className="lg:pt-6">
-            <OnDeviceDiagram />
-            <p className="mt-3 max-w-[38ch] text-[13px] text-text-light">
-              Open your browser&apos;s network tab and run any tool on this site. No request
-              carries your file, because there is nowhere for it to go.
-            </p>
-          </div>
+        <div className="text-center">
+          <h1 className="mx-auto max-w-[360px] text-[32px] leading-[1.15] sm:max-w-[520px] sm:text-[40px]">
+            PDF tools that never upload your file
+          </h1>
+          <p className="mx-auto mt-4 max-w-[54ch] text-[17px] text-text-light">
+            Merge, split, reorder or shrink a PDF in a few seconds. The file is opened by your
+            browser and stays on this device.
+          </p>
         </div>
 
-        <section id="tools" className="mt-14 scroll-mt-8">
-          <h2 className="text-[22px]">All six tools</h2>
-          <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10">
+          <ToolGrid />
+        </div>
+
+        <p className="mt-10 flex items-center justify-center gap-2 text-[15px] text-text-light">
+          <Tick />
+          Nothing is uploaded, because there is no server here to upload to.
+        </p>
+
+        <section className="mt-14">
+          <div className="mx-auto max-w-[420px]">
+            <OnDeviceDiagram />
+          </div>
+          <p className="mx-auto mt-3 max-w-[52ch] text-center text-[13px] text-text-light">
+            Open your browser&apos;s network tab and run any tool on this site. No request carries
+            your file, because there is nowhere for it to go.
+          </p>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="text-[18px]">All six tools</h2>
+          <ul className="mt-3 grid gap-1 sm:grid-cols-2">
             {tools.map((tool) => (
               <li key={tool.slug}>
                 <Link
                   href={`/${tool.slug}`}
-                  className="ek-card flex h-full flex-col p-4 no-underline transition-colors hover:border-line-strong"
+                  className="inline-block py-1.5 text-[15px] text-text-light no-underline hover:text-primary-dark hover:underline"
                 >
-                  <span className="text-[16px] font-semibold text-foreground">{tool.title}</span>
-                  <span className="mt-1 text-[14px] text-text-light">{tool.blurb}</span>
+                  {tool.title}
+                  <span className="text-text-light">, {tool.blurb.toLowerCase()}</span>
                 </Link>
               </li>
             ))}
           </ul>
         </section>
-
-        <section className="mt-14 max-w-[64ch]">
-          <h2 className="text-[22px]">How this is different</h2>
-          <p className="mt-3 text-[16px] text-text-light">
-            Most online PDF tools work by uploading your document to a server, doing the job
-            there and sending it back. That is a reasonable way to build one, but it means a
-            copy of your bank statement or your tenancy agreement sits on a machine you do not
-            control, under a retention policy you have to take on trust.
-          </p>
-          <p className="mt-3 text-[16px] text-text-light">
-            This kit does the work in the page instead. The trade is real and worth stating: a
-            very large file is limited by your device&apos;s memory rather than a server&apos;s,
-            and compression here can only re-encode the images inside a document, so a
-            text-heavy file will barely shrink. In exchange, the file never leaves.
-          </p>
-        </section>
       </div>
     </>
+  );
+}
+
+/** The success token as a mark, where its contrast is fine. */
+function Tick() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0">
+      <path
+        d="M4 10.5l4 4 8-9"
+        fill="none"
+        stroke="#22c55e"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

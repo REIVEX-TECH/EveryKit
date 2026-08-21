@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ToolSwitcher } from "@/components/site/ToolSwitcher";
 import { ToolGrid } from "@/components/study/ToolGrid";
 import { tools } from "@/data/tools";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
@@ -31,7 +30,6 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <ToolSwitcher current={null} />
 
       <div className="ek-shell py-10 sm:py-14">
         <div className="text-center">
