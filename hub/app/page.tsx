@@ -57,7 +57,7 @@ export default function HomePage() {
             Small tools for everyday problems
           </h1>
           <p className="mx-auto mt-4 max-w-[46ch] text-[17px] text-text-light sm:text-[19px]">
-            Pay once, done in a minute. Your files never leave your device.
+            Free, done in a minute. Your files never leave your device.
           </p>
         </div>
 
@@ -78,12 +78,11 @@ export default function HomePage() {
               so it never reaches a server of ours.
             </p>
             <p>
-              You see the result before you pay, at full quality, so you know
-              whether it worked.
+              You see the finished result at full quality, so you know whether
+              it worked before you take it.
             </p>
             <p>
-              One small payment for the file you came for. No account, no
-              subscription.
+              Free to use, with no account and nothing to cancel.
             </p>
           </div>
         </section>

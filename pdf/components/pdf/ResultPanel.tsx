@@ -90,12 +90,6 @@ export function ResultPanel({ files, note, lockedReason, onStartOver }: Props) {
         </p>
       ) : null}
 
-      {lockedReason && !PAYMENTS_ENABLED ? (
-        <p className="mt-3 inline-block rounded-full bg-bg-soft px-3 py-1 text-[12px] text-text-light">
-          launch week, free
-        </p>
-      ) : null}
-
       {locked ? (
         <div className="mt-4">
           <p className="text-[14px] text-text-light">

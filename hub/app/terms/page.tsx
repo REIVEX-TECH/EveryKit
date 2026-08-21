@@ -4,7 +4,7 @@ import { CONTACT_EMAIL, absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Terms",
   description:
-    "The short version: EveryKit tools do what their pages say, refunds are given if a file is wrong, and each kit's own terms cover the details.",
+    "The short version: EveryKit tools are free, they do what their pages say, and each kit's own terms cover the details.",
   alternates: { canonical: absoluteUrl("/terms") },
 };
 
@@ -19,7 +19,7 @@ export default function TermsPage() {
           <h2 className="text-[19px] text-foreground">What we promise</h2>
           <p className="mt-2">
             Each kit does what its own page says it does, and shows you the
-            result before you pay for it.
+            finished result at full quality before you take it.
           </p>
         </section>
 
@@ -34,10 +34,10 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-[19px] text-foreground">Refunds</h2>
+          <h2 className="text-[19px] text-foreground">What it costs</h2>
           <p className="mt-2">
-            If you pay for a file and it does not come out as the tool said it
-            would, tell us and you will get your money back.
+            Nothing. Every kit here is free to use. If that ever changes, this
+            page will say so before it does.
           </p>
         </section>
 

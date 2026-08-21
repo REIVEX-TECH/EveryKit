@@ -32,7 +32,7 @@ export default function OpengraphImage() {
           Every<span style={{ color: "#1d81f2" }}>Kit</span>
         </div>
         <div style={{ display: "flex", fontSize: 30, color: "#444444", marginTop: 16 }}>
-          Small tools for everyday problems. Pay once, done in a minute.
+          Small tools for everyday problems. Free, done in a minute.
         </div>
 
         <div style={{ display: "flex", gap: 24, marginTop: 48 }}>

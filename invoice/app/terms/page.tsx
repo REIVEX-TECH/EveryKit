@@ -50,11 +50,10 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-[19px] text-foreground">Refunds</h2>
+          <h2 className="text-[19px] text-foreground">What it costs</h2>
           <p className="mt-2">
-            While the files are free there is nothing to refund. If they are
-            paid for and a download does not work, ask and you will get your
-            money back.
+            Nothing. Every kit here is free to use. If that ever changes, this
+            page will say so before it does.
           </p>
         </section>
 

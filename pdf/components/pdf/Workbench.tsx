@@ -15,6 +15,7 @@ import {
   takeStashedFiles,
   type PickedFile,
 } from "@/lib/pdf/files";
+import { PAYMENTS_ENABLED } from "@/lib/payments";
 import { parseSplitGroups } from "@/lib/pdf/pageRanges";
 import { runOperation } from "@/lib/pdf/runner";
 import { renderThumbnails, THUMBNAIL_LIMIT, type Thumbnail } from "@/lib/pdf/thumbnails";
@@ -331,7 +332,7 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
             {busy ? "Working…" : actionLabel()}
           </button>
           {ready ? <p className="mt-2 text-[13px] text-text-light">{ready}</p> : null}
-          {limits.overLimit ? (
+          {limits.overLimit && PAYMENTS_ENABLED ? (
             <p className="mt-2 text-[13px] text-text-light">{limits.reason}</p>
           ) : null}
         </div>

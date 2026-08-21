@@ -30,7 +30,7 @@ export async function generateMetadata({
   const spec = getSpec(country);
   if (!spec) return {};
 
-  const title = `${specTitle(spec)} photo online, ${specSizeLabel(spec)}, free preview`;
+  const title = `${specTitle(spec)} photo online, ${specSizeLabel(spec)}, free`;
   return {
     title,
     description: `Make a ${specTitle(spec)} photo from a selfie: ${specSizeLabel(spec)}, ${spec.pixelWidth} x ${spec.pixelHeight} pixels at ${spec.dpi} DPI. Cropped in your browser, never uploaded.`,

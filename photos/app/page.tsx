@@ -7,9 +7,9 @@ import { DEFAULT_SPEC_SLUG, getSpecOrDefault } from "@/data/specs";
 import { PARENT_NAME, PARENT_URL, SITE_NAME, absoluteUrl, hubUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `Passport and visa photos from a selfie, free preview | ${SITE_NAME}`,
+  title: `Passport and visa photos from a selfie, free | ${SITE_NAME}`,
   description:
-    "Crop a phone selfie to the exact passport or visa photo size your application asks for. Runs in your browser, so the photo is never uploaded. Free preview, print sheet included.",
+    "Crop a phone selfie to the exact passport or visa photo size your application asks for. Runs in your browser, so the photo is never uploaded. Free, print sheet included.",
   alternates: { canonical: absoluteUrl("/") },
   openGraph: { url: absoluteUrl("/") },
 };

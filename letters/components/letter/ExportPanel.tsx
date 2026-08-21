@@ -130,9 +130,6 @@ export function ExportPanel({ doc, slug, isoDate }: Props) {
               <FileText size={16} aria-hidden="true" />
               Download Word
             </button>
-            <span className="rounded-full border border-line px-3 py-1 text-[12px] text-text-light">
-              {PAYMENTS_ENABLED ? "paid, thank you" : "launch week, free"}
-            </span>
           </>
         ) : (
           <button type="button" className="ek-btn ek-btn-accent" onClick={onBuy}>

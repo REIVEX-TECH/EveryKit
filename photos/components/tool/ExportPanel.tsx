@@ -248,9 +248,6 @@ export function ExportPanel({ spec, renderSingle, blockedReason }: Props) {
               <Printer size={16} aria-hidden="true" />
               Print sheet
             </button>
-            <span className="rounded-full border border-line px-3 py-1 text-[12px] text-text-light">
-              {PAYMENTS_ENABLED ? "paid, thank you" : "launch week, free"}
-            </span>
           </>
         ) : (
           <>

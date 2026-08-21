@@ -51,10 +51,10 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-[19px] text-foreground">Refunds</h2>
+          <h2 className="text-[19px] text-foreground">What it costs</h2>
           <p className="mt-2">
-            Nothing here is paid, so there is nothing to refund. This kit has no checkout
-            and no plans for one.
+            Nothing. Every kit here is free to use. If that ever changes, this
+            page will say so before it does.
           </p>
         </section>
 

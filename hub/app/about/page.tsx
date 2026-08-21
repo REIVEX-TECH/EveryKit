@@ -4,7 +4,7 @@ import { CONTACT_EMAIL, PARENT_NAME, PARENT_URL, absoluteUrl } from "@/lib/site"
 export const metadata: Metadata = {
   title: "About",
   description:
-    "EveryKit is a small family of single-purpose web tools by Reivex. Files are processed in your browser, and each tool costs one small payment.",
+    "EveryKit is a small family of single-purpose web tools by Reivex. Files are processed in your browser, and every tool is free to use.",
   alternates: { canonical: absoluteUrl("/about") },
 };
 
@@ -31,8 +31,8 @@ export default function AboutPage() {
           leaves your device and we never see it.
         </p>
         <p>
-          You get the result free to look at, and pay once for the finished
-          file. No account, no subscription, nothing to cancel.
+          Every kit is free to use. No account, no subscription, nothing to
+          cancel.
         </p>
         <p>
           Questions go to{" "}

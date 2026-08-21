@@ -79,12 +79,12 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-[19px] text-foreground">Accounts and payments</h2>
+          <h2 className="text-[19px] text-foreground">Accounts and money</h2>
           <p className="mt-2">
-            There are no accounts, no passwords and nothing to log into. When
-            the formatted files are paid for, the payment is handled by Lemon
-            Squeezy, who collect what they need to take it. We never receive
-            your card details.
+            There are no accounts. Nothing to sign up for, no password, and
+            nothing to log into. Everything here is free, so there is no
+            processor in the middle and no card details are collected by
+            anybody, us included.
           </p>
         </section>
 
