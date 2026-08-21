@@ -19,6 +19,12 @@ next-env.d.ts
 # Vercel
 .vercel
 
+# What deploy.sh remembers about the box it is running on: the commit it last
+# deployed and the package-lock hash it last installed for each app. Per-box
+# state, never the same on two machines, and meaningless in the repo.
+.deployed-sha
+.deployed-locks
+
 # Test and tooling output
 coverage/
 .eslintcache
