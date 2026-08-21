@@ -49,6 +49,8 @@ CONTACT="hello@useeverykit.com"
 SITE_AVAILABLE="/etc/nginx/sites-available/useeverykit.conf"
 SITE_ENABLED="/etc/nginx/sites-enabled/useeverykit.conf"
 SOURCE_CONF="$ROOT/deploy/nginx/useeverykit.conf"
+SNIPPET_SOURCE="$ROOT/deploy/nginx/snippets/everykit-headers.conf"
+SNIPPET_TARGET="/etc/nginx/snippets/everykit-headers.conf"
 LIVE_CERT="/etc/letsencrypt/live/$CERT_NAME/fullchain.pem"
 
 # ---------------------------------------------------------------------------
@@ -125,6 +127,9 @@ restore() {
 		cp "$BACKUP" "$SITE_AVAILABLE"
 		echo "edge: rolled the nginx config back to what was running." >&2
 	fi
+	# The snippet is deliberately not rolled back. It is only ever referenced by
+	# a config that includes it, and leaving a newer copy in place cannot break
+	# an older config that never mentions it.
 }
 trap 'restore' ERR
 
@@ -135,6 +140,12 @@ else
 	# below is the only thing standing between a typo and a broken edge.
 	: >"$BACKUP"
 fi
+
+# The snippet first, because the config includes it and nginx -t would fail on
+# a missing include. Both land before anything is tested and before anything is
+# reloaded, so the pair is always consistent.
+install -d -m 0755 "$(dirname "$SNIPPET_TARGET")"
+install -m 0644 "$SNIPPET_SOURCE" "$SNIPPET_TARGET"
 
 install -m 0644 "$SOURCE_CONF" "$SITE_AVAILABLE"
 ln -sfn "$SITE_AVAILABLE" "$SITE_ENABLED"

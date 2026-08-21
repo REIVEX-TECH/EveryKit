@@ -15,7 +15,7 @@
     "lucide-react": "^1.31.0",
     "next": "15.5.23",
     "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "^5.4.149",
+    "pdfjs-dist": "^6.2.108",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
@@ -29,5 +29,9 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.0",
     "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "postcss": "^8.5.26",
+    "sharp": "^0.35.3"
   }
 }

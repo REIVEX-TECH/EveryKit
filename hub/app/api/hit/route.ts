@@ -1,5 +1,6 @@
 import { recordPageview } from "@/lib/db";
 import { MAX_BODY_BYTES, normaliseKit, normalisePath } from "@/lib/pageviews";
+import { readJsonObject } from "@/lib/http";
 import { isAllowedOrigin } from "@/lib/subscribe";
 
 /**
@@ -84,21 +85,13 @@ export async function POST(request: Request): Promise<Response> {
     return new Response(null, { status: 403 });
   }
 
-  const length = Number(request.headers.get("content-length") ?? "0");
-  if (Number.isFinite(length) && length > MAX_BODY_BYTES) return ok(origin);
-
-  let body: Record<string, unknown>;
-  try {
-    const raw = await request.text();
-    if (raw.length > MAX_BODY_BYTES) return ok(origin);
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-      return ok(origin);
-    }
-    body = parsed as Record<string, unknown>;
-  } catch {
-    return ok(origin);
-  }
+  // Content type, then length, then bytes, then parse, and nothing is parsed
+  // until it is known to be small enough to be worth parsing. Every rejection
+  // still answers ok:true, because the caller is a page that has already
+  // rendered and there is nothing useful it could do with a failure.
+  const read = await readJsonObject(request, MAX_BODY_BYTES);
+  if (!read.ok) return ok(origin);
+  const body = read.body;
 
   const kit = normaliseKit(body.kit);
   const path = normalisePath(body.path);

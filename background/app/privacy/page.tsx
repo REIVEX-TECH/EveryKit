@@ -79,8 +79,8 @@ export default function PrivacyPage() {
           <p className="mt-2">
             We count page views in aggregate: which page, which day, how many times.
             Nothing about you is stored. No cookie is set, no identifier is created, and
-            your address, your browser and where you came from are all read by nothing and
-            written nowhere.
+            nothing about your address, your browser or where you came from is written
+            into the count.
           </p>
           <p className="mt-2">
             The record is four columns wide: a date, a kit, a path, and a number. Two
@@ -90,6 +90,12 @@ export default function PrivacyPage() {
           <p className="mt-2">
             There is no analytics script on this site and no third-party service involved.
             The server also keeps ordinary web server logs, as every web server does.
+          </p>
+          <p className="mt-2">
+            One thing does read your address. So that a single machine cannot flood the
+            sign-up form or guess at the login, the server keeps a running count of recent
+            requests per address, in memory, for about a minute. It is not written to disk,
+            it does not survive a restart, and nothing is ever looked up in it.
           </p>
         </section>
 

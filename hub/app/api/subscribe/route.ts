@@ -1,4 +1,5 @@
 import { recordEmail } from "@/lib/db";
+import { readJsonObject } from "@/lib/http";
 import {
   MAX_BODY_BYTES,
   isAllowedOrigin,
@@ -71,33 +72,17 @@ export async function POST(request: Request): Promise<Response> {
     return json({ ok: false }, 403, null);
   }
 
-  if (!request.headers.get("content-type")?.includes("application/json")) {
-    return json({ ok: false }, 415, origin);
+  // Content type, then length, then bytes, then parse. The status codes are
+  // the ones each rejection has always answered with; what changed is that a
+  // body arriving without a Content-Length can no longer be read in full
+  // before its size is noticed.
+  const read = await readJsonObject(request, MAX_BODY_BYTES);
+  if (!read.ok) {
+    const status =
+      read.reason === "type" ? 415 : read.reason === "too-large" ? 413 : read.reason === "unreadable" ? 400 : 422;
+    return json({ ok: false }, status, origin);
   }
-
-  const length = Number(request.headers.get("content-length") ?? "0");
-  if (Number.isFinite(length) && length > MAX_BODY_BYTES) {
-    return json({ ok: false }, 413, origin);
-  }
-
-  let raw: string;
-  try {
-    raw = await request.text();
-  } catch {
-    return json({ ok: false }, 400, origin);
-  }
-  if (raw.length > MAX_BODY_BYTES) return json({ ok: false }, 413, origin);
-
-  let body: Record<string, unknown>;
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-      return json({ ok: false }, 422, origin);
-    }
-    body = parsed as Record<string, unknown>;
-  } catch {
-    return json({ ok: false }, 422, origin);
-  }
+  const body = read.body;
 
   // Answer a bot exactly as we answer a person, and write nothing.
   if (isHoneypotFilled(body)) return json({ ok: true }, 200, origin);

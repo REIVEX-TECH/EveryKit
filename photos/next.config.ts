@@ -69,13 +69,11 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [
           { key: "Content-Security-Policy", value: CONTENT_SECURITY_POLICY },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          // Nothing here needs a camera, a microphone or a location.
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-          },
+          // Referrer-Policy, X-Content-Type-Options, Permissions-Policy,
+          // X-Frame-Options and HSTS are set by nginx for every EveryKit host,
+          // from deploy/nginx/snippets/everykit-headers.conf. They are the same
+          // on all fourteen, so they belong in one place, and a header set in
+          // two places is a header that will disagree with itself eventually.
         ],
       },
     ];

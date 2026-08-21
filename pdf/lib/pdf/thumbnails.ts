@@ -30,6 +30,20 @@ const PDFJS_ASSETS = {
   standardFontDataUrl: "/pdfjs/standard_fonts/",
   cMapUrl: "/pdfjs/cmaps/",
   cMapPacked: true,
+  // pdf.js 6 decodes JBIG2 and JPEG 2000 images in WebAssembly, and reads
+  // predefined ICC profiles for colour. Both are fetched at run time from
+  // wherever these point, and pointing them nowhere means pdf.js goes looking
+  // on its own. Vendored under public/ for the same reason the worker is: a
+  // page whose whole promise is that it makes no network request cannot start
+  // making one the first time somebody opens a scanned fax.
+  wasmUrl: "/pdfjs/wasm/",
+  iccUrl: "/pdfjs/iccs/",
+  // A PDF can carry its own JavaScript, and pdf.js will run it. Nothing here
+  // needs that: these documents are opened to be looked at and taken apart,
+  // never to be filled in. GHSA-hq66-cqwq-w95j is the version of this that got
+  // a number, and it is closed by the upgrade that came with this line, but
+  // the option is what makes the intent true rather than incidental.
+  enableScripting: false,
 } as const;
 
 /** Past this, rendering every page costs more than it helps. */
@@ -89,7 +103,10 @@ export async function renderThumbnails(
   const copy = new Uint8Array(bytes.length);
   copy.set(bytes);
 
-  const doc = await pdfjs.getDocument({ data: copy, ...PDFJS_ASSETS }).promise;
+  // The loading task, not just its promise: pdf.js 6 moved destroy() off the
+  // document and onto the task, and the worker stays up until it is called.
+  const task = pdfjs.getDocument({ data: copy, ...PDFJS_ASSETS });
+  const doc = await task.promise;
 
   try {
     const total = doc.numPages;
@@ -110,10 +127,15 @@ export async function renderThumbnails(
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.floor(viewport.width));
       canvas.height = Math.max(1, Math.floor(viewport.height));
-      const context = canvas.getContext("2d");
-      if (!context) continue;
+      // Asked for only to find out whether this browser can draw at all. It is
+      // deliberately not passed to render(): pdf.js 6 treats `canvas` and
+      // `canvasContext` as alternatives rather than as a pair, and says the
+      // canvas must be null if the context is the one being used. Handing it
+      // both was the old call and is now outside what the library promises,
+      // so this passes the canvas alone, which is the form it recommends.
+      if (!canvas.getContext("2d")) continue;
 
-      await page.render({ canvas, canvasContext: context, viewport }).promise;
+      await page.render({ canvas, viewport }).promise;
 
       onPage({
         index: number - 1,
@@ -128,7 +150,7 @@ export async function renderThumbnails(
 
     return total;
   } finally {
-    await doc.destroy();
+    await task.destroy();
   }
 }
 
@@ -137,8 +159,11 @@ export async function readPageCount(bytes: Uint8Array): Promise<number> {
   const pdfjs = await getPdfJs();
   const copy = new Uint8Array(bytes.length);
   copy.set(bytes);
-  const doc = await pdfjs.getDocument({ data: copy, ...PDFJS_ASSETS }).promise;
-  const total = doc.numPages;
-  await doc.destroy();
-  return total;
+  const task = pdfjs.getDocument({ data: copy, ...PDFJS_ASSETS });
+  try {
+    const doc = await task.promise;
+    return doc.numPages;
+  } finally {
+    await task.destroy();
+  }
 }
