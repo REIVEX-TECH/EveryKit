@@ -142,3 +142,68 @@ export function scaleFor(matrix: Matrix, targetPixels: number): number {
   const total = matrix.size + QUIET_ZONE * 2;
   return Math.max(1, Math.round(targetPixels / total));
 }
+
+
+/**
+ * Where a centre logo sits, in the SVG's coordinate space (modules, including
+ * the quiet zone).
+ *
+ * The size is a fraction of the whole code. Kept at or under a fifth, and only
+ * ever paired with the H error-correction level, because a logo covers modules
+ * and H is what lets the code survive that: it can lose up to about 30% and
+ * still decode. A white pad sits behind the logo so it never bleeds into the
+ * modules around it.
+ *
+ * Pure and returned as numbers so the placement is tested rather than trusted:
+ * a logo drawn off-centre, or large enough to bury a finder pattern, is how a
+ * pretty code becomes an unscannable one.
+ */
+export type LogoBox = { x: number; y: number; size: number; pad: number };
+
+export function logoPlacement(matrix: Matrix, fraction = 0.2): LogoBox {
+  const total = matrix.size + QUIET_ZONE * 2;
+  // Clamp so an overeager caller cannot swallow the finder patterns.
+  const safe = Math.min(Math.max(fraction, 0.05), 0.22);
+  const size = Math.round(total * safe);
+  const pad = Math.max(1, Math.round(size * 0.12));
+  const x = (total - size) / 2;
+  const y = (total - size) / 2;
+  return { x, y, size, pad };
+}
+
+/**
+ * The SVG with a centre logo embedded as a data URI.
+ *
+ * The image is drawn on top of a white rounded rectangle so it reads cleanly
+ * whatever the module colour is. The caller is responsible for having built
+ * the matrix at level H; this only draws.
+ */
+export function toSvgWithLogo(
+  matrix: Matrix,
+  logoDataUri: string,
+  colours: Colours = DEFAULT_COLOURS,
+  fraction = 0.2,
+): string {
+  const total = matrix.size + QUIET_ZONE * 2;
+  const box = logoPlacement(matrix, fraction);
+  const outer = box.size + box.pad * 2;
+  const parts: string[] = [];
+
+  for (let y = 0; y < matrix.size; y++) {
+    for (let x = 0; x < matrix.size; x++) {
+      if (!matrix.modules[y * matrix.size + x]) continue;
+      parts.push(`M${x + QUIET_ZONE} ${y + QUIET_ZONE}h1v1h-1z`);
+    }
+  }
+
+  const radius = Math.max(1, Math.round(outer * 0.14));
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges">`,
+    `<rect width="${total}" height="${total}" fill="${colours.light}"/>`,
+    `<path fill="${colours.dark}" d="${parts.join("")}"/>`,
+    `<rect x="${(total - outer) / 2}" y="${(total - outer) / 2}" width="${outer}" height="${outer}" rx="${radius}" fill="${colours.light}"/>`,
+    // preserveAspectRatio keeps a non-square logo from being stretched.
+    `<image href="${logoDataUri}" x="${box.x}" y="${box.y}" width="${box.size}" height="${box.size}" preserveAspectRatio="xMidYMid meet"/>`,
+    `</svg>`,
+  ].join("");
+}

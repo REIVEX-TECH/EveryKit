@@ -7,6 +7,9 @@ import { MoreFromEveryKit } from "@/components/site/MoreFromEveryKit";
 import { hasGivenEmail } from "@/lib/emailCapture";
 import { revealResult } from "@/lib/revealResult";
 import {
+  buildEmail,
+  buildEvent,
+  buildSms,
   buildText,
   buildUrl,
   buildVCard,
@@ -17,13 +20,18 @@ import {
   type WifiSecurity,
 } from "@/lib/qr/payloads";
 import {
+  DEFAULT_COLOURS,
   QUIET_ZONE,
+  logoPlacement,
   scaleFor,
   toMatrix,
   toRgba,
   toSvg,
+  toSvgWithLogo,
+  type Colours,
   type ErrorCorrection,
 } from "@/lib/qr/render";
+import { judgeContrast } from "@/lib/qr/contrast";
 
 const LEVELS: Array<{ value: ErrorCorrection; label: string; detail: string }> = [
   { value: "M", label: "Normal", detail: "The usual choice" },
@@ -49,6 +57,18 @@ type Fields = {
   contactUrl: string;
   waPhone: string;
   waMessage: string;
+  emailTo: string;
+  emailSubject: string;
+  emailBody: string;
+  smsPhone: string;
+  smsMessage: string;
+  eventTitle: string;
+  eventLocation: string;
+  eventDescription: string;
+  eventStartDate: string;
+  eventStartTime: string;
+  eventEndDate: string;
+  eventEndTime: string;
 };
 
 const EMPTY: Fields = {
@@ -67,6 +87,18 @@ const EMPTY: Fields = {
   contactUrl: "",
   waPhone: "",
   waMessage: "",
+  emailTo: "",
+  emailSubject: "",
+  emailBody: "",
+  smsPhone: "",
+  smsMessage: "",
+  eventTitle: "",
+  eventLocation: "",
+  eventDescription: "",
+  eventStartDate: "",
+  eventStartTime: "",
+  eventEndDate: "",
+  eventEndTime: "",
 };
 
 function payloadFor(kind: QrKind, f: Fields): Result<string> {
@@ -94,6 +126,20 @@ function payloadFor(kind: QrKind, f: Fields): Result<string> {
       });
     case "whatsapp":
       return buildWhatsApp({ phone: f.waPhone, message: f.waMessage });
+    case "email":
+      return buildEmail({ to: f.emailTo, subject: f.emailSubject, body: f.emailBody });
+    case "sms":
+      return buildSms({ phone: f.smsPhone, message: f.smsMessage });
+    case "event":
+      return buildEvent({
+        title: f.eventTitle,
+        location: f.eventLocation,
+        description: f.eventDescription,
+        startDate: f.eventStartDate,
+        startTime: f.eventStartTime,
+        endDate: f.eventEndDate,
+        endTime: f.eventEndTime,
+      });
   }
 }
 
@@ -110,14 +156,28 @@ function hasInput(kind: QrKind, f: Fields): boolean {
       return f.firstName.trim() !== "" || f.lastName.trim() !== "";
     case "whatsapp":
       return f.waPhone.trim() !== "";
+    case "email":
+      return f.emailTo.trim() !== "";
+    case "sms":
+      return f.smsPhone.trim() !== "";
+    case "event":
+      return f.eventTitle.trim() !== "";
   }
 }
 
 export function QrWorkbench({ kind }: { kind: QrKind }) {
   const [fields, setFields] = useState<Fields>(EMPTY);
   const [level, setLevel] = useState<ErrorCorrection>("M");
+  const [colours, setColours] = useState<Colours>(DEFAULT_COLOURS);
+  const [logo, setLogo] = useState<string | null>(null);
   const [gateFor, setGateFor] = useState<(() => void) | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  // A logo covers the centre, so the code is built at the toughest level
+  // whenever one is present; H can lose the covered modules and still decode.
+  const effectiveLevel: ErrorCorrection = logo ? "H" : level;
+  const contrast = judgeContrast(colours.dark, colours.light);
 
   const set = <K extends keyof Fields>(key: K, value: Fields[K]) =>
     setFields((current) => ({ ...current, [key]: value }));
@@ -132,9 +192,12 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
 
   const code = useMemo(() => {
     if (payload === null) return null;
-    const matrix = toMatrix(payload, level);
-    return { matrix, svg: toSvg(matrix), payload };
-  }, [payload, level]);
+    const matrix = toMatrix(payload, effectiveLevel);
+    const svg = logo
+      ? toSvgWithLogo(matrix, logo, colours)
+      : toSvg(matrix, colours);
+    return { matrix, svg, payload };
+  }, [payload, effectiveLevel, colours, logo]);
 
   const hadCode = useRef(false);
   useEffect(() => {
@@ -162,16 +225,45 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
   function savePng() {
     if (!code) return;
     const scale = scaleFor(code.matrix, PNG_SIZE);
-    const { data, width, height } = toRgba(code.matrix, scale);
+    const { data, width, height } = toRgba(code.matrix, scale, colours);
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
     const context = canvas.getContext("2d");
     if (!context) return;
     context.putImageData(new ImageData(data, width, height), 0, 0);
-    canvas.toBlob((blob) => {
-      if (blob) download(blob, `${fileStem(kind)}.png`);
-    }, "image/png");
+
+    const finish = () => {
+      canvas.toBlob((blob) => {
+        if (blob) download(blob, `${fileStem(kind)}.png`);
+      }, "image/png");
+    };
+
+    if (!logo) {
+      finish();
+      return;
+    }
+
+    // The logo is drawn on a white rounded pad over the centre, matching the
+    // SVG, so the downloaded PNG looks like the preview rather than a bare code.
+    const box = logoPlacement(code.matrix, 0.2);
+    const image = new Image();
+    image.onload = () => {
+      const outer = (box.size + box.pad * 2) * scale;
+      const cx = (width - outer) / 2;
+      const radius = Math.max(1, Math.round(outer * 0.14));
+      context.fillStyle = colours.light;
+      roundRect(context, cx, cx, outer, outer, radius);
+      context.fill();
+      const inner = box.size * scale;
+      const ix = (width - inner) / 2;
+      context.drawImage(image, ix, ix, inner, inner);
+      finish();
+    };
+    // If the logo somehow fails to load, save the code without it rather than
+    // nothing at all.
+    image.onerror = finish;
+    image.src = logo;
   }
 
   const pngPixels = code ? scaleFor(code.matrix, PNG_SIZE) * (code.matrix.size + QUIET_ZONE * 2) : 0;
@@ -189,16 +281,18 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
                 key={option.value}
                 className={[
                   "flex cursor-pointer flex-col rounded-[12px] border px-3 py-2 transition-colors",
-                  level === option.value
+                  (logo ? "H" : level) === option.value
                     ? "border-primary bg-primary/5"
                     : "border-line hover:border-line-strong",
+                  logo ? "opacity-60" : "",
                 ].join(" ")}
               >
                 <span className="flex items-center gap-2 text-[14px] font-semibold">
                   <input
                     type="radio"
                     name="level"
-                    checked={level === option.value}
+                    checked={(logo ? "H" : level) === option.value}
+                    disabled={Boolean(logo)}
                     onChange={() => setLevel(option.value)}
                     className="h-4 w-4 accent-[var(--color-primary)]"
                   />
@@ -208,7 +302,22 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
               </label>
             ))}
           </div>
+          {logo ? (
+            <p className="mt-2 text-[13px] text-text-light">
+              Set to the toughest level automatically, because the logo covers the middle of the
+              code.
+            </p>
+          ) : null}
         </fieldset>
+
+        <Appearance
+          colours={colours}
+          setColours={setColours}
+          contrast={contrast}
+          logo={logo}
+          setLogo={setLogo}
+          logoInputRef={logoInputRef}
+        />
 
         {!built.ok && typing ? (
           <p role="alert" className="text-[14px] text-warn">
@@ -477,6 +586,154 @@ function Fieldsets({
     );
   }
 
+  if (kind === "email") {
+    return (
+      <>
+        <Field
+          id="email-to"
+          label="Send to"
+          hint="The address the message will open to."
+          value={fields.emailTo}
+          onChange={(v) => set("emailTo", v)}
+          placeholder="you@example.com"
+          type="email"
+          autoFocus
+        />
+        <Field
+          id="email-subject"
+          label="Subject"
+          hint="Optional. Punctuation is safe."
+          value={fields.emailSubject}
+          onChange={(v) => set("emailSubject", v)}
+          placeholder="Enquiry from your poster"
+        />
+        <Field
+          id="email-body"
+          label="Message"
+          hint="Optional. Appears in the new email, ready to edit and send."
+          value={fields.emailBody}
+          onChange={(v) => set("emailBody", v)}
+          placeholder="Hello,"
+          multiline
+        />
+      </>
+    );
+  }
+
+  if (kind === "sms") {
+    return (
+      <>
+        <Field
+          id="sms-phone"
+          label="Phone number"
+          hint="However your readers would dial it. Use the full international number for another country."
+          value={fields.smsPhone}
+          onChange={(v) => set("smsPhone", v)}
+          placeholder="+44 7700 900000"
+          type="tel"
+          autoFocus
+        />
+        <Field
+          id="sms-message"
+          label="Message to start with"
+          hint="Optional. Appears in the text, ready to send."
+          value={fields.smsMessage}
+          onChange={(v) => set("smsMessage", v)}
+          placeholder="JOIN"
+          multiline
+        />
+      </>
+    );
+  }
+
+  if (kind === "event") {
+    return (
+      <>
+        <Field
+          id="event-title"
+          label="Event name"
+          value={fields.eventTitle}
+          onChange={(v) => set("eventTitle", v)}
+          placeholder="Summer barbecue"
+          autoFocus
+        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="event-start-date" className="block text-[14px] font-semibold">
+              Start date
+            </label>
+            <input
+              id="event-start-date"
+              type="date"
+              value={fields.eventStartDate}
+              onChange={(event) => set("eventStartDate", event.target.value)}
+              className="mt-2 w-full rounded-[10px] border border-line bg-background px-3 py-2 text-[15px] outline-none focus:border-primary"
+            />
+          </div>
+          <div>
+            <label htmlFor="event-start-time" className="block text-[14px] font-semibold">
+              Start time
+            </label>
+            <input
+              id="event-start-time"
+              type="time"
+              value={fields.eventStartTime}
+              onChange={(event) => set("eventStartTime", event.target.value)}
+              className="mt-2 w-full rounded-[10px] border border-line bg-background px-3 py-2 text-[15px] outline-none focus:border-primary"
+            />
+          </div>
+        </div>
+        <p className="text-[13px] text-text-light">
+          Leave the time blank for an all-day event. The end below is optional; without it the
+          event lasts the block you started.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="event-end-date" className="block text-[14px] font-semibold">
+              End date
+            </label>
+            <input
+              id="event-end-date"
+              type="date"
+              value={fields.eventEndDate}
+              onChange={(event) => set("eventEndDate", event.target.value)}
+              className="mt-2 w-full rounded-[10px] border border-line bg-background px-3 py-2 text-[15px] outline-none focus:border-primary"
+            />
+          </div>
+          <div>
+            <label htmlFor="event-end-time" className="block text-[14px] font-semibold">
+              End time
+            </label>
+            <input
+              id="event-end-time"
+              type="time"
+              value={fields.eventEndTime}
+              onChange={(event) => set("eventEndTime", event.target.value)}
+              className="mt-2 w-full rounded-[10px] border border-line bg-background px-3 py-2 text-[15px] outline-none focus:border-primary"
+            />
+          </div>
+        </div>
+        <Field
+          id="event-location"
+          label="Place"
+          hint="Optional."
+          value={fields.eventLocation}
+          onChange={(v) => set("eventLocation", v)}
+          placeholder="The Bell, Main Street"
+        />
+        <Field
+          id="event-description"
+          label="Note"
+          hint="Optional. Keep it short so the code stays quick to scan."
+          value={fields.eventDescription}
+          onChange={(v) => set("eventDescription", v)}
+          placeholder="Bring a friend"
+          multiline
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <Field
@@ -500,6 +757,137 @@ function Fieldsets({
       />
     </>
   );
+}
+
+function Appearance({
+  colours,
+  setColours,
+  contrast,
+  logo,
+  setLogo,
+  logoInputRef,
+}: {
+  colours: Colours;
+  setColours: (c: Colours) => void;
+  contrast: ReturnType<typeof judgeContrast>;
+  logo: string | null;
+  setLogo: (v: string | null) => void;
+  logoInputRef: React.RefObject<HTMLInputElement | null>;
+}) {
+  function pickLogo(file: File | undefined) {
+    if (!file || !file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = () => setLogo(typeof reader.result === "string" ? reader.result : null);
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <fieldset>
+      <legend className="text-[14px] font-semibold">Colour and logo</legend>
+
+      <div className="mt-2 flex flex-wrap gap-4">
+        <label className="flex items-center gap-2 text-[14px]">
+          <input
+            type="color"
+            aria-label="Code colour"
+            value={colours.dark}
+            onChange={(event) => setColours({ ...colours, dark: event.target.value })}
+            className="h-8 w-10 cursor-pointer rounded border border-line bg-background"
+          />
+          Code colour
+        </label>
+        <label className="flex items-center gap-2 text-[14px]">
+          <input
+            type="color"
+            aria-label="Background colour"
+            value={colours.light}
+            onChange={(event) => setColours({ ...colours, light: event.target.value })}
+            className="h-8 w-10 cursor-pointer rounded border border-line bg-background"
+          />
+          Background
+        </label>
+        {colours.dark !== DEFAULT_COLOURS.dark || colours.light !== DEFAULT_COLOURS.light ? (
+          <button
+            type="button"
+            onClick={() => setColours(DEFAULT_COLOURS)}
+            className="text-[13px] text-text-light hover:text-primary-dark"
+          >
+            Reset to black on white
+          </button>
+        ) : null}
+      </div>
+
+      {contrast.level !== "ok" ? (
+        <p
+          role="alert"
+          className={[
+            "mt-2 text-[13px]",
+            contrast.level === "bad" ? "text-warn" : "text-text-light",
+          ].join(" ")}
+        >
+          {contrast.message}
+        </p>
+      ) : null}
+
+      <div className="mt-4">
+        {logo ? (
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logo} alt="The logo to place in the centre" className="h-10 w-10 rounded object-contain" />
+            <button
+              type="button"
+              onClick={() => setLogo(null)}
+              className="text-[13px] text-text-light hover:text-primary-dark"
+            >
+              Remove logo
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => logoInputRef.current?.click()}
+            className="ek-btn ek-btn-quiet"
+          >
+            Add a centre logo
+          </button>
+        )}
+        <input
+          ref={logoInputRef}
+          type="file"
+          accept="image/*"
+          aria-label="Choose a logo image"
+          className="sr-only"
+          onChange={(event) => {
+            pickLogo(event.target.files?.[0]);
+            event.target.value = "";
+          }}
+        />
+        <p className="mt-1 text-[13px] text-text-light">
+          Optional. A small logo sits in the middle, and the code switches to its toughest level so
+          it still scans. Keep the logo simple, and test the finished code before you print it.
+        </p>
+      </div>
+    </fieldset>
+  );
+}
+
+/** A rounded rectangle path, since not every canvas has roundRect built in. */
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + width, y, x + width, y + height, r);
+  ctx.arcTo(x + width, y + height, x, y + height, r);
+  ctx.arcTo(x, y + height, x, y, r);
+  ctx.arcTo(x, y, x + width, y, r);
+  ctx.closePath();
 }
 
 function Field({

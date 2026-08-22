@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import jsQR from "jsqr";
 import {
+  buildEmail,
+  buildEvent,
+  buildSms,
   buildText,
   buildUrl,
   buildVCard,
@@ -8,7 +11,7 @@ import {
   buildWifi,
   type Result,
 } from "./payloads";
-import { toMatrix, toRgba } from "./render";
+import { logoPlacement, toMatrix, toRgba } from "./render";
 
 const value = <T,>(result: Result<T>): T => {
   if (!result.ok) throw new Error(`expected a value, got: ${result.error}`);
@@ -34,6 +37,15 @@ function scan(payload: string, level: "L" | "M" | "Q" | "H" = "M"): string | nul
   // Eight pixels per module, which is well past what any decoder needs and
   // keeps the test from failing over sampling rather than correctness.
   const { data, width, height } = toRgba(matrix, 8);
+  return jsQR(data, width, height)?.data ?? null;
+}
+
+/** Decode raw pixels, for the logo-overlay test that edits them first. */
+function scanRaw(
+  data: Uint8ClampedArray<ArrayBuffer>,
+  width: number,
+  height: number,
+): string | null {
   return jsQR(data, width, height)?.data ?? null;
 }
 
@@ -250,5 +262,190 @@ describe("round trip through a real decoder", () => {
     const matrix = toMatrix(payload);
     expect(matrix.version).toBeGreaterThan(10);
     expect(scan(payload)).toBe(payload);
+  });
+});
+
+
+describe("buildEmail", () => {
+  it("builds a bare mailto for an address alone", () => {
+    expect(value(buildEmail({ to: "ada@example.com", subject: "", body: "" }))).toBe(
+      "mailto:ada@example.com",
+    );
+  });
+
+  it("percent-encodes the subject and body so an & cannot split them", () => {
+    const payload = value(
+      buildEmail({ to: "ada@example.com", subject: "Tea & cake", body: "3pm?" }),
+    );
+    expect(payload).toBe("mailto:ada@example.com?subject=Tea%20%26%20cake&body=3pm%3F");
+  });
+
+  it("rejects a missing or malformed address", () => {
+    expect(error(buildEmail({ to: "", subject: "", body: "" }))).toMatch(/address/i);
+    expect(error(buildEmail({ to: "not-an-email", subject: "", body: "" }))).toMatch(/email/i);
+  });
+});
+
+describe("buildSms", () => {
+  it("uses SMSTO with the number alone when there is no message", () => {
+    expect(value(buildSms({ phone: "+44 20 7946 0000", message: "" }))).toBe(
+      "SMSTO:+442079460000",
+    );
+  });
+
+  it("keeps the message after a second colon, verbatim", () => {
+    const payload = value(buildSms({ phone: "07700900000", message: "Running late: 10 min" }));
+    expect(payload).toBe("SMSTO:07700900000:Running late: 10 min");
+  });
+
+  it("rejects a number with letters in it", () => {
+    expect(error(buildSms({ phone: "CALL-ME", message: "" }))).toMatch(/digits/i);
+  });
+});
+
+describe("buildEvent", () => {
+  it("wraps a timed event in a VCALENDAR with floating local times", () => {
+    const payload = value(
+      buildEvent({
+        title: "Launch",
+        location: "",
+        description: "",
+        startDate: "2027-03-01",
+        startTime: "15:00",
+        endDate: "",
+        endTime: "16:30",
+      }),
+    );
+    expect(payload).toContain("BEGIN:VCALENDAR");
+    expect(payload).toContain("BEGIN:VEVENT");
+    expect(payload).toContain("DTSTART:20270301T150000");
+    expect(payload).toContain("DTEND:20270301T163000");
+    expect(payload).toContain("SUMMARY:Launch");
+    expect(payload).toContain("END:VCALENDAR");
+    expect(payload).toContain("\r\n");
+  });
+
+  it("uses DATE values and an exclusive next-day end for an all-day event", () => {
+    const payload = value(
+      buildEvent({
+        title: "Holiday",
+        location: "",
+        description: "",
+        startDate: "2027-12-25",
+        startTime: "",
+        endDate: "2027-12-25",
+        endTime: "",
+      }),
+    );
+    expect(payload).toContain("DTSTART;VALUE=DATE:20271225");
+    expect(payload).toContain("DTEND;VALUE=DATE:20271226");
+  });
+
+  it("escapes commas and semicolons in the text fields", () => {
+    const payload = value(
+      buildEvent({
+        title: "Drinks, then dinner; bring cash",
+        location: "The Bell; Main St",
+        description: "",
+        startDate: "2027-03-01",
+        startTime: "18:00",
+        endDate: "",
+        endTime: "20:00",
+      }),
+    );
+    expect(payload).toContain("SUMMARY:Drinks\\, then dinner\\; bring cash");
+    expect(payload).toContain("LOCATION:The Bell\\; Main St");
+  });
+
+  it("is deterministic, so the same event gives the same code", () => {
+    const input = {
+      title: "Launch",
+      location: "",
+      description: "",
+      startDate: "2027-03-01",
+      startTime: "15:00",
+      endDate: "",
+      endTime: "16:30",
+    };
+    expect(value(buildEvent(input))).toBe(value(buildEvent(input)));
+  });
+
+  it("rejects an event that ends before it starts", () => {
+    expect(
+      error(
+        buildEvent({
+          title: "Backwards",
+          location: "",
+          description: "",
+          startDate: "2027-03-01",
+          startTime: "16:00",
+          endDate: "2027-03-01",
+          endTime: "15:00",
+        }),
+      ),
+    ).toMatch(/ends before/i);
+  });
+
+  it("needs a title and a start", () => {
+    expect(
+      error(buildEvent({ title: "", location: "", description: "", startDate: "2027-03-01", startTime: "15:00", endDate: "", endTime: "16:00" })),
+    ).toMatch(/name/i);
+    expect(
+      error(buildEvent({ title: "X", location: "", description: "", startDate: "", startTime: "15:00", endDate: "", endTime: "16:00" })),
+    ).toMatch(/day and time/i);
+  });
+});
+
+describe("the new kinds round-trip through a real decoder", () => {
+  it("reads back a mailto", () => {
+    const payload = value(buildEmail({ to: "ada@example.com", subject: "Tea & cake", body: "hi" }));
+    expect(scan(payload)).toBe(payload);
+  });
+  it("reads back an SMSTO", () => {
+    const payload = value(buildSms({ phone: "+44 20 7946 0000", message: "on my way" }));
+    expect(scan(payload)).toBe(payload);
+  });
+  it("reads back a calendar event", () => {
+    const payload = value(
+      buildEvent({
+        title: "Launch party",
+        location: "The Bell, Main St",
+        description: "Bring a friend",
+        startDate: "2027-03-01",
+        startTime: "18:00",
+        endDate: "",
+        endTime: "20:00",
+      }),
+    );
+    expect(scan(payload, "H")).toBe(payload);
+  });
+});
+
+describe("a code with a centre logo still decodes", () => {
+  it("reads back at level H with the middle blanked to a logo-sized hole", () => {
+    // The hole is drawn white, the worst case: it reads as light modules
+    // rather than obvious damage. If H can still decode through it, a real
+    // opaque logo of the same size is safe.
+    const payload = value(buildUrl("https://useeverykit.com/qr/some/link"));
+    const matrix = toMatrix(payload, "H");
+    const scale = 8;
+    const { data, width, height } = toRgba(matrix, scale);
+
+    const box = logoPlacement(matrix, 0.2);
+    const x0 = Math.round(box.x * scale);
+    const y0 = Math.round(box.y * scale);
+    const x1 = Math.round((box.x + box.size) * scale);
+    const y1 = Math.round((box.y + box.size) * scale);
+    for (let y = y0; y < y1; y++) {
+      for (let x = x0; x < x1; x++) {
+        const at = (y * width + x) * 4;
+        data[at] = 255;
+        data[at + 1] = 255;
+        data[at + 2] = 255;
+        data[at + 3] = 255;
+      }
+    }
+
+    expect(scanRaw(data, width, height)).toBe(payload);
   });
 });

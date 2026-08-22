@@ -12,7 +12,7 @@
  * assert on the exact bytes that will be encoded.
  */
 
-export type QrKind = "url" | "text" | "wifi" | "vcard" | "whatsapp";
+export type QrKind = "url" | "text" | "wifi" | "vcard" | "whatsapp" | "email" | "sms" | "event";
 
 export type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 
@@ -217,4 +217,182 @@ export function buildWhatsApp(input: WhatsAppInput): Result<string> {
   if (message === "") return ok(base);
 
   return ok(`${base}?text=${encodeURIComponent(message)}`);
+}
+
+
+// ---------------------------------------------------------------------------
+// Email
+// ---------------------------------------------------------------------------
+
+export type EmailInput = { to: string; subject: string; body: string };
+
+/**
+ * A mailto: link, which opens a new message to an address.
+ *
+ * The subject and body go in the query, where they must be percent-encoded:
+ * an unescaped `&` in a subject would otherwise start a second parameter, and
+ * a `#` would truncate the whole thing. encodeURIComponent handles both.
+ */
+export function buildEmail(input: EmailInput): Result<string> {
+  const to = input.to.trim();
+  if (to === "") return fail("Type the email address the message should go to.");
+  // A deliberately loose check: one @ with something either side and a dot in
+  // the domain. Anything stricter rejects addresses that are genuinely valid.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+    return fail("That does not look like an email address.");
+  }
+
+  const query: string[] = [];
+  if (input.subject.trim()) query.push(`subject=${encodeURIComponent(input.subject.trim())}`);
+  if (input.body.trim()) query.push(`body=${encodeURIComponent(input.body.trim())}`);
+
+  const base = `mailto:${to}`;
+  return ok(query.length ? `${base}?${query.join("&")}` : base);
+}
+
+// ---------------------------------------------------------------------------
+// SMS
+// ---------------------------------------------------------------------------
+
+export type SmsInput = { phone: string; message: string };
+
+/**
+ * An SMSTO: code, which opens a text to a number with the message ready.
+ *
+ * SMSTO is the format phone cameras actually recognise, ahead of the `sms:`
+ * URI, and its separator is the colon between number and message. The number
+ * is normalised to the characters a dialler accepts; the message is not
+ * escaped because SMSTO takes the rest of the string verbatim, which is also
+ * why a colon in the message is fine.
+ */
+export function buildSms(input: SmsInput): Result<string> {
+  const phone = input.phone.replace(/[\s().-]/g, "");
+  if (phone === "") return fail("Type the phone number.");
+  if (!/^\+?[0-9]+$/.test(phone)) {
+    return fail("A phone number can only contain digits, spaces, brackets, + and -.");
+  }
+
+  const message = input.message.trim();
+  return ok(message ? `SMSTO:${phone}:${message}` : `SMSTO:${phone}`);
+}
+
+// ---------------------------------------------------------------------------
+// Calendar event
+// ---------------------------------------------------------------------------
+
+export type EventInput = {
+  title: string;
+  location: string;
+  description: string;
+  /** YYYY-MM-DD, from a date field. */
+  startDate: string;
+  /** HH:MM, from a time field. Empty means an all-day event. */
+  startTime: string;
+  endDate: string;
+  endTime: string;
+};
+
+/** Escape a value for an iCalendar text property. */
+function escapeIcs(value: string): string {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\r\n|\r|\n/g, "\\n");
+}
+
+/** YYYYMMDD from an ISO date, or null if the date is not one. */
+function icsDate(date: string): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date.trim());
+  return m ? `${m[1]}${m[2]}${m[3]}` : null;
+}
+
+/** YYYYMMDDTHHMMSS floating local time, or null if either part is malformed. */
+function icsDateTime(date: string, time: string): string | null {
+  const d = icsDate(date);
+  const t = /^(\d{2}):(\d{2})$/.exec(time.trim());
+  if (!d || !t) return null;
+  return `${d}T${t[1]}${t[2]}00`;
+}
+
+/** The day after an ISO date, for an all-day event's exclusive end. */
+function nextDay(date: string): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date.trim());
+  if (!m) return null;
+  // Midday avoids a daylight-saving shift moving the date by one.
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12);
+  d.setDate(d.getDate() + 1);
+  const y = d.getFullYear();
+  const mo = String(d.getMonth() + 1).padStart(2, "0");
+  const da = String(d.getDate()).padStart(2, "0");
+  return `${y}${mo}${da}`;
+}
+
+/**
+ * A VEVENT wrapped in a minimal VCALENDAR, which is what a scanner reads to
+ * offer "add to calendar".
+ *
+ * Floating local time is used deliberately: an event typed as "3pm" means 3pm
+ * where the person scanning is, and pinning it to a timezone here would shift
+ * it for anyone in another one. An all-day event uses DATE values, with the
+ * end set to the following day because iCalendar's end is exclusive.
+ *
+ * UID and DTSTAMP are derived from the event itself rather than the clock, so
+ * the same input always produces the same code, which is what lets the tests
+ * assert on it.
+ */
+export function buildEvent(input: EventInput): Result<string> {
+  const title = input.title.trim();
+  if (title === "") return fail("Type a name for the event.");
+
+  const allDay = input.startTime.trim() === "";
+
+  let start: string;
+  let end: string;
+  let dateProp: string;
+
+  if (allDay) {
+    const s = icsDate(input.startDate);
+    if (!s) return fail("Choose the day the event starts.");
+    const endSource = input.endDate.trim() ? input.endDate : input.startDate;
+    const e = nextDay(endSource);
+    if (!e) return fail("That end date is not valid.");
+    start = s;
+    end = e;
+    dateProp = "VALUE=DATE";
+  } else {
+    const s = icsDateTime(input.startDate, input.startTime);
+    if (!s) return fail("Choose the day and time the event starts.");
+    const endDate = input.endDate.trim() ? input.endDate : input.startDate;
+    const endTime = input.endTime.trim() ? input.endTime : input.startTime;
+    const e = icsDateTime(endDate, endTime);
+    if (!e) return fail("That end time is not valid.");
+    if (e < s) return fail("The event ends before it starts.");
+    start = s;
+    end = e;
+    dateProp = "";
+  }
+
+  const stamp = `${start.slice(0, 8)}T000000Z`;
+  const uid = `${start}-${title.replace(/[^a-z0-9]+/gi, "").slice(0, 20).toLowerCase() || "event"}@everykit`;
+
+  const startLine = dateProp ? `DTSTART;${dateProp}:${start}` : `DTSTART:${start}`;
+  const endLine = dateProp ? `DTEND;${dateProp}:${end}` : `DTEND:${end}`;
+
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//EveryKit//QR//EN",
+    "BEGIN:VEVENT",
+    `UID:${uid}`,
+    `DTSTAMP:${stamp}`,
+    startLine,
+    endLine,
+    `SUMMARY:${escapeIcs(title)}`,
+  ];
+  if (input.location.trim()) lines.push(`LOCATION:${escapeIcs(input.location.trim())}`);
+  if (input.description.trim()) lines.push(`DESCRIPTION:${escapeIcs(input.description.trim())}`);
+  lines.push("END:VEVENT", "END:VCALENDAR");
+
+  return ok(lines.join("\r\n"));
 }

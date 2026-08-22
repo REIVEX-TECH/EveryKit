@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import { kinds } from "@/data/kinds";
 
 /**
- * The five kinds of code as a launcher, matching the grid on the hub.
+ * The eight kinds of code as a launcher, matching the grid on the hub.
  *
  * Same rules everywhere: one white glyph on one flat tint, corners at 23
  * percent of the size, one shadow, and the colours pinned by slug so adding
@@ -16,6 +16,9 @@ const TINTS: Record<string, string> = {
   wifi: "#1769d4",
   vcard: "#2f6fd0",
   whatsapp: "#3d8ae8",
+  email: "#145cb8",
+  sms: "#2a74e0",
+  event: "#4a93ef",
 };
 
 const stroke = {
@@ -60,6 +63,25 @@ const GLYPHS: Record<string, ReactElement> = {
     <>
       <path d="M4.4 19.6l1.1-3.8a7.7 7.7 0 1 1 2.9 2.8z" {...stroke} />
       <path d="M9.4 9.6c0 3 1.9 4.9 4.9 4.9" {...stroke} />
+    </>
+  ),
+  email: (
+    <>
+      <rect x="3.2" y="5.4" width="17.6" height="13.2" rx="2.2" {...stroke} />
+      <path d="M4 6.6l8 6.2 8-6.2" {...stroke} />
+    </>
+  ),
+  sms: (
+    <>
+      <path d="M4.4 5.4h15.2a1.6 1.6 0 0 1 1.6 1.6v8a1.6 1.6 0 0 1-1.6 1.6H9l-4 3.4V16.6H4.4a1.6 1.6 0 0 1-1.6-1.6V7a1.6 1.6 0 0 1 1.6-1.6z" {...stroke} />
+      <path d="M7.6 10.8h.01M12 10.8h.01M16.4 10.8h.01" {...stroke} strokeWidth={2.2} />
+    </>
+  ),
+  event: (
+    <>
+      <rect x="3.4" y="4.8" width="17.2" height="15.4" rx="2.2" {...stroke} />
+      <path d="M3.4 9.2h17.2M8 3.2v3.2M16 3.2v3.2" {...stroke} />
+      <rect x="7" y="12" width="3.4" height="3.2" rx="0.6" {...solid} />
     </>
   ),
 };

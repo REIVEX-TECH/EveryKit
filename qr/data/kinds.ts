@@ -1,6 +1,7 @@
 /**
- * The five kinds of QR code this kit makes. One entry per route, and the single
- * source for the landing tiles, the routes themselves and their SEO pages.
+ * The eight kinds of QR code this kit makes. One entry per route, and the
+ * single source for the landing tiles, the routes themselves, their sitemap
+ * entries and their SEO pages.
  */
 
 import type { QrKind } from "@/lib/qr/payloads";
@@ -83,6 +84,61 @@ export const kinds: Kind[] = [
       { q: "My password has punctuation in it. Is that a problem?", a: "Not here. Semicolons, colons, commas, quotes and backslashes all have to be escaped in this format, and skipping that is the most common bug in Wi-Fi QR tools: the code scans, then the phone tries to join with only the first part of the password. This escapes all of them, and there are tests that decode the finished code to confirm the password survives." },
       { q: "Should I pick WPA or WEP?", a: "WPA, unless the network is genuinely old. WPA covers WPA, WPA2 and WPA3. WEP is only for equipment from before about 2006." },
       { q: "What does hidden mean?", a: "Tick it if the network does not appear in the list of nearby networks. Ticking it for a normal network can stop the code from working, so leave it off unless you know it applies." },
+    ],
+  },
+  {
+    slug: "email",
+    title: "Email",
+    blurb: "Open a new message, ready to send",
+    seoTitle: "Email QR code generator, with the subject and message ready",
+    description:
+      "Make a QR code that opens a new email to you, with the subject and message already filled in. Nothing is uploaded.",
+    intro: [
+      "Scanning this opens a new email to the address you give, with the subject and body already typed. Good on a poster, a flyer, or a support sign.",
+      "It is an ordinary mailto link inside the code, so it works with whatever email app the phone already uses.",
+    ],
+    faq: [
+      ...SHARED_FAQ,
+      { q: "Can I set the subject and the message?", a: "Yes, and both are optional. They are encoded so that punctuation is safe: an ampersand in the subject, which would otherwise break the link, is handled correctly." },
+      { q: "Does it send the email automatically?", a: "No, and it should not. It opens a new message with the fields filled in, and the person chooses to send it. A code that sent mail on its own would be a gift to spammers." },
+      { q: "Which email app does it use?", a: "Whichever one the phone is set up with. The code does not choose; it hands the phone a standard mailto link and the phone opens its default." },
+    ],
+  },
+  {
+    slug: "sms",
+    title: "Text message",
+    blurb: "Start a text, optionally with a message ready",
+    seoTitle: "SMS QR code generator, so people text you by scanning",
+    description:
+      "Make a QR code that opens a new text message to your number, with an optional message ready to send. Made in your browser.",
+    intro: [
+      "Scanning this starts a text to your number, with the message you set already typed in. Useful for a shortcode sign-up, a feedback line, or an order-by-text poster.",
+      "It uses the SMSTO format, which is the one phone cameras actually recognise, rather than a link that only some of them understand.",
+    ],
+    faq: [
+      ...SHARED_FAQ,
+      { q: "Can I set the message?", a: "Yes, and it is optional. The number and the message are kept apart correctly, so a colon in your message does not confuse the phone." },
+      { q: "How should I write the number?", a: "However your recipients would dial it. For a code aimed at another country, use the full international number so it works from anywhere." },
+      { q: "Does it send the text on its own?", a: "No. It opens the message ready to send, and the person taps send. That is deliberate." },
+    ],
+  },
+  {
+    slug: "event",
+    title: "Calendar event",
+    blurb: "Add an event to a phone's calendar",
+    seoTitle: "Calendar event QR code generator, add to calendar by scanning",
+    description:
+      "Make a QR code that adds an event to a phone's calendar: the name, time, and place. Made in your browser and never uploaded.",
+    intro: [
+      "Scanning this offers to add the event to the calendar, with the name, time and place already set. Good on an invitation, a poster, or a save-the-date.",
+      "The time is stored as a plain local time, so 3pm means 3pm wherever the person scanning is, rather than shifting for their timezone.",
+    ],
+    faq: [
+      ...SHARED_FAQ,
+      { q: "Does it work with any calendar?", a: "It uses the standard iCalendar format that Apple, Google and Outlook calendars all read. On most phones, scanning offers to add the event straight away." },
+      { q: "Can I make it an all-day event?", a: "Yes. Leave the start time blank and it becomes an all-day event on the date you pick. Fill the time in for an event with a start and an end." },
+      { q: "Which timezone is it in?", a: "None in particular, on purpose. The time is stored as a floating local time, so an event at 3pm shows as 3pm on the calendar of whoever scans it. That is what you want for a physical event people attend in person." },
+      { q: "Why is the code fairly dense?", a: "An event carries more than a link: a name, two times, and often a place and a note. Keep the description short and the code stays quick to scan." },
     ],
   },
   {
