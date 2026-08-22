@@ -214,3 +214,38 @@ describe("the filename", () => {
     expect(pdfFilename(invoiceFor("USD", { number: "   " }))).toBe("invoice.pdf");
   });
 });
+
+describe("document types", () => {
+  it("labels a quote with its own words and validity date", () => {
+    const quote = { ...emptyInvoice("2026-08-20", "quote"), number: "QUO-9", due: "2026-09-20" };
+    const summary = summaryText(quote);
+    expect(summary).toContain("Quote QUO-9");
+    expect(summary).toContain("Valid until: 2026-09-20");
+    expect(summary).not.toContain("Due:");
+  });
+
+  it("records how a receipt was paid", () => {
+    const receipt = {
+      ...emptyInvoice("2026-08-20", "receipt"),
+      number: "RCP-3",
+      paymentMethod: "Card ending 4417",
+    };
+    const summary = summaryText(receipt);
+    expect(summary).toContain("Receipt RCP-3");
+    expect(summary).toContain("Paid by: Card ending 4417");
+  });
+
+  it("gives a fresh document the right number prefix", () => {
+    expect(emptyInvoice("2026-08-20", "invoice").number).toBe("INV-001");
+    expect(emptyInvoice("2026-08-20", "quote").number).toBe("QUO-001");
+    expect(emptyInvoice("2026-08-20", "receipt").number).toBe("RCP-001");
+  });
+
+  it("renders a real PDF for a quote and a receipt", async () => {
+    const quote = await renderInvoicePdf(emptyInvoice("2026-08-20", "quote"));
+    const receipt = await renderInvoicePdf(emptyInvoice("2026-08-20", "receipt"));
+    expect(quote.type).toBe("application/pdf");
+    expect(receipt.type).toBe("application/pdf");
+    expect(quote.size).toBeGreaterThan(500);
+  });
+});

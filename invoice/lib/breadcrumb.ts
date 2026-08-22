@@ -1,13 +1,14 @@
 /**
- * The third breadcrumb segment, which this kit never has.
+ * The third breadcrumb segment.
  *
- * One tool, one page. The breadcrumb stays at two segments everywhere, and this
- * exists so the shared header does not need to know which kits are which.
+ * The home page is the invoice tool itself and stays at two segments. The two
+ * variants that live at their own paths, the quote and the receipt, get a third
+ * segment naming them, resolved from the path so the shared header does not need
+ * to know which kits have variants.
  */
 
-// The path is taken and ignored, so the shared header can call every kit's
-// resolver the same way without knowing which kits have a third segment.
 export function currentTool(pathname: string): { name: string; href: string } | null {
-  void pathname;
+  if (pathname.startsWith("/quote")) return { name: "Quote", href: "/quote" };
+  if (pathname.startsWith("/receipt")) return { name: "Receipt", href: "/receipt" };
   return null;
 }

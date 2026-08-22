@@ -1,7 +1,7 @@
 "use client";
 
 import { formatAmount, formatMoney, getCurrency } from "@/lib/invoice/money";
-import { billableLines, totalsFor, type Invoice } from "@/lib/invoice/invoice";
+import { billableLines, DOC_TYPES, totalsFor, type Invoice } from "@/lib/invoice/invoice";
 
 /**
  * The A4 preview.
@@ -39,12 +39,21 @@ export function Preview({ invoice }: { invoice: Invoice }) {
             ) : null}
           </div>
           <div className="text-right">
-            <p className="text-[22px] font-semibold tracking-tight">INVOICE</p>
+            <p className="text-[22px] font-semibold tracking-tight">
+              {DOC_TYPES[invoice.docType].title.toUpperCase()}
+            </p>
+            {invoice.docType === "receipt" && DOC_TYPES.receipt.stamp ? (
+              <p className="mt-0.5 text-[10px] font-semibold tracking-wide text-[#595959]">
+                {DOC_TYPES.receipt.stamp}
+              </p>
+            ) : null}
             {invoice.number.trim() ? (
-              <p className="mt-1 text-[#4a4a4a]">Invoice number: {invoice.number}</p>
+              <p className="mt-1 text-[#4a4a4a]">{DOC_TYPES[invoice.docType].numberLabel}: {invoice.number}</p>
             ) : null}
             {invoice.issued.trim() ? <p className="text-[#4a4a4a]">Issued: {invoice.issued}</p> : null}
-            {invoice.due.trim() ? <p className="text-[#4a4a4a]">Due: {invoice.due}</p> : null}
+            {invoice.due.trim() ? (
+              <p className="text-[#4a4a4a]">{DOC_TYPES[invoice.docType].dateLabel}: {invoice.due}</p>
+            ) : null}
           </div>
         </div>
 
@@ -110,6 +119,13 @@ export function Preview({ invoice }: { invoice: Invoice }) {
             />
           </dl>
         </div>
+
+        {invoice.docType === "receipt" && invoice.paymentMethod.trim() ? (
+          <div className="mt-6">
+            <p className="text-[8px] font-semibold tracking-wide text-[#595959]">PAID BY</p>
+            <p className="mt-1 text-[9px] text-[#4a4a4a]">{invoice.paymentMethod}</p>
+          </div>
+        ) : null}
 
         {invoice.notes.trim() ? (
           <div className="mt-auto pt-6">

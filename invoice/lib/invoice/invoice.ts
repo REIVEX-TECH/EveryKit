@@ -17,7 +17,34 @@ export type Party = {
   details: string;
 };
 
+export type DocType = "invoice" | "quote" | "receipt";
+
+/**
+ * What changes between the three documents: the heading, the two labels people
+ * read, and the number prefix. They share one engine and one layout; only the
+ * words move. A receipt also carries a paid stamp and a payment-method line,
+ * which the renderer draws when the type is receipt.
+ */
+export type DocConfig = {
+  title: string;
+  /** Label for the number field. */
+  numberLabel: string;
+  /** Default prefix for a fresh document's number. */
+  numberPrefix: string;
+  /** Label for the second date, which means something different each time. */
+  dateLabel: string;
+  /** Shown on a receipt only. */
+  stamp?: string;
+};
+
+export const DOC_TYPES: Record<DocType, DocConfig> = {
+  invoice: { title: "Invoice", numberLabel: "Invoice number", numberPrefix: "INV-001", dateLabel: "Due" },
+  quote: { title: "Quote", numberLabel: "Quote number", numberPrefix: "QUO-001", dateLabel: "Valid until" },
+  receipt: { title: "Receipt", numberLabel: "Receipt number", numberPrefix: "RCP-001", dateLabel: "Paid on", stamp: "PAID" },
+};
+
 export type Invoice = {
+  docType: DocType;
   number: string;
   issued: string;
   due: string;
@@ -29,15 +56,18 @@ export type Invoice = {
   taxPercent: number;
   taxLabel: string;
   notes: string;
+  /** Shown on a receipt: how it was paid. Ignored by the other two. */
+  paymentMethod: string;
   /** A data URL for the logo, held only in memory. */
   logoDataUrl: string | null;
 };
 
 export const EMPTY_LINE: Line = { description: "", quantity: 1, unitPriceMinor: 0 };
 
-export function emptyInvoice(today: string): Invoice {
+export function emptyInvoice(today: string, docType: DocType = "invoice"): Invoice {
   return {
-    number: "INV-001",
+    docType,
+    number: DOC_TYPES[docType].numberPrefix,
     issued: today,
     due: "",
     currencyCode: "USD",
@@ -48,6 +78,7 @@ export function emptyInvoice(today: string): Invoice {
     taxPercent: 0,
     taxLabel: "Tax",
     notes: "",
+    paymentMethod: "",
     logoDataUrl: null,
   };
 }
@@ -75,12 +106,16 @@ export function summaryText(invoice: Invoice): string {
   const totals = totalsFor(invoice);
   const money = (minor: number) => formatMoney(minor, currency);
 
+  const config = DOC_TYPES[invoice.docType];
   const rows: string[] = [];
-  rows.push(`Invoice ${invoice.number}`.trim());
+  rows.push(`${config.title} ${invoice.number}`.trim());
   if (invoice.seller.name.trim()) rows.push(`From: ${invoice.seller.name.trim()}`);
   if (invoice.buyer.name.trim()) rows.push(`To: ${invoice.buyer.name.trim()}`);
   if (invoice.issued.trim()) rows.push(`Issued: ${invoice.issued.trim()}`);
-  if (invoice.due.trim()) rows.push(`Due: ${invoice.due.trim()}`);
+  if (invoice.due.trim()) rows.push(`${config.dateLabel}: ${invoice.due.trim()}`);
+  if (invoice.docType === "receipt" && invoice.paymentMethod.trim()) {
+    rows.push(`Paid by: ${invoice.paymentMethod.trim()}`);
+  }
   rows.push("");
   rows.push(`Subtotal: ${money(totals.subtotalMinor)}`);
   if (totals.discountMinor > 0) rows.push(`Discount: -${money(totals.discountMinor)}`);

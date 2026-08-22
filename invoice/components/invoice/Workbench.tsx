@@ -17,6 +17,8 @@ import {
   pdfFilename,
   summaryText,
   totalsFor,
+  DOC_TYPES,
+  type DocType,
   type Invoice,
 } from "@/lib/invoice/invoice";
 import { renderInvoicePdf } from "@/lib/invoice/pdf";
@@ -24,8 +26,9 @@ import { Preview } from "./Preview";
 
 const MAX_LOGO_BYTES = 2 * 1024 * 1024;
 
-export function Workbench({ today }: { today: string }) {
-  const [invoice, setInvoice] = useState<Invoice>(() => emptyInvoice(today));
+export function Workbench({ today, docType = "invoice" }: { today: string; docType?: DocType }) {
+  const [invoice, setInvoice] = useState<Invoice>(() => emptyInvoice(today, docType));
+  const config = DOC_TYPES[docType];
   const [priceText, setPriceText] = useState<string[]>([""]);
   const [discountText, setDiscountText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -155,12 +158,22 @@ export function Workbench({ today }: { today: string }) {
         </section>
 
         <section>
-          <h2 className="text-[18px]">The invoice</h2>
+          <h2 className="text-[18px]">The {config.title.toLowerCase()}</h2>
           <div className="mt-3 grid gap-4 sm:grid-cols-3">
-            <Field id="number" label="Invoice number" value={invoice.number} onChange={(v) => set("number", v)} />
+            <Field id="number" label={config.numberLabel} value={invoice.number} onChange={(v) => set("number", v)} />
             <Field id="issued" label="Issued" type="date" value={invoice.issued} onChange={(v) => set("issued", v)} />
-            <Field id="due" label="Due" type="date" value={invoice.due} onChange={(v) => set("due", v)} />
+            <Field id="due" label={config.dateLabel} type="date" value={invoice.due} onChange={(v) => set("due", v)} />
           </div>
+          {docType === "receipt" ? (
+            <div className="mt-4">
+              <Field
+                id="payment-method"
+                label="Paid by"
+                value={invoice.paymentMethod}
+                onChange={(v) => set("paymentMethod", v)}
+              />
+            </div>
+          ) : null}
           <div className="mt-4">
             <label htmlFor="currency" className="block text-[14px] font-semibold">
               Currency

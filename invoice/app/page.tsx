@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Workbench } from "@/components/invoice/Workbench";
+import { DocSwitcher } from "@/components/invoice/DocSwitcher";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -74,6 +75,8 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
+
+      <DocSwitcher current="/" />
 
       <div className="ek-shell py-10 sm:py-14">
         <h1 className="max-w-[20ch] text-[32px] leading-tight sm:text-[38px]">

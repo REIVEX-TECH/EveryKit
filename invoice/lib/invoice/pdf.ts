@@ -7,7 +7,7 @@
  */
 
 import { formatAmount, formatMoney, getCurrency } from "./money";
-import { billableLines, totalsFor, type Invoice } from "./invoice";
+import { billableLines, DOC_TYPES, totalsFor, type Invoice } from "./invoice";
 
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
@@ -139,12 +139,13 @@ export async function renderInvoicePdf(invoice: Invoice): Promise<Blob> {
     }
   }
 
-  drawRight("INVOICE", right, y - TITLE_SIZE + 4, { size: TITLE_SIZE, font: bold });
+  const config = DOC_TYPES[invoice.docType];
+  drawRight(config.title.toUpperCase(), right, y - TITLE_SIZE + 4, { size: TITLE_SIZE, font: bold });
   let metaY = y - TITLE_SIZE - 8;
   const meta: Array<[string, string]> = [];
-  if (invoice.number.trim()) meta.push(["Invoice number", invoice.number.trim()]);
+  if (invoice.number.trim()) meta.push([config.numberLabel, invoice.number.trim()]);
   if (invoice.issued.trim()) meta.push(["Issued", invoice.issued.trim()]);
-  if (invoice.due.trim()) meta.push(["Due", invoice.due.trim()]);
+  if (invoice.due.trim()) meta.push([config.dateLabel, invoice.due.trim()]);
   for (const [label, value] of meta) {
     drawRight(`${label}: ${value}`, right, metaY, { size: SMALL_SIZE, color: muted });
     metaY -= 12;
@@ -263,6 +264,27 @@ export async function renderInvoicePdf(invoice: Invoice): Promise<Blob> {
     for (const row of rows) {
       draw(row, MARGIN, y, { size: SMALL_SIZE, color: muted });
       y -= 12;
+    }
+  }
+
+  // A receipt says how it was paid, and carries a PAID stamp near the total.
+  if (invoice.docType === "receipt") {
+    if (invoice.paymentMethod.trim()) {
+      newPageIfNeeded(26);
+      y -= 16;
+      draw("PAID BY", MARGIN, y, { size: SMALL_SIZE, font: bold, color: muted });
+      y -= 14;
+      draw(invoice.paymentMethod.trim(), MARGIN, y, { size: SMALL_SIZE, color: muted });
+      y -= 12;
+    }
+    if (config.stamp) {
+      // Drawn in the top-right corner, under the heading, so it reads at a
+      // glance without colliding with the totals.
+      draw(config.stamp, right - widthOf(config.stamp, bold, SMALL_SIZE + 4), headerBottom + 6, {
+        size: SMALL_SIZE + 4,
+        font: bold,
+        color: muted,
+      });
     }
   }
 
