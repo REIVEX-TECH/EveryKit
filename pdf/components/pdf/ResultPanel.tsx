@@ -9,7 +9,12 @@ import { PAYMENTS_ENABLED, PRICE_LABEL, hasPaid, startCheckout } from "@/lib/pay
 import { formatBytes } from "@/lib/pdf/files";
 import { revealResult } from "@/lib/revealResult";
 
-export type ResultFile = { name: string; bytes: Uint8Array };
+export type ResultFile = {
+  name: string;
+  bytes: Uint8Array;
+  /** Defaults to a PDF, because nine of the ten tools produce one. */
+  mime?: string;
+};
 
 type Props = {
   files: ResultFile[];
@@ -25,7 +30,7 @@ function saveFile(file: ResultFile) {
   // something else may still be holding.
   const copy = new Uint8Array(file.bytes.length);
   copy.set(file.bytes);
-  const url = URL.createObjectURL(new Blob([copy], { type: "application/pdf" }));
+  const url = URL.createObjectURL(new Blob([copy], { type: file.mime ?? "application/pdf" }));
 
   const link = document.createElement("a");
   link.href = url;

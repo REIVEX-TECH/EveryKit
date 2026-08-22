@@ -1,6 +1,7 @@
 /**
- * The six PDF tools. One entry per route, and the single source for the
- * landing tiles, the routes themselves, and their SEO pages.
+ * The ten PDF tools. One entry per route, and the single source for the
+ * landing tiles, the routes themselves, their sitemap entries and their SEO
+ * pages. Adding a tool here is all there is to adding a tool.
  */
 
 export type ToolSlug =
@@ -8,6 +9,10 @@ export type ToolSlug =
   | "split"
   | "extract"
   | "organize"
+  | "delete-pages"
+  | "page-numbers"
+  | "watermark"
+  | "pdf-to-images"
   | "images-to-pdf"
   | "compress";
 
@@ -117,6 +122,94 @@ export const tools: Tool[] = [
       { q: "Does the rotation stick?", a: "Yes. It is written into the page itself, so the file opens the right way up in any reader, not only in this preview." },
       { q: "Can I delete pages here?", a: "Yes. Remove a page from the list and it is left out of the result." },
       { q: "What if a page was already rotated?", a: "Turning it adds to the rotation it already had, so the buttons turn what you can actually see." },
+    ],
+    multiple: false,
+    accept: "application/pdf",
+  },
+  {
+    slug: "delete-pages",
+    title: "Delete pages",
+    blurb: "Remove the pages you do not want and keep the rest",
+    seoTitle: "Delete pages from a PDF, free, and never uploaded",
+    description:
+      "Pick the pages to remove and download what is left, in the original order. Runs entirely in your browser, so nothing is uploaded.",
+    intro: [
+      "Choose the pages you want gone and download the rest. The order of everything you keep stays exactly as it was.",
+      "This is the same engine as extract, asked the other way round. Extract keeps what you pick; this removes it. Whichever way you think about the job, the result is identical.",
+    ],
+    faq: [
+      UPLOAD_ANSWER,
+      { q: "Can I get the deleted pages back?", a: "Not from the new file, no. The pages are left out of it rather than hidden inside it, which is the point: a page you removed before sending a document on is genuinely not in what you send. Keep your original if you might need them." },
+      { q: "What if I want to keep only a few pages?", a: "Use extract instead. It asks you to pick what stays rather than what goes, which is less counting when the pages you want are the smaller group." },
+      { q: "Does it change the pages I keep?", a: "No. They are copied across as they are, with the same text, images and resolution. Nothing is re-encoded." },
+      { q: "Can I delete every page?", a: "No, and the tool says so rather than handing you an empty file. A PDF has to have at least one page to be a PDF." },
+      { q: "What about password-protected files?", a: "A file that needs a password to open cannot be read. Remove the password in your PDF reader first, then come back." },
+    ],
+    multiple: false,
+    accept: "application/pdf",
+  },
+  {
+    slug: "page-numbers",
+    title: "Add page numbers",
+    blurb: "Stamp numbers onto the pages, in the corner you choose",
+    seoTitle: "Add page numbers to a PDF, free, and never uploaded",
+    description:
+      "Stamp page numbers into a PDF, choosing the corner, the starting number and whether to show the total. Runs in your browser.",
+    intro: [
+      "Numbers are drawn into the file itself, so they are there in every reader and on paper, not only in a preview here.",
+      "You can start the count at a number other than one, and leave a cover page bare. Both come up the moment a document is part of something larger.",
+    ],
+    faq: [
+      UPLOAD_ANSWER,
+      { q: "Can I start at a number other than 1?", a: "Yes. Set the starting number and the count runs on from there. This is what you want when the document is chapter two of something, or continues from a file somebody else numbered." },
+      { q: "Can I leave the cover page unnumbered?", a: "Yes. Tell it how many pages to skip at the front and those are left bare, with the count starting on the first page after them." },
+      { q: "What if my pages are sideways?", a: "The numbers follow what you see rather than what the file says. A page scanned sideways carries a rotation, and the number is placed and turned to match, so it reads the right way up in the corner you picked." },
+      { q: "Will the numbers cover up my text?", a: "They sit in the margin, about a centimetre from the two nearest edges. On a document with an unusually tight margin they can land close to the text, so check the result before you send it on." },
+      { q: "Can I remove them later?", a: "Not with this tool. They are drawn into the page like any other text. Keep your original if you might want an unnumbered copy." },
+    ],
+    multiple: false,
+    accept: "application/pdf",
+  },
+  {
+    slug: "watermark",
+    title: "Watermark a PDF",
+    blurb: "Draw text across every page, at the angle you choose",
+    seoTitle: "Add a watermark to a PDF, free, and never uploaded",
+    description:
+      "Draw text across every page of a PDF, choosing the wording, the angle and how faint it is. Runs entirely in your browser.",
+    intro: [
+      "Type the wording, pick how it sits and how faint it is, and every page gets the same mark drawn into it.",
+      "This is a visible mark rather than a lock. It is the right tool for making sure nobody signs the draft by mistake, and the wrong one for stopping somebody who does not want to be stopped.",
+    ],
+    faq: [
+      UPLOAD_ANSWER,
+      { q: "Does a watermark protect my document?", a: "No, and it is worth being clear about that. Anyone with a PDF editor can take it off again. What it does is tell an honest reader what they are holding, which is why DRAFT and COPY are the words most people put there." },
+      { q: "How faint should it be?", a: "Faint enough to read the page through, dark enough to notice. Around fifteen percent suits a diagonal mark across text. If you cannot see it in the result, raise it and run the file again." },
+      { q: "Will it cover every page?", a: "Yes, every page in the file, including any that are sideways. There is no way to mark only some of them here; run the pages you want through separately and merge them back if you need that." },
+      { q: "Can I use my logo instead of text?", a: "Not yet. This draws text only. An image watermark needs the picture embedded and positioned, which is a different tool rather than another setting." },
+      { q: "Will it make the file much bigger?", a: "Barely. The text is drawn with one of the standard PDF faces every reader already has, so nothing is embedded and the file grows by a few hundred bytes a page." },
+    ],
+    multiple: false,
+    accept: "application/pdf",
+  },
+  {
+    slug: "pdf-to-images",
+    title: "PDF to images",
+    blurb: "Turn every page into a JPG or PNG, in one zip",
+    seoTitle: "PDF to JPG and PNG online, free, and never uploaded",
+    description:
+      "Turn every page of a PDF into a JPG or PNG and download them as one zip. The pages are drawn in your browser and never uploaded.",
+    intro: [
+      "Every page becomes its own picture, numbered in order, and they come back as a single zip file.",
+      "The pages are drawn in the tab, the same way a reader draws them on screen, so what you get is what the document looks like rather than a copy of what is inside it.",
+    ],
+    faq: [
+      UPLOAD_ANSWER,
+      { q: "JPG or PNG?", a: "JPG for scans and anything photographic, because it is far smaller. PNG for pages that are mostly text, line drawings or screenshots, where it stays sharp and JPG leaves a faint mess around the edges of letters." },
+      { q: "What resolution do I get?", a: "About twice the size the page is defined at, which is roughly 150 dots per inch and reads cleanly on a screen. Very large pages are capped, so a poster does not try to allocate more memory than the tab has." },
+      { q: "How many pages can it do?", a: "Two hundred. Every picture has to be held in memory at once to build the zip, and past that a phone runs out and the browser closes the tab. Split the file first and run the parts if you have more." },
+      { q: "Can I get one page instead of all of them?", a: "Extract that page first, then run it through here. The result is a zip with a single picture in it." },
+      { q: "Is the text still selectable?", a: "No. A picture of a page is a picture. If you need the text, keep the PDF, or use extract to pull out the pages you want and leave them as a PDF." },
     ],
     multiple: false,
     accept: "application/pdf",

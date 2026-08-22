@@ -10,7 +10,10 @@
  */
 
 import {
+  addPageNumbers,
+  addWatermark,
   compressPdf,
+  deletePages,
   explodePdf,
   extractPages,
   imagesToPdf,
@@ -19,8 +22,10 @@ import {
   splitPdf,
   type CompressLevel,
   type ImageInput,
+  type PageNumberOptions,
   type PagePlan,
   type PageSize,
+  type WatermarkOptions,
 } from "./operations";
 
 export type WorkerRequest =
@@ -30,7 +35,10 @@ export type WorkerRequest =
   | { id: number; op: "explode"; file: ArrayBuffer }
   | { id: number; op: "organise"; file: ArrayBuffer; plan: PagePlan[] }
   | { id: number; op: "imagesToPdf"; images: ImageInput[]; size: PageSize }
-  | { id: number; op: "compress"; file: ArrayBuffer; level: CompressLevel };
+  | { id: number; op: "compress"; file: ArrayBuffer; level: CompressLevel }
+  | { id: number; op: "deletePages"; file: ArrayBuffer; pages: number[] }
+  | { id: number; op: "pageNumbers"; file: ArrayBuffer; options: PageNumberOptions }
+  | { id: number; op: "watermark"; file: ArrayBuffer; options: WatermarkOptions };
 
 export type WorkerResponse =
   | { id: number; ok: true; files: ArrayBuffer[]; note?: string }
@@ -56,6 +64,12 @@ async function run(
       const result = await compressPdf(new Uint8Array(request.file), request.level);
       return { files: [result.bytes], note: result.note };
     }
+    case "deletePages":
+      return { files: [await deletePages(new Uint8Array(request.file), request.pages)] };
+    case "pageNumbers":
+      return { files: [await addPageNumbers(new Uint8Array(request.file), request.options)] };
+    case "watermark":
+      return { files: [await addWatermark(new Uint8Array(request.file), request.options)] };
   }
 }
 

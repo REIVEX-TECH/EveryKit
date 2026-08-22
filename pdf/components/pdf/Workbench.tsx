@@ -16,13 +16,66 @@ import {
   type PickedFile,
 } from "@/lib/pdf/files";
 import { PAYMENTS_ENABLED } from "@/lib/payments";
+import { PDF_OPEN_ERROR } from "@/lib/pdf/guard";
+import { renderPdfToImages, IMAGE_PAGE_LIMIT, type PageImageFormat } from "@/lib/pdf/pagesToImages";
 import { parseSplitGroups } from "@/lib/pdf/pageRanges";
+import { zipNamedFiles } from "@/lib/pdf/zip";
 import { runOperation } from "@/lib/pdf/runner";
 import { renderThumbnails, THUMBNAIL_LIMIT, type Thumbnail } from "@/lib/pdf/thumbnails";
-import type { CompressLevel, ImageInput, PageSize } from "@/lib/pdf/operations";
+import type {
+  CompressLevel,
+  ImageInput,
+  NumberPosition,
+  PageSize,
+  WatermarkPlacement,
+} from "@/lib/pdf/operations";
 
 /** Tools that show a page grid, and so need thumbnails rendered. */
-const NEEDS_PAGES: ToolSlug[] = ["extract", "organize"];
+// Tools that ask the user to point at pages, and so need the pictures drawn.
+const NEEDS_PAGES: ToolSlug[] = ["extract", "organize", "delete-pages"];
+
+const NUMBER_POSITIONS: Array<{ value: NumberPosition; label: string; detail: string }> = [
+  { value: "bottom-centre", label: "Bottom centre", detail: "The usual place" },
+  { value: "bottom-right", label: "Bottom right", detail: "Common in reports" },
+  { value: "bottom-left", label: "Bottom left", detail: "Facing pages" },
+  { value: "top-right", label: "Top right", detail: "Letters and memos" },
+  { value: "top-centre", label: "Top centre", detail: "Headers" },
+  { value: "top-left", label: "Top left", detail: "Rare, but here" },
+];
+
+const WATERMARK_PLACEMENTS: Array<{ value: WatermarkPlacement; label: string; detail: string }> = [
+  { value: "diagonal", label: "Across the page", detail: "Corner to corner" },
+  { value: "centre", label: "In the middle", detail: "Level, over the text" },
+  { value: "bottom-right", label: "Bottom corner", detail: "Out of the way" },
+];
+
+/**
+ * The styling every text and number field in here shares.
+ *
+ * Lifted out of the range input rather than invented: this kit has no field
+ * class in globals.css, and a second hand-written copy of the same twelve
+ * utilities is how two inputs end up looking subtly different.
+ */
+const FIELD_CLASS =
+  "w-full rounded-[10px] border border-line bg-background px-3 py-2 text-[15px] outline-none placeholder:text-text-light focus:border-primary disabled:opacity-50";
+
+/**
+ * Read a number field without letting it go empty or out of range.
+ *
+ * A bare `Number(event.target.value)` gives NaN the moment somebody clears the
+ * box to type a new figure, and NaN reaches pdf-lib as a page index. The
+ * fallback is what the field goes back to while it is empty.
+ */
+function clampNumber(raw: string, min: number, max: number, fallback: number): number {
+  const value = Number.parseInt(raw, 10);
+  if (!Number.isFinite(value)) return fallback;
+  return Math.min(Math.max(value, min), max);
+}
+
+const IMAGE_FORMATS: Array<{ value: PageImageFormat; label: string; detail: string }> = [
+  { value: "jpg", label: "JPG", detail: "Smaller, best for scans" },
+  { value: "png", label: "PNG", detail: "Sharper on text and line art" },
+];
 
 const COMPRESS_LEVELS: Array<{ value: CompressLevel; label: string; detail: string }> = [
   { value: "light", label: "Keep it sharp", detail: "Pictures capped at 2200 px" },
@@ -49,6 +102,19 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
   const [everyPage, setEveryPage] = useState(false);
   const [imageSize, setImageSize] = useState<PageSize>("a4");
   const [compressLevel, setCompressLevel] = useState<CompressLevel>("email");
+
+  const [numberPosition, setNumberPosition] = useState<NumberPosition>("bottom-centre");
+  const [numberStartAt, setNumberStartAt] = useState(1);
+  const [numberSkip, setNumberSkip] = useState(0);
+  const [numberShowTotal, setNumberShowTotal] = useState(false);
+
+  const [markText, setMarkText] = useState("DRAFT");
+  const [markPlacement, setMarkPlacement] = useState<WatermarkPlacement>("diagonal");
+  const [markOpacity, setMarkOpacity] = useState(15);
+
+  const [imageFormat, setImageFormat] = useState<PageImageFormat>("jpg");
+  /** "Drawing page 12 of 40", so a long export does not look like a hang. */
+  const [progress, setProgress] = useState<string | null>(null);
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -117,11 +183,12 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
           if (controller.signal.aborted) return;
           setPageCount(total);
         }
-      } catch {
+      } catch (caught) {
         if (!controller.signal.aborted) {
-          setError(
-            "This file could not be opened. If it is password-protected, remove the password in your PDF reader first.",
-          );
+          // The guard has already collapsed anything pdf.js threw into a
+          // sentence written for a person, so use it rather than writing a
+          // second one here that could drift away from it.
+          setError(caught instanceof Error ? caught.message : PDF_OPEN_ERROR);
         }
       }
     })();
@@ -135,6 +202,7 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
     setBusy(true);
     setError(null);
     setNote(undefined);
+    setProgress(null);
 
     const stem = baseName(files[0]?.name ?? "document");
 
@@ -205,6 +273,67 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
           break;
         }
 
+        case "delete-pages": {
+          const { files: out } = await runOperation({
+            op: "deletePages",
+            file: copyBuffer(files[0].bytes),
+            pages: selected,
+          });
+          setResults([{ name: `${stem}-trimmed.pdf`, bytes: out[0] }]);
+          break;
+        }
+
+        case "page-numbers": {
+          const { files: out } = await runOperation({
+            op: "pageNumbers",
+            file: copyBuffer(files[0].bytes),
+            options: {
+              position: numberPosition,
+              startAt: numberStartAt,
+              skipBefore: numberSkip,
+              showTotal: numberShowTotal,
+              fontSize: 11,
+            },
+          });
+          setResults([{ name: `${stem}-numbered.pdf`, bytes: out[0] }]);
+          break;
+        }
+
+        case "watermark": {
+          const { files: out } = await runOperation({
+            op: "watermark",
+            file: copyBuffer(files[0].bytes),
+            options: {
+              text: markText,
+              placement: markPlacement,
+              opacity: markOpacity / 100,
+              fontSize: markPlacement === "diagonal" ? 60 : 24,
+            },
+          });
+          setResults([{ name: `${stem}-marked.pdf`, bytes: out[0] }]);
+          break;
+        }
+
+        case "pdf-to-images": {
+          // The only tool that cannot use the worker: drawing a page needs a
+          // canvas, and a worker has no DOM. It runs here instead, reporting
+          // progress so a forty-page document does not look stuck.
+          const images = await renderPdfToImages(files[0].bytes, imageFormat, {
+            onProgress: (done, total) => setProgress(`Drawing page ${done} of ${total}`),
+          });
+          setResults([
+            {
+              name: `${stem}-images.zip`,
+              bytes: zipNamedFiles(images),
+              mime: "application/zip",
+            },
+          ]);
+          setNote(
+            `${images.length} ${images.length === 1 ? "page" : "pages"}, as ${imageFormat.toUpperCase()}, in one zip.`,
+          );
+          break;
+        }
+
         case "compress": {
           const before = files[0].bytes.length;
           const { files: out, note: workerNote } = await runOperation({
@@ -239,6 +368,7 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
     setNote(undefined);
     setRangeText("");
     setEveryPage(false);
+    setProgress(null);
   }
 
   /** What is still missing before the button can do anything useful. */
@@ -246,6 +376,19 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
     if (files.length === 0) return null;
     if (slug === "merge" && files.length < 2) return "Add at least one more file to merge.";
     if (slug === "extract" && selected.length === 0) return "Choose the pages you want.";
+    if (slug === "delete-pages") {
+      if (selected.length === 0) return "Choose the pages you want removed.";
+      if (pageCount > 0 && selected.length === pageCount) {
+        return "That is every page. Leave at least one.";
+      }
+    }
+    if (slug === "watermark" && markText.trim() === "") return "Type the words to draw.";
+    if (slug === "page-numbers" && pageCount > 0 && numberSkip >= pageCount) {
+      return "That skips every page. Lower the number to skip.";
+    }
+    if (slug === "pdf-to-images" && pageCount > IMAGE_PAGE_LIMIT) {
+      return `This file has ${pageCount} pages, and ${IMAGE_PAGE_LIMIT} is the most that fits in a browser's memory at once.`;
+    }
     if (slug === "split" && !everyPage && rangeText.trim() === "") {
       return "Type the ranges you want, or split every page.";
     }
@@ -266,6 +409,16 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
         return "Save the new order";
       case "images-to-pdf":
         return files.length === 1 ? "Make the PDF" : `Make a PDF from ${files.length} images`;
+      case "delete-pages":
+        return selected.length > 0
+          ? `Remove ${selected.length} ${selected.length === 1 ? "page" : "pages"}`
+          : "Remove the chosen pages";
+      case "page-numbers":
+        return "Add the numbers";
+      case "watermark":
+        return "Draw it on every page";
+      case "pdf-to-images":
+        return imageFormat === "png" ? "Make PNGs" : "Make JPGs";
       case "compress":
         return "Make it smaller";
     }
@@ -317,6 +470,22 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
           onImageSizeChange={setImageSize}
           compressLevel={compressLevel}
           onCompressLevelChange={setCompressLevel}
+          numberPosition={numberPosition}
+          onNumberPositionChange={setNumberPosition}
+          numberStartAt={numberStartAt}
+          onNumberStartAtChange={setNumberStartAt}
+          numberSkip={numberSkip}
+          onNumberSkipChange={setNumberSkip}
+          numberShowTotal={numberShowTotal}
+          onNumberShowTotalChange={setNumberShowTotal}
+          markText={markText}
+          onMarkTextChange={setMarkText}
+          markPlacement={markPlacement}
+          onMarkPlacementChange={setMarkPlacement}
+          markOpacity={markOpacity}
+          onMarkOpacityChange={setMarkOpacity}
+          imageFormat={imageFormat}
+          onImageFormatChange={setImageFormat}
         />
       ) : null}
 
@@ -329,7 +498,7 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
             className="ek-btn ek-btn-accent w-full sm:w-auto"
           >
             {busy ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : null}
-            {busy ? "Working…" : actionLabel()}
+            {busy ? (progress ?? "Working…") : actionLabel()}
           </button>
           {ready ? <p className="mt-2 text-[13px] text-text-light">{ready}</p> : null}
           {limits.overLimit && PAYMENTS_ENABLED ? (
@@ -372,6 +541,22 @@ type ControlProps = {
   onImageSizeChange: (value: PageSize) => void;
   compressLevel: CompressLevel;
   onCompressLevelChange: (value: CompressLevel) => void;
+  numberPosition: NumberPosition;
+  onNumberPositionChange: (value: NumberPosition) => void;
+  numberStartAt: number;
+  onNumberStartAtChange: (value: number) => void;
+  numberSkip: number;
+  onNumberSkipChange: (value: number) => void;
+  numberShowTotal: boolean;
+  onNumberShowTotalChange: (value: boolean) => void;
+  markText: string;
+  onMarkTextChange: (value: string) => void;
+  markPlacement: WatermarkPlacement;
+  onMarkPlacementChange: (value: WatermarkPlacement) => void;
+  markOpacity: number;
+  onMarkOpacityChange: (value: number) => void;
+  imageFormat: PageImageFormat;
+  onImageFormatChange: (value: PageImageFormat) => void;
 };
 
 /**
@@ -393,6 +578,124 @@ function ToolControls(props: ControlProps) {
         value={props.imageSize}
         onChange={props.onImageSizeChange}
       />
+    );
+  }
+
+  if (slug === "pdf-to-images") {
+    return (
+      <Choice
+        legend="Which format"
+        options={IMAGE_FORMATS}
+        value={props.imageFormat}
+        onChange={props.onImageFormatChange}
+      />
+    );
+  }
+
+  if (slug === "page-numbers") {
+    return (
+      <div className="flex flex-col gap-4">
+        <Choice
+          legend="Where the number goes"
+          options={NUMBER_POSITIONS}
+          value={props.numberPosition}
+          onChange={props.onNumberPositionChange}
+        />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label htmlFor="start-at" className="block text-[14px] font-semibold">
+              Start counting at
+            </label>
+            <input
+              id="start-at"
+              type="number"
+              min={0}
+              max={9999}
+              value={props.numberStartAt}
+              onChange={(event) =>
+                props.onNumberStartAtChange(clampNumber(event.target.value, 0, 9999, 1))
+              }
+              className={`mt-1 ${FIELD_CLASS}`}
+            />
+          </div>
+          <div>
+            <label htmlFor="skip" className="block text-[14px] font-semibold">
+              Leave this many pages bare
+            </label>
+            <input
+              id="skip"
+              type="number"
+              min={0}
+              max={Math.max(0, props.pageCount - 1)}
+              value={props.numberSkip}
+              onChange={(event) =>
+                props.onNumberSkipChange(
+                  clampNumber(event.target.value, 0, Math.max(0, props.pageCount - 1), 0),
+                )
+              }
+              className={`mt-1 ${FIELD_CLASS}`}
+            />
+            <p className="mt-1 text-[13px] text-text-light">
+              For a cover page that should stay clean.
+            </p>
+          </div>
+        </div>
+        <label className="flex items-center gap-2 text-[14px]">
+          <input
+            type="checkbox"
+            checked={props.numberShowTotal}
+            onChange={(event) => props.onNumberShowTotalChange(event.target.checked)}
+            className="h-4 w-4 accent-[var(--color-primary)]"
+          />
+          Show the total as well, like 7 of 24
+        </label>
+      </div>
+    );
+  }
+
+  if (slug === "watermark") {
+    return (
+      <div className="flex flex-col gap-4">
+        <div>
+          <label htmlFor="mark-text" className="block text-[14px] font-semibold">
+            What it should say
+          </label>
+          <input
+            id="mark-text"
+            type="text"
+            maxLength={60}
+            value={props.markText}
+            onChange={(event) => props.onMarkTextChange(event.target.value)}
+            className={`mt-1 ${FIELD_CLASS}`}
+            placeholder="DRAFT"
+          />
+        </div>
+        <Choice
+          legend="Where it sits"
+          options={WATERMARK_PLACEMENTS}
+          value={props.markPlacement}
+          onChange={props.onMarkPlacementChange}
+        />
+        <div>
+          <label htmlFor="opacity" className="block text-[14px] font-semibold">
+            How strong, {props.markOpacity}%
+          </label>
+          <input
+            id="opacity"
+            type="range"
+            min={2}
+            max={100}
+            step={1}
+            value={props.markOpacity}
+            onChange={(event) => props.onMarkOpacityChange(Number(event.target.value))}
+            className="mt-2 w-full accent-[var(--color-primary)]"
+          />
+          <p className="mt-1 text-[13px] text-text-light">
+            Faint enough to read the page through, dark enough to notice. Around 15% suits a mark
+            drawn across text.
+          </p>
+        </div>
+      </div>
     );
   }
 
@@ -426,7 +729,7 @@ function ToolControls(props: ControlProps) {
           disabled={props.everyPage}
           onChange={(event) => props.onRangeTextChange(event.target.value)}
           placeholder="1-3, 4-6"
-          className="mt-2 w-full rounded-[10px] border border-line bg-background px-3 py-2 text-[15px] outline-none placeholder:text-text-light focus:border-primary disabled:opacity-50"
+          className={`mt-2 ${FIELD_CLASS}`}
         />
         <p className="mt-1 text-[13px] text-text-light">
           One group per file, separated by commas.
@@ -445,12 +748,15 @@ function ToolControls(props: ControlProps) {
     );
   }
 
-  if (slug === "extract" && props.pageCount > 0) {
+  if ((slug === "extract" || slug === "delete-pages") && props.pageCount > 0) {
+    const removing = slug === "delete-pages";
     const allSelected = props.selected.length === props.pageCount;
     return (
       <div>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <p className="text-[14px] font-semibold">Choose pages</p>
+          <p className="text-[14px] font-semibold">
+            {removing ? "Choose the pages to remove" : "Choose pages"}
+          </p>
           <button
             type="button"
             onClick={() =>

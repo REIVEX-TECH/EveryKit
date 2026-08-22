@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  addPageNumbers,
+  addWatermark,
   compressPdf,
+  deletePages,
   explodePdf,
   extractPages,
   imagesToPdf,
@@ -11,7 +14,7 @@ import {
   pageSizes,
   splitPdf,
 } from "./operations";
-import { makeMarkedPdf, readPageLabels, tinyPng } from "./fixtures";
+import { makeMarkedPdf, readPageLabels, readStampedText, tinyPng } from "./fixtures";
 
 describe("mergePdfs", () => {
   it("keeps every page, in the order the files were given", async () => {
@@ -204,5 +207,227 @@ describe("compressPdf", () => {
     const doc = await makeMarkedPdf("P", 2);
     const result = await compressPdf(doc.bytes, "smallest");
     expect(result.note).toBeTruthy();
+  });
+});
+
+describe("deletePages", () => {
+  it("keeps the pages that were not chosen, in their original order", async () => {
+    const a = await makeMarkedPdf("A", 5);
+    const out = await deletePages(a.bytes, [1, 3]);
+
+    expect(await readPageLabels(out)).toEqual(["A1", "A3", "A5"]);
+  });
+
+  it("does not care what order the removals arrive in", async () => {
+    const a = await makeMarkedPdf("A", 4);
+    expect(await readPageLabels(await deletePages(a.bytes, [3, 0]))).toEqual(["A2", "A3"]);
+  });
+
+  it("is the exact complement of extractPages", async () => {
+    // The property worth pinning: whatever delete keeps, extract would have
+    // taken, and between them they account for every page exactly once.
+    const a = await makeMarkedPdf("A", 6);
+    const chosen = [0, 2, 5];
+    const kept = await readPageLabels(await deletePages(a.bytes, chosen));
+    const taken = await readPageLabels(await extractPages(a.bytes, chosen));
+
+    expect([...kept, ...taken].sort()).toEqual(a.labels.sort());
+    expect(kept.some((label) => taken.includes(label))).toBe(false);
+  });
+
+  it("refuses to empty the document", async () => {
+    const a = await makeMarkedPdf("A", 2);
+    await expect(deletePages(a.bytes, [0, 1])).rejects.toThrow(/at least one/i);
+  });
+
+  it("refuses an empty selection and a page that does not exist", async () => {
+    const a = await makeMarkedPdf("A", 2);
+    await expect(deletePages(a.bytes, [])).rejects.toThrow(/no pages/i);
+    await expect(deletePages(a.bytes, [7])).rejects.toThrow(/Page 8 does not exist/);
+  });
+});
+
+describe("addPageNumbers", () => {
+  const base = {
+    position: "bottom-centre" as const,
+    startAt: 1,
+    skipBefore: 0,
+    showTotal: false,
+    fontSize: 11,
+  };
+
+  it("returns a readable document with the same pages", async () => {
+    const a = await makeMarkedPdf("A", 3);
+    const out = await addPageNumbers(a.bytes, base);
+
+    expect(await pageCount(out)).toBe(3);
+    expect(await readPageLabels(out)).toEqual(["A1", "A2", "A3"]);
+  });
+
+  it("grows the file, because something was actually drawn", async () => {
+    // A stamping operation that silently no-ops still returns a valid PDF of
+    // the right length, so the page count alone would not catch it.
+    const a = await makeMarkedPdf("A", 3);
+    const out = await addPageNumbers(a.bytes, base);
+    expect(out.byteLength).toBeGreaterThan(a.bytes.byteLength);
+  });
+
+  it("works on a page the file says is turned", async () => {
+    const a = await makeMarkedPdf("A", 2, { rotate: 90 });
+    const out = await addPageNumbers(a.bytes, base);
+
+    expect(await pageCount(out)).toBe(2);
+    expect(await pageRotations(out)).toEqual([90, 90]);
+  });
+
+  it("refuses to skip every page rather than returning the file untouched", async () => {
+    const a = await makeMarkedPdf("A", 2);
+    await expect(addPageNumbers(a.bytes, { ...base, skipBefore: 2 })).rejects.toThrow(
+      /nothing to number/i,
+    );
+  });
+
+  it("accepts every position and both counting styles", async () => {
+    const a = await makeMarkedPdf("A", 2);
+    for (const position of [
+      "bottom-left",
+      "bottom-centre",
+      "bottom-right",
+      "top-left",
+      "top-centre",
+      "top-right",
+    ] as const) {
+      for (const showTotal of [false, true]) {
+        const out = await addPageNumbers(a.bytes, { ...base, position, showTotal });
+        expect(await pageCount(out)).toBe(2);
+      }
+    }
+  });
+});
+
+describe("addWatermark", () => {
+  const base = {
+    text: "DRAFT",
+    placement: "diagonal" as const,
+    opacity: 0.15,
+    fontSize: 60,
+  };
+
+  it("marks every page and leaves them readable", async () => {
+    const a = await makeMarkedPdf("A", 3);
+    const out = await addWatermark(a.bytes, base);
+
+    expect(await readPageLabels(out)).toEqual(["A1", "A2", "A3"]);
+    expect(out.byteLength).toBeGreaterThan(a.bytes.byteLength);
+  });
+
+  it("accepts every placement", async () => {
+    const a = await makeMarkedPdf("A", 1);
+    for (const placement of ["diagonal", "centre", "bottom-right"] as const) {
+      const out = await addWatermark(a.bytes, { ...base, placement });
+      expect(await pageCount(out)).toBe(1);
+    }
+  });
+
+  it("works on a turned page", async () => {
+    const a = await makeMarkedPdf("A", 1, { rotate: 270 });
+    const out = await addWatermark(a.bytes, base);
+    expect(await pageRotations(out)).toEqual([270]);
+  });
+
+  it("refuses text that is only whitespace", async () => {
+    const a = await makeMarkedPdf("A", 1);
+    await expect(addWatermark(a.bytes, { ...base, text: "   " })).rejects.toThrow(/needs some text/i);
+  });
+
+  it("clamps an opacity of zero to something still visible", async () => {
+    // Asking for nothing and being given nothing is indistinguishable from the
+    // tool failing, so the floor is deliberate.
+    const a = await makeMarkedPdf("A", 1);
+    const out = await addWatermark(a.bytes, { ...base, opacity: 0 });
+    expect(out.byteLength).toBeGreaterThan(a.bytes.byteLength);
+  });
+
+  it("shrinks a long line so it stays on the page", async () => {
+    const a = await makeMarkedPdf("A", 1);
+    const long = await addWatermark(a.bytes, {
+      ...base,
+      text: "CONFIDENTIAL DRAFT, NOT FOR CIRCULATION",
+      fontSize: 200,
+    });
+    expect(await pageCount(long)).toBe(1);
+  });
+});
+
+describe("addPageNumbers, the total when the count does not start at one", () => {
+  it("counts to the last number printed rather than to the number of pages", async () => {
+    // Four numbered pages starting at 5 run 5, 6, 7, 8. Reporting the count
+    // instead gives "5 of 4", which is the arithmetic showing through.
+    const a = await makeMarkedPdf("A", 5);
+    const out = await addPageNumbers(a.bytes, {
+      position: "bottom-centre",
+      startAt: 5,
+      skipBefore: 1,
+      showTotal: true,
+      fontSize: 11,
+    });
+    expect(await readStampedText(out)).toContain("5 of 8");
+    expect(await readStampedText(out)).toContain("8 of 8");
+  });
+
+  it("still reads N of N on a plain run from one", async () => {
+    const a = await makeMarkedPdf("A", 3);
+    const out = await addPageNumbers(a.bytes, {
+      position: "bottom-centre",
+      startAt: 1,
+      skipBefore: 0,
+      showTotal: true,
+      fontSize: 11,
+    });
+    expect(await readStampedText(out)).toContain("1 of 3");
+    expect(await readStampedText(out)).toContain("3 of 3");
+  });
+});
+
+describe("what actually lands on the page", () => {
+  /**
+   * The fixture pages draw their own label, so the raw read is the label plus
+   * whatever the operation added. This keeps the added text only.
+   */
+  const added = (all: string[]) => all.filter((text) => !/^[A-Z]\d+$/.test(text));
+
+  it("numbers every page that was not skipped, and no others", async () => {
+    const a = await makeMarkedPdf("A", 4);
+    const out = await addPageNumbers(a.bytes, {
+      position: "bottom-right",
+      startAt: 1,
+      skipBefore: 2,
+      showTotal: false,
+      fontSize: 11,
+    });
+    // Two pages skipped, so two numbers, and the count starts on the third page.
+    expect(added(await readStampedText(out))).toEqual(["1", "2"]);
+  });
+
+  it("writes the watermark text on every page", async () => {
+    const a = await makeMarkedPdf("A", 3);
+    const out = await addWatermark(a.bytes, {
+      text: "DRAFT",
+      placement: "centre",
+      opacity: 0.2,
+      fontSize: 40,
+    });
+    expect(added(await readStampedText(out))).toEqual(["DRAFT", "DRAFT", "DRAFT"]);
+  });
+
+  it("trims the watermark text rather than drawing the spaces", async () => {
+    const a = await makeMarkedPdf("A", 1);
+    const out = await addWatermark(a.bytes, {
+      text: "  COPY  ",
+      placement: "diagonal",
+      opacity: 0.2,
+      fontSize: 40,
+    });
+    expect(added(await readStampedText(out))).toEqual(["COPY"]);
   });
 });

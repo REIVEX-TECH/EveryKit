@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import { tools } from "@/data/tools";
 
 /**
- * The six tools as a launcher, matching the grid on the hub.
+ * The ten tools as a launcher, matching the grid on the hub.
  *
  * Same rules everywhere: one white glyph on one flat tint, corners at 23
  * percent of the size, one shadow, and the colours pinned by slug so adding
@@ -15,6 +15,10 @@ const TINTS: Record<string, string> = {
   split: "#1d81f2",
   extract: "#1769d4",
   organize: "#2f6fd0",
+  "delete-pages": "#2a74e0",
+  "page-numbers": "#4a93ef",
+  watermark: "#1156a8",
+  "pdf-to-images": "#3579d6",
   "images-to-pdf": "#3d8ae8",
   compress: "#145cb8",
 };
@@ -49,6 +53,36 @@ const GLYPHS: Record<string, ReactElement> = {
       <path d="M5.4 3.6h7.2l4 4v13h-11.2z" {...stroke} />
       <path d="M12.6 3.6v4h4" {...stroke} />
       <path d="M12 10.6v6.2M9.4 14.2l2.6 2.6 2.6-2.6" {...stroke} />
+    </>
+  ),
+  "delete-pages": (
+    <>
+      <path d="M5.4 3.6h7.2l4 4v13h-11.2z" {...stroke} />
+      <path d="M12.6 3.6v4h4" {...stroke} />
+      <path d="M9 15.4h6" {...stroke} />
+    </>
+  ),
+  "page-numbers": (
+    <>
+      <path d="M5.4 3.6h7.2l4 4v13h-11.2z" {...stroke} />
+      <path d="M12.6 3.6v4h4" {...stroke} />
+      <path d="M10.4 17.4h3.2" {...stroke} />
+      <path d="M12 17.4v-4l-1.4 1" {...stroke} />
+    </>
+  ),
+  watermark: (
+    <>
+      <path d="M5.4 3.6h7.2l4 4v13h-11.2z" {...stroke} />
+      <path d="M12.6 3.6v4h4" {...stroke} />
+      <path d="M7.6 17.2 15.4 9.4" {...stroke} strokeDasharray="2.6 2" />
+    </>
+  ),
+  "pdf-to-images": (
+    <>
+      <path d="M4.4 3.6h6.2l3.4 3.4v4.6H4.4z" {...stroke} />
+      <path d="M10.6 3.6v3.4h3.4" {...stroke} />
+      <rect x="9.6" y="12.6" width="10.8" height="8.2" rx="1.4" {...stroke} />
+      <path d="M9.6 18.4l3-2.6 2.6 2.2 2-1.6 3.2 2.6" {...stroke} />
     </>
   ),
   organize: (

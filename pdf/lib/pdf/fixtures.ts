@@ -14,7 +14,7 @@
  */
 
 import { PDFDocument, StandardFonts, degrees, rgb } from "pdf-lib";
-import { deflateSync } from "zlib";
+import { deflateSync, inflateSync } from "zlib";
 
 export type Marked = { bytes: Uint8Array; labels: string[] };
 
@@ -151,4 +151,54 @@ export function makePng(width = 2, height = 2): Uint8Array {
 
 export function tinyPng(): Uint8Array {
   return makePng(2, 2);
+}
+
+/**
+ * The text a stamping operation drew, pulled back out of the page.
+ *
+ * The header of this file warns against reading text out of a content stream,
+ * and that warning still stands for text somebody else's tool wrote. This is
+ * narrower: it reads back only what page numbering and watermarking put there
+ * themselves, with a standard font and no escaping, which is the one case
+ * where the content stream is predictable.
+ *
+ * Without it the tests can prove a stamp made the file bigger but not that it
+ * says the right thing, and "5 of 4" is exactly the bug that hides in that gap.
+ */
+export async function readStampedText(bytes: Uint8Array): Promise<string[]> {
+  const { PDFDocument, PDFRawStream, PDFArray } = await import("pdf-lib");
+  const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+  const found: string[] = [];
+
+  for (const page of doc.getPages()) {
+    const contents = page.node.Contents();
+    if (!contents) continue;
+    const refs = contents instanceof PDFArray ? contents.asArray() : [contents];
+
+    for (const ref of refs) {
+      const stream = doc.context.lookup(ref);
+      if (!(stream instanceof PDFRawStream)) continue;
+
+      const raw = Buffer.from(stream.getContents());
+      const filter = String(stream.dict.get(stream.dict.context.obj("Filter")) ?? "");
+      const body = (filter.includes("FlateDecode") ? inflateSync(raw) : raw).toString("latin1");
+
+      // pdf-lib writes a drawText call as a hex string, `<31206F66> Tj`, not as
+      // the literal `(1 of) Tj` that most examples show. Both forms are read
+      // here so this does not quietly return nothing if that ever changes.
+      for (const match of body.matchAll(/<([0-9A-Fa-f\s]*)>\s*Tj/g)) {
+        const hex = match[1].replace(/\s+/g, "");
+        let text = "";
+        for (let i = 0; i + 1 < hex.length; i += 2) {
+          text += String.fromCharCode(Number.parseInt(hex.slice(i, i + 2), 16));
+        }
+        found.push(text);
+      }
+      for (const match of body.matchAll(/\(([^)]*)\)\s*Tj/g)) {
+        found.push(match[1]);
+      }
+    }
+  }
+
+  return found;
 }

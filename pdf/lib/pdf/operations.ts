@@ -13,6 +13,7 @@
 
 import type { PDFRawStream as RawStream, PDFRef } from "pdf-lib";
 
+import { cornerPosition, displaySize, toPageSpace, type Corner } from "./placement";
 import { normaliseRotation } from "./pageRanges";
 
 export type PageSize = "a4" | "letter" | "fit";
@@ -345,4 +346,223 @@ export async function compressPdf(
   }
 
   return { bytes: out, note, imagesRecompressed: recompressed };
+}
+
+/**
+ * Remove the chosen pages and keep the rest, in their original order.
+ *
+ * Expressed as the complement of a selection rather than as its own copy loop,
+ * so deleting and extracting can never disagree about what "page 3" means.
+ * They are the same question asked from opposite ends, and this is the end
+ * people search for.
+ */
+export async function deletePages(
+  bytes: Uint8Array,
+  pages: number[],
+): Promise<Uint8Array> {
+  if (pages.length === 0) throw new Error("No pages were chosen for removal.");
+
+  const { PDFDocument } = await lib();
+  const source = await PDFDocument.load(bytes, { ignoreEncryption: true });
+  const total = source.getPageCount();
+
+  for (const index of pages) {
+    if (index < 0 || index >= total) {
+      throw new Error(`Page ${index + 1} does not exist in this file.`);
+    }
+  }
+
+  const removing = new Set(pages);
+  const keeping = Array.from({ length: total }, (_, index) => index).filter(
+    (index) => !removing.has(index),
+  );
+
+  if (keeping.length === 0) {
+    throw new Error("That would remove every page. A PDF needs at least one.");
+  }
+
+  return extractPages(bytes, keeping);
+}
+
+export type NumberPosition = Exclude<Corner, "centre">;
+
+export type PageNumberOptions = {
+  position: NumberPosition;
+  /** The number printed on the first numbered page. */
+  startAt: number;
+  /** Pages before this index are left bare, so a cover page can stay clean. */
+  skipBefore: number;
+  /** "7" or "7 of 24". */
+  showTotal: boolean;
+  fontSize: number;
+};
+
+/** Points between a stamped mark and the two nearest page edges. */
+const STAMP_MARGIN = 28;
+
+/**
+ * Stamp page numbers into the file itself.
+ *
+ * Drawn with Helvetica, one of the fourteen faces every PDF reader has to
+ * provide, so nothing is embedded and the file barely grows.
+ *
+ * Placement goes through `placement.ts`, which is where the rotation problem
+ * is solved and tested: a scanned page that carries /Rotate 90 looks upright
+ * on screen but its coordinate space is not, and numbering it by the file's
+ * own idea of "bottom" puts the number sideways up the margin. The text is
+ * also turned by the page's rotation, so it reads the right way round after
+ * the viewer has turned the page.
+ */
+export async function addPageNumbers(
+  bytes: Uint8Array,
+  options: PageNumberOptions,
+): Promise<Uint8Array> {
+  const { PDFDocument, StandardFonts, rgb } = await lib();
+
+  const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const pages = doc.getPages();
+  const numbered = pages.length - options.skipBefore;
+
+  if (numbered <= 0) {
+    throw new Error("Every page was skipped, so there was nothing to number.");
+  }
+
+  const lastNumber = options.startAt + numbered - 1;
+
+  pages.forEach((page, index) => {
+    if (index < options.skipBefore) return;
+
+    const shown = options.startAt + index - options.skipBefore;
+    // The total is the last number printed, not how many pages were numbered.
+    // Starting at 5 across four pages runs 5, 6, 7, 8, and "5 of 4" is the
+    // arithmetic showing through.
+    const text = options.showTotal ? `${shown} of ${lastNumber}` : String(shown);
+    const size = options.fontSize;
+    const boxWidth = font.widthOfTextAtSize(text, size);
+    const boxHeight = font.heightAtSize(size);
+
+    const rotation = page.getRotation();
+    const { width, height } = page.getSize();
+    const frame = displaySize(rotation.angle, width, height);
+    const spot = cornerPosition(
+      options.position,
+      frame.width,
+      frame.height,
+      boxWidth,
+      boxHeight,
+      STAMP_MARGIN,
+    );
+    const at = toPageSpace(rotation.angle, width, height, spot);
+
+    page.drawText(text, {
+      x: at.x,
+      y: at.y,
+      size,
+      font,
+      color: rgb(0.09, 0.09, 0.09),
+      rotate: rotation,
+    });
+  });
+
+  return doc.save();
+}
+
+export type WatermarkPlacement = "diagonal" | "centre" | "bottom-right";
+
+export type WatermarkOptions = {
+  text: string;
+  placement: WatermarkPlacement;
+  /** 0 to 1. */
+  opacity: number;
+  fontSize: number;
+};
+
+/**
+ * Draw text across every page.
+ *
+ * A visible mark, not a security control, and the FAQ says so in those words:
+ * anyone with a PDF editor can take it off again. What it is actually good for
+ * is the thing people want it for, which is a document that says DRAFT on it
+ * so nobody signs the wrong version.
+ */
+export async function addWatermark(
+  bytes: Uint8Array,
+  options: WatermarkOptions,
+): Promise<Uint8Array> {
+  const text = options.text.trim();
+  if (text === "") throw new Error("The watermark needs some text.");
+
+  const { PDFDocument, StandardFonts, degrees, rgb } = await lib();
+
+  const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+  const font = await doc.embedFont(StandardFonts.HelveticaBold);
+  // Below about 2% it is invisible, which reads as the tool having done
+  // nothing at all.
+  const opacity = Math.min(Math.max(options.opacity, 0.02), 1);
+  const grey = rgb(0.45, 0.45, 0.45);
+
+  for (const page of doc.getPages()) {
+    const rotation = page.getRotation();
+    const { width, height } = page.getSize();
+    const frame = displaySize(rotation.angle, width, height);
+
+    if (options.placement === "diagonal") {
+      // Shrunk to fit rather than allowed to run off the sheet: a long word at
+      // a fixed size disappears past the corner, which reads as a bug rather
+      // than as a choice.
+      const diagonal = Math.sqrt(frame.width ** 2 + frame.height ** 2);
+      const natural = font.widthOfTextAtSize(text, options.fontSize);
+      const size =
+        natural > diagonal * 0.8
+          ? (options.fontSize * diagonal * 0.8) / natural
+          : options.fontSize;
+
+      const boxWidth = font.widthOfTextAtSize(text, size);
+      const angle = Math.atan2(frame.height, frame.width);
+      // Step back along the diagonal by half the text, so the middle of the
+      // word sits at the middle of the page rather than its start.
+      const spot = {
+        x: frame.width / 2 - (boxWidth / 2) * Math.cos(angle),
+        y: frame.height / 2 - (boxWidth / 2) * Math.sin(angle),
+      };
+      const at = toPageSpace(rotation.angle, width, height, spot);
+
+      page.drawText(text, {
+        x: at.x,
+        y: at.y,
+        size,
+        font,
+        color: grey,
+        opacity,
+        // The diagonal, plus whatever the page itself is turned by.
+        rotate: degrees((angle * 180) / Math.PI + rotation.angle),
+      });
+      continue;
+    }
+
+    const boxWidth = font.widthOfTextAtSize(text, options.fontSize);
+    const boxHeight = font.heightAtSize(options.fontSize);
+    const spot = cornerPosition(
+      options.placement,
+      frame.width,
+      frame.height,
+      boxWidth,
+      boxHeight,
+      STAMP_MARGIN,
+    );
+    const at = toPageSpace(rotation.angle, width, height, spot);
+
+    page.drawText(text, {
+      x: at.x,
+      y: at.y,
+      size: options.fontSize,
+      font,
+      color: grey,
+      opacity,
+      rotate: rotation,
+    });
+  }
+
+  return doc.save();
 }
