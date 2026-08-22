@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { MoreFromEveryKit } from "@/components/site/MoreFromEveryKit";
 import { ToolSwitcher } from "@/components/site/ToolSwitcher";
 import { CitationTool } from "@/components/study/CitationTool";
+import { ExamCountdownTool } from "@/components/study/ExamCountdownTool";
 import { FinalGradeTool } from "@/components/study/FinalGradeTool";
 import { GpaTool } from "@/components/study/GpaTool";
 import { ReadingTimeTool } from "@/components/study/ReadingTimeTool";
@@ -42,6 +43,7 @@ const WORKBENCHES: Record<ToolSlug, () => React.ReactElement> = {
   citation: CitationTool,
   "reading-time": ReadingTimeTool,
   timer: TimerTool,
+  "exam-countdown": ExamCountdownTool,
 };
 
 export default async function ToolPage({ params }: Params) {

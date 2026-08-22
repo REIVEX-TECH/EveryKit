@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import { tools } from "@/data/tools";
 
 /**
- * The five tools as a launcher, matching the grid on the hub.
+ * The six tools as a launcher, matching the grid on the hub.
  *
  * Same rules: one white glyph on one flat tint, corners at 23 percent, one
  * shadow, pinned by slug so a tool added later never reshuffles the colours.
@@ -15,6 +15,7 @@ const TINTS: Record<string, string> = {
   citation: "#1769d4",
   "reading-time": "#2f6fd0",
   timer: "#145cb8",
+  "exam-countdown": "#3d8ae8",
 };
 
 const stroke = {
@@ -59,6 +60,13 @@ const GLYPHS: Record<string, ReactElement> = {
       <circle cx="12" cy="13.4" r="7.4" {...stroke} />
       <path d="M12 9.6v3.8l2.6 1.6" {...stroke} />
       <path d="M9.4 2.8h5.2" {...stroke} />
+    </>
+  ),
+  "exam-countdown": (
+    <>
+      <rect x="3.6" y="5" width="16.8" height="15.4" rx="2.4" {...stroke} />
+      <path d="M3.6 9.6h16.8M8.4 3.4v3.2M15.6 3.4v3.2" {...stroke} />
+      <path d="M12 12.4v3l2 1.4" {...stroke} />
     </>
   ),
 };

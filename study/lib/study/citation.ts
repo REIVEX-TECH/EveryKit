@@ -19,25 +19,35 @@ export type Style = "apa" | "mla";
 
 export type Segment = { text: string; italic?: boolean };
 
+export type SourceType = "web" | "video" | "podcast" | "newspaper";
+
 export type Fields = {
+  sourceType: SourceType;
   /** One per line, either "Last, First" or "First Last". */
   authors: string;
   title: string;
-  /** The container: a journal, a website, a publisher. */
+  /** The container: a journal, a website, a publisher, a channel, a paper. */
   source: string;
   year: string;
   url: string;
   /** ISO date, from a date input. */
   accessed: string;
+  /** An uploader or host, for a video or podcast. Kept verbatim, not inverted. */
+  contributor: string;
+  /** ISO publication date, for the sources that need the full day. */
+  published: string;
 };
 
 export const EMPTY_FIELDS: Fields = {
+  sourceType: "web",
   authors: "",
   title: "",
   source: "",
   year: "",
   url: "",
   accessed: "",
+  contributor: "",
+  published: "",
 };
 
 type Name = { last: string; first: string; middle: string };
@@ -152,6 +162,14 @@ export function apaDate(iso: string): string {
   if (!match) return "";
   const [, y, m, d] = match;
   return `${APA_MONTHS[Number(m) - 1]} ${Number(d)}, ${y}`;
+}
+
+/** An ISO date as APA writes it inside the year parentheses: 2019, August 28. */
+export function apaYearMonthDay(iso: string, fallbackYear: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim());
+  if (!match) return fallbackYear.trim() || "n.d.";
+  const [, y, m, d] = match;
+  return `${y}, ${APA_MONTHS[Number(m) - 1]} ${Number(d)}`;
 }
 
 /** A sentence ends in exactly one full stop, whatever the field already had. */
@@ -272,8 +290,126 @@ function tidy(segments: Segment[]): Segment[] {
     );
 }
 
+/**
+ * APA 7 for a YouTube-style video.
+ *
+ * Uploader. (Year, Month Day). Title [Video]. Site. URL
+ * The title is italic; the site (YouTube) is not. The uploader is kept verbatim
+ * because channel names are not inverted the way personal names are.
+ */
+export function apaVideo(fields: Fields): Segment[] {
+  const out: Segment[] = [];
+  const uploader = clean(fields.contributor) || apaAuthors(parseAuthors(fields.authors));
+  if (uploader) out.push({ text: `${endStop(uploader)} ` });
+  out.push({ text: `(${apaYearMonthDay(fields.published, fields.year)}). ` });
+  const title = clean(fields.title);
+  if (title) out.push({ text: title.replace(/[.]$/, ""), italic: true }, { text: " [Video]. " });
+  const site = clean(fields.source) || "YouTube";
+  out.push({ text: `${endStop(site)} ` });
+  const url = clean(fields.url);
+  if (url) out.push({ text: url });
+  return tidy(out);
+}
+
+/** MLA 9 for a video: "Title." Site, uploaded by Uploader, Day Mon. Year, URL. */
+export function mlaVideo(fields: Fields): Segment[] {
+  const out: Segment[] = [];
+  const title = clean(fields.title);
+  if (title) out.push({ text: `“${title.replace(/[.]$/, "")}.” ` });
+  const site = clean(fields.source) || "YouTube";
+  out.push({ text: site, italic: true }, { text: ", " });
+  const uploader = clean(fields.contributor);
+  if (uploader) out.push({ text: `uploaded by ${uploader}, ` });
+  const date = mlaDate(fields.published);
+  if (date) out.push({ text: `${date}, ` });
+  const url = clean(fields.url);
+  if (url) out.push({ text: `${url}.` });
+  return tidy(out);
+}
+
+/**
+ * APA 7 for a podcast episode.
+ *
+ * Host. (Year, Month Day). Title of episode [Audio podcast episode]. In *Podcast*. URL
+ * The episode title is upright; the podcast, as the container, is italic.
+ */
+export function apaPodcast(fields: Fields): Segment[] {
+  const out: Segment[] = [];
+  const host = apaAuthors(parseAuthors(fields.authors)) || clean(fields.contributor);
+  if (host) out.push({ text: `${endStop(host)} ` });
+  out.push({ text: `(${apaYearMonthDay(fields.published, fields.year)}). ` });
+  const title = clean(fields.title);
+  if (title) out.push({ text: `${title.replace(/[.]$/, "")} [Audio podcast episode]. ` });
+  const show = clean(fields.source);
+  if (show) out.push({ text: "In " }, { text: show, italic: true }, { text: ". " });
+  const url = clean(fields.url);
+  if (url) out.push({ text: url });
+  return tidy(out);
+}
+
+/** MLA 9 for a podcast: Host. "Episode." *Podcast*, Day Mon. Year, URL. */
+export function mlaPodcast(fields: Fields): Segment[] {
+  const out: Segment[] = [];
+  const host = mlaAuthors(parseAuthors(fields.authors)) || clean(fields.contributor);
+  if (host) out.push({ text: `${endStop(host)} ` });
+  const title = clean(fields.title);
+  if (title) out.push({ text: `“${title.replace(/[.]$/, "")}.” ` });
+  const show = clean(fields.source);
+  if (show) out.push({ text: show, italic: true }, { text: ", " });
+  const date = mlaDate(fields.published);
+  if (date) out.push({ text: `${date}, ` });
+  const url = clean(fields.url);
+  if (url) out.push({ text: `${url}.` });
+  return tidy(out);
+}
+
+/**
+ * APA 7 for a newspaper article.
+ *
+ * Author. (Year, Month Day). Title of article. *Newspaper*. URL
+ * The article title is upright; the newspaper is italic.
+ */
+export function apaNewspaper(fields: Fields): Segment[] {
+  const out: Segment[] = [];
+  const authors = apaAuthors(parseAuthors(fields.authors));
+  if (authors) out.push({ text: `${endStop(authors)} ` });
+  out.push({ text: `(${apaYearMonthDay(fields.published, fields.year)}). ` });
+  const title = clean(fields.title);
+  if (title) out.push({ text: `${endStop(title)} ` });
+  const paper = clean(fields.source);
+  if (paper) out.push({ text: paper, italic: true }, { text: ". " });
+  const url = clean(fields.url);
+  if (url) out.push({ text: url });
+  return tidy(out);
+}
+
+/** MLA 9 for a newspaper article: Author. "Title." *Newspaper*, Day Mon. Year, URL. */
+export function mlaNewspaper(fields: Fields): Segment[] {
+  const out: Segment[] = [];
+  const authors = mlaAuthors(parseAuthors(fields.authors));
+  if (authors) out.push({ text: `${endStop(authors)} ` });
+  const title = clean(fields.title);
+  if (title) out.push({ text: `“${title.replace(/[.]$/, "")}.” ` });
+  const paper = clean(fields.source);
+  if (paper) out.push({ text: paper, italic: true }, { text: ", " });
+  const date = mlaDate(fields.published);
+  if (date) out.push({ text: `${date}, ` });
+  const url = clean(fields.url);
+  if (url) out.push({ text: `${url}.` });
+  return tidy(out);
+}
+
 export function build(fields: Fields, style: Style): Segment[] {
-  return style === "apa" ? apa(fields) : mla(fields);
+  switch (fields.sourceType) {
+    case "video":
+      return style === "apa" ? apaVideo(fields) : mlaVideo(fields);
+    case "podcast":
+      return style === "apa" ? apaPodcast(fields) : mlaPodcast(fields);
+    case "newspaper":
+      return style === "apa" ? apaNewspaper(fields) : mlaNewspaper(fields);
+    default:
+      return style === "apa" ? apa(fields) : mla(fields);
+  }
 }
 
 /** The citation as plain text, for a plain paste. */

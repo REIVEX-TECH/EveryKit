@@ -1,9 +1,15 @@
 /**
- * The five study tools. One entry per route, and the single source for the
+ * The six tools. One entry per route, and the single source for the
  * launcher on the home page, the tool switcher and every SEO page.
  */
 
-export type ToolSlug = "gpa" | "final-grade" | "citation" | "reading-time" | "timer";
+export type ToolSlug =
+  | "gpa"
+  | "final-grade"
+  | "citation"
+  | "reading-time"
+  | "timer"
+  | "exam-countdown";
 
 export type Faq = { q: string; a: string };
 
@@ -84,10 +90,10 @@ export const tools: Tool[] = [
   {
     slug: "citation",
     title: "Citation generator",
-    blurb: "APA 7 and MLA 9, from your own fields",
-    seoTitle: "APA 7 and MLA 9 citation generator, correct italics, nothing looked up",
+    blurb: "APA 7 and MLA 9, web, video, podcast, newspaper",
+    seoTitle: "APA 7 and MLA 9 citation generator, web, video, podcast and newspaper",
     description:
-      "Build a citation in APA 7 or MLA 9 from fields you fill in, with correct italics and punctuation. Copy as plain text or with the italics kept.",
+      "Build a citation in APA 7 or MLA 9 for a web page, video, podcast or newspaper, with correct italics and punctuation. Copy as plain text or with the italics kept.",
     intro: [
       "Fill in what you have and the citation builds itself in both styles.",
       "Two copy buttons: plain text for anywhere, and one that keeps the italics for a word processor.",
@@ -107,8 +113,12 @@ export const tools: Tool[] = [
         a: "The larger work. An article inside a journal is upright and the journal is italic; a standalone book or report is italic itself. Both styles agree on that, and the tool switches based on whether you filled in a source.",
       },
       {
+        q: "Which kinds of source does it handle?",
+        a: "A web page or article, a video, a podcast episode and a newspaper article, each with the fields and the exact format that style uses for it: a video takes an uploader and a site and is tagged [Video] in APA; a podcast italicises the show; a newspaper italicises the paper. Pick the type at the top and the fields change to match.",
+      },
+      {
         q: "What about a chapter in an edited book, or a film?",
-        a: "This form has fields for an author, a title, a source, a year, a URL and a date, which covers articles, web pages and books. Both styles have rules for cases those fields cannot express, and your department may have house variations on top. For those, check your style guide rather than assuming this covers it.",
+        a: "Those are not among the types here yet. Both styles have rules for cases these fields cannot express, and your department may have house variations on top. For those, check your style guide rather than assuming this covers it.",
       },
     ],
   },
@@ -171,6 +181,37 @@ export const tools: Tool[] = [
       {
         q: "Why 25 and 5?",
         a: "That is the pomodoro convention, and it is only a convention. Both are editable up to two hours, so if you work in 50 minute blocks or 15 minute ones, set them and ignore the name.",
+      },
+    ],
+  },
+  {
+    slug: "exam-countdown",
+    title: "Exam countdown",
+    blurb: "A shareable countdown, saved in the link",
+    seoTitle: "Exam countdown timer, shareable by link, nothing stored",
+    description:
+      "Count down the days to an exam, and share it as a link. The name and date live in the URL, so nothing is stored anywhere.",
+    intro: [
+      "Type the exam name and date and watch the days count down. Copy the link to keep it or send it to a friend.",
+      "Nothing is saved. The details ride in the link itself, so opening it later rebuilds the same countdown with no account and no record kept here.",
+    ],
+    faq: [
+      PRIVACY,
+      {
+        q: "Where is my countdown saved?",
+        a: "In the link, and nowhere else. The exam name and date are encoded into the URL, so there is no account and no stored list. Bookmark the link or send it on, and it rebuilds the countdown from what the link carries.",
+      },
+      {
+        q: "Can I share it?",
+        a: "Yes, that is the point of it. Copy the link and send it; whoever opens it sees the same countdown, because everything it needs is in the link. The line under the button says as much, so nobody assumes their exam dates were uploaded somewhere.",
+      },
+      {
+        q: "What time of day does it count to?",
+        a: "The end of the exam day, local time. So on the morning of the exam it still reads as today rather than having ticked over to passed the night before.",
+      },
+      {
+        q: "Does the countdown keep running if I close the tab?",
+        a: "It picks up wherever it should be whenever you open the link, because it is worked out from the date each time rather than counted in the background. There is nothing running while the tab is closed, and nothing to run.",
       },
     ],
   },

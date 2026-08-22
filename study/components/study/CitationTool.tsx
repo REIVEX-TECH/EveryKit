@@ -8,6 +8,7 @@ import {
   toHtml,
   toPlainText,
   type Fields,
+  type SourceType,
   type Style,
 } from "@/lib/study/citation";
 import { Field, Input, Note, useTake } from "./ui";
@@ -94,9 +95,43 @@ export function CitationTool() {
         </div>
       </fieldset>
 
+      <fieldset>
+        <legend className="text-[14px] font-semibold">What are you citing</legend>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {(
+            [
+              ["web", "Web page or article"],
+              ["video", "Video"],
+              ["podcast", "Podcast"],
+              ["newspaper", "Newspaper"],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={fields.sourceType === value}
+              onClick={() => set({ sourceType: value as SourceType })}
+              className={`rounded-full px-4 py-2 text-[14px] ${
+                fields.sourceType === value
+                  ? "bg-primary-dark text-white"
+                  : "border border-line bg-background hover:border-line-strong"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
-          label="Author or authors"
+          label={
+            fields.sourceType === "podcast"
+              ? "Host"
+              : fields.sourceType === "video"
+                ? "Creator (optional if you name the uploader below)"
+                : "Author or authors"
+          }
           htmlFor="cite-authors"
           note="One per line. Either order works: Ahmed, Sara or Sara Ahmed."
           className="sm:col-span-2"
@@ -120,28 +155,80 @@ export function CitationTool() {
           />
         </Field>
 
+        {fields.sourceType === "video" ? (
+          <Field
+            label="Uploader or channel"
+            htmlFor="cite-contributor"
+            note="Who posted it, kept as written: a channel name is not inverted."
+          >
+            <Input
+              id="cite-contributor"
+              value={fields.contributor}
+              onChange={(event) => set({ contributor: event.target.value })}
+              placeholder="Harvard University"
+            />
+          </Field>
+        ) : null}
+
         <Field
-          label="Source"
+          label={
+            fields.sourceType === "video"
+              ? "Site"
+              : fields.sourceType === "podcast"
+                ? "Podcast name"
+                : fields.sourceType === "newspaper"
+                  ? "Newspaper"
+                  : "Source"
+          }
           htmlFor="cite-source"
-          note="The journal, website or publisher it appeared in. Leave it empty for a standalone work."
+          note={
+            fields.sourceType === "video"
+              ? "Where it is hosted. Defaults to YouTube if left blank."
+              : fields.sourceType === "web"
+                ? "The journal, website or publisher it appeared in. Leave it empty for a standalone work."
+                : undefined
+          }
         >
           <Input
             id="cite-source"
             value={fields.source}
             onChange={(event) => set({ source: event.target.value })}
-            placeholder="Journal of Study Habits"
+            placeholder={
+              fields.sourceType === "video"
+                ? "YouTube"
+                : fields.sourceType === "podcast"
+                  ? "The Daily"
+                  : fields.sourceType === "newspaper"
+                    ? "The Washington Post"
+                    : "Journal of Study Habits"
+            }
           />
         </Field>
 
-        <Field label="Year" htmlFor="cite-year">
-          <Input
-            id="cite-year"
-            value={fields.year}
-            onChange={(event) => set({ year: event.target.value })}
-            inputMode="numeric"
-            placeholder="2024"
-          />
-        </Field>
+        {fields.sourceType === "web" ? (
+          <Field label="Year" htmlFor="cite-year">
+            <Input
+              id="cite-year"
+              value={fields.year}
+              onChange={(event) => set({ year: event.target.value })}
+              inputMode="numeric"
+              placeholder="2024"
+            />
+          </Field>
+        ) : (
+          <Field
+            label="Published"
+            htmlFor="cite-published"
+            note="The full date these styles want for this kind of source."
+          >
+            <Input
+              id="cite-published"
+              type="date"
+              value={fields.published}
+              onChange={(event) => set({ published: event.target.value })}
+            />
+          </Field>
+        )}
 
         <Field label="URL" htmlFor="cite-url">
           <Input

@@ -395,3 +395,126 @@ describe("the timer", () => {
     expect(clampMinutes(Number.NaN)).toBe(25);
   });
 });
+
+describe("citations for video, podcast and newspaper", () => {
+  const text = (fields: Parameters<typeof build>[0], style: Parameters<typeof build>[1]) =>
+    toPlainText(build(fields, style));
+
+  // Modelled on the APA Style blog and Purdue OWL published examples.
+  it("formats a YouTube video in APA 7", () => {
+    const out = text(
+      {
+        ...EMPTY_FIELDS,
+        sourceType: "video",
+        contributor: "Harvard University",
+        title: "Soft robotic gripper for jellyfish",
+        source: "YouTube",
+        published: "2019-08-28",
+        url: "https://youtu.be/example",
+      },
+      "apa",
+    );
+    expect(out).toBe(
+      "Harvard University. (2019, August 28). Soft robotic gripper for jellyfish [Video]. YouTube. https://youtu.be/example",
+    );
+  });
+
+  it("formats a YouTube video in MLA 9", () => {
+    const out = text(
+      {
+        ...EMPTY_FIELDS,
+        sourceType: "video",
+        contributor: "Harvard University",
+        title: "Soft robotic gripper for jellyfish",
+        source: "YouTube",
+        published: "2019-08-28",
+        url: "https://youtu.be/example",
+      },
+      "mla",
+    );
+    expect(out).toBe(
+      "\u201cSoft robotic gripper for jellyfish.\u201d YouTube, uploaded by Harvard University, 28 Aug. 2019, https://youtu.be/example.",
+    );
+  });
+
+  it("formats a podcast episode in APA 7 with the show italicised", () => {
+    const fields = {
+      ...EMPTY_FIELDS,
+      sourceType: "podcast" as const,
+      authors: "Koenig, Sarah",
+      title: "The alibi",
+      source: "Serial",
+      published: "2014-10-03",
+      url: "https://serialpodcast.org/season-one/1",
+    };
+    const out = text(fields, "apa");
+    expect(out).toBe(
+      "Koenig, S. (2014, October 3). The alibi [Audio podcast episode]. In Serial. https://serialpodcast.org/season-one/1",
+    );
+    // The container is italic; the episode title is not.
+    const segs = build(fields, "apa");
+    expect(segs.some((s) => s.italic && s.text.includes("Serial"))).toBe(true);
+  });
+
+  it("formats a podcast episode in MLA 9", () => {
+    const out = text(
+      {
+        ...EMPTY_FIELDS,
+        sourceType: "podcast",
+        authors: "Koenig, Sarah",
+        title: "The alibi",
+        source: "Serial",
+        published: "2014-10-03",
+        url: "https://serialpodcast.org/season-one/1",
+      },
+      "mla",
+    );
+    expect(out).toBe(
+      "Koenig, Sarah. \u201cThe alibi.\u201d Serial, 3 Oct. 2014, https://serialpodcast.org/season-one/1.",
+    );
+  });
+
+  it("formats a newspaper article in APA 7", () => {
+    const out = text(
+      {
+        ...EMPTY_FIELDS,
+        sourceType: "newspaper",
+        authors: "Guarino, Ben",
+        title: "How the coronavirus spreads",
+        source: "The Washington Post",
+        published: "2020-05-08",
+        url: "https://washingtonpost.com/example",
+      },
+      "apa",
+    );
+    expect(out).toBe(
+      "Guarino, B. (2020, May 8). How the coronavirus spreads. The Washington Post. https://washingtonpost.com/example",
+    );
+  });
+
+  it("formats a newspaper article in MLA 9", () => {
+    const out = text(
+      {
+        ...EMPTY_FIELDS,
+        sourceType: "newspaper",
+        authors: "Guarino, Ben",
+        title: "How the coronavirus spreads",
+        source: "The Washington Post",
+        published: "2020-05-08",
+        url: "https://washingtonpost.com/example",
+      },
+      "mla",
+    );
+    expect(out).toBe(
+      "Guarino, Ben. \u201cHow the coronavirus spreads.\u201d The Washington Post, 8 May 2020, https://washingtonpost.com/example.",
+    );
+  });
+
+  it("falls back to n.d. when a video has no date", () => {
+    const out = text(
+      { ...EMPTY_FIELDS, sourceType: "video", contributor: "Someone", title: "A clip", source: "YouTube" },
+      "apa",
+    );
+    expect(out).toContain("(n.d.)");
+  });
+});
