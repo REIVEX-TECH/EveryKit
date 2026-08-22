@@ -1,9 +1,18 @@
 /**
- * The five everyday calculators. One entry per route, and the single source for
- * the launcher on the home page, the tool switcher and every SEO page.
+ * The eight everyday calculators. One entry per route, and the single source
+ * for the launcher on the home page, the tool switcher, the sitemap and every
+ * SEO page.
  */
 
-export type ToolSlug = "age" | "date-difference" | "units" | "emi" | "percentage";
+export type ToolSlug =
+  | "age"
+  | "date-difference"
+  | "units"
+  | "emi"
+  | "percentage"
+  | "discount"
+  | "vat"
+  | "trip-cost";
 
 export type Faq = { q: string; a: string };
 
@@ -160,6 +169,63 @@ export const tools: Tool[] = [
         q: "Why does a change from zero not work?",
         a: "Because there is no percentage that describes it. Any increase from nothing is infinite in percentage terms, so rather than print something meaningless the tool says the starting number has to be something other than zero.",
       },
+    ],
+  },
+  {
+    slug: "discount",
+    title: "Discount",
+    blurb: "A price, a percent off, the amount saved",
+    seoTitle: "Discount calculator with stacked discounts, free",
+    description:
+      "Work out a sale price and what you save, including two stacked discounts. Runs in your browser and nothing is uploaded.",
+    intro: [
+      "Type the price and the percent off, and see what you pay and what you save. The saved amount is the headline, because that is the number the sticker never shows.",
+      "There is a second discount box for the case that trips everyone up: two discounts do not add. 20% then 10% is 28% off, not 30%, and the tool shows the real figure.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Why is 20% then 10% not 30% off?", a: "Because the second discount comes off what the first one already reduced, not off the original price. 20% off 100 is 80; 10% off 80 is 72; so together they take 28 off, not 30. The tool shows the effective percentage so you can see it." },
+      { q: "Does it round the way a till does?", a: "It works in whole pennies or cents and rounds once, to the nearest unit, so the amount you pay and the amount you save always add back up to the original price." },
+      { q: "Which currency does it use?", a: "Whichever you pick. It only changes how the result is written; the arithmetic is the same. Indian numbering, which groups as 1,00,000, is handled for the rupee." },
+      { q: "Can I use it for tax as well?", a: "Use the VAT tool for tax. A discount comes off a price; a tax is added to or taken out of one, which is a different sum and has its own page here." },
+    ],
+  },
+  {
+    slug: "vat",
+    title: "VAT and GST",
+    blurb: "Add tax, or take it out of a total",
+    seoTitle: "VAT and GST calculator, add or extract tax, free",
+    description:
+      "Add VAT or GST to a net price, or work out the tax already inside a gross one. Both directions, in your browser.",
+    intro: [
+      "Add tax to a price that does not include it yet, or pull the tax back out of a total that already does. It shows the net, the tax and the gross, all three.",
+      "Extracting is the half people get wrong: the tax inside a tax-inclusive price is not the rate times the total. At 20%, the tax in 120 is 20, not 24, and the tool spells that out.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "How do I find the tax inside a total?", a: "Choose \"take tax out of a gross price\". The tax is the gross divided by one plus the rate, subtracted from the gross, which is not the same as the rate times the gross. At 20% the tax in 120 is 20, leaving a net of 100." },
+      { q: "Is this for VAT or GST?", a: "Both. They are the same kind of tax under different names, added as a percentage of the price, so the sum is identical. Set the rate to whatever applies where you are." },
+      { q: "What rate should I use?", a: "Whatever your country charges. Common VAT rates run from about 5% to 27%; GST varies too. The tool does not assume one, so type the rate that applies." },
+      { q: "Do the three figures always add up?", a: "Yes. It rounds once and derives the third figure by subtraction, so net plus tax always equals gross to the penny." },
+    ],
+  },
+  {
+    slug: "trip-cost",
+    title: "Trip fuel cost",
+    blurb: "Distance, fuel use and price, split per person",
+    seoTitle: "Trip fuel cost calculator, metric and imperial, free",
+    description:
+      "Work out what fuel a drive costs from the distance, the car's fuel use and the price, split between passengers. Metric and imperial.",
+    intro: [
+      "Give it the distance, how much fuel the car uses, and the price at the pump, and it works out the cost and the litres. Split it between passengers for the share each pays.",
+      "It handles the units in one place, so you can mix them: kilometres with miles per gallon, or miles with litres per 100 km, and fuel priced per litre or per gallon.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Can I mix metric and imperial?", a: "Yes. Each field has its own unit, so a distance in miles works with fuel use in litres per 100 km and a price per litre, or any other combination. The conversions happen for you." },
+      { q: "What is the difference between US and imperial mpg?", a: "The gallon. A US gallon is about 3.79 litres and an imperial one about 4.55, so the same car is rated a higher mpg number in imperial. Pick the one your figure is quoted in, and the tool converts correctly." },
+      { q: "How is the per-person cost worked out?", a: "The total fuel cost divided by the number of people, rounded to the nearest unit. It is the fuel only; tolls, parking and wear are not in it." },
+      { q: "Is the litres figure exact?", a: "It is as exact as the fuel-use figure you give, which is usually an average. The cost is worked out from the unrounded litres and rounded once, so the litres shown and the total never look a penny apart." },
     ],
   },
 ];

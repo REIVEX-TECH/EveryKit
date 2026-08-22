@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import { tools } from "@/data/tools";
 
 /**
- * The five tools as a launcher, matching the grid on the hub.
+ * The eight tools as a launcher, matching the grid on the hub.
  *
  * Same rules: one white glyph on one flat tint, corners at 23 percent, one
  * shadow, pinned by slug so a tool added later never reshuffles the colours.
@@ -15,6 +15,9 @@ const TINTS: Record<string, string> = {
   units: "#1769d4",
   emi: "#2f6fd0",
   percentage: "#145cb8",
+  discount: "#3d8ae8",
+  vat: "#2a74e0",
+  "trip-cost": "#4a93ef",
 };
 
 const stroke = {
@@ -62,6 +65,28 @@ const GLYPHS: Record<string, ReactElement> = {
       <path d="M5.4 18.6L18.6 5.4" {...stroke} strokeWidth={2} />
       <circle cx="7.6" cy="7.6" r="2.6" {...stroke} />
       <circle cx="16.4" cy="16.4" r="2.6" {...stroke} />
+    </>
+  ),
+  discount: (
+    <>
+      <path d="M12 3.4l2.2 1.6 2.7-.2 1 2.5 2.3 1.4-.7 2.6.7 2.6-2.3 1.4-1 2.5-2.7-.2L12 20.6l-2.2-1.6-2.7.2-1-2.5-2.3-1.4.7-2.6-.7-2.6 2.3-1.4 1-2.5 2.7.2z" {...stroke} />
+      <path d="M9.4 9.4h.01M14.6 14.6h.01M9 15l6-6" {...stroke} strokeWidth={2} />
+    </>
+  ),
+  vat: (
+    <>
+      <path d="M6.4 3.6h8.2l5 5v11.8H6.4z" {...stroke} />
+      <path d="M14.4 3.6v5h5" {...stroke} />
+      <path d="M9 12l6 5M15 12l-6 5" {...stroke} />
+    </>
+  ),
+  "trip-cost": (
+    <>
+      <path d="M4.4 15.6l1.4-4.6a2 2 0 0 1 1.9-1.4h6.6a2 2 0 0 1 1.9 1.4l1.4 4.6" {...stroke} />
+      <rect x="3.4" y="15.4" width="15.6" height="4.2" rx="1.4" {...stroke} />
+      <circle cx="7.2" cy="17.6" r="1" {...solid} />
+      <circle cx="15.2" cy="17.6" r="1" {...solid} />
+      <path d="M19.4 8.6l1.6 1.6v4" {...stroke} />
     </>
   ),
 };

@@ -8,6 +8,9 @@ import { DateDifferenceTool } from "@/components/calc/DateDifferenceTool";
 import { EmiTool } from "@/components/calc/EmiTool";
 import { PercentageTool } from "@/components/calc/PercentageTool";
 import { UnitsTool } from "@/components/calc/UnitsTool";
+import { DiscountTool } from "@/components/calc/DiscountTool";
+import { VatTool } from "@/components/calc/VatTool";
+import { TripCostTool } from "@/components/calc/TripCostTool";
 import { getTool, tools, type ToolSlug } from "@/data/tools";
 import { absoluteUrl } from "@/lib/site";
 
@@ -42,6 +45,9 @@ const WORKBENCHES: Record<ToolSlug, () => React.ReactElement> = {
   units: UnitsTool,
   emi: EmiTool,
   percentage: PercentageTool,
+  discount: DiscountTool,
+  vat: VatTool,
+  "trip-cost": TripCostTool,
 };
 
 export default async function ToolPage({ params }: Params) {
