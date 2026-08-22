@@ -12,6 +12,7 @@ import { workLetters } from "./work";
 import { consumerLetters } from "./consumer";
 import { housingLetters } from "./housing";
 import { personalLetters } from "./personal";
+import { extraLetters } from "./extra";
 
 export const letterTypes: LetterType[] = [
   ...visaLetters,
@@ -19,6 +20,7 @@ export const letterTypes: LetterType[] = [
   ...consumerLetters,
   ...housingLetters,
   ...personalLetters,
+  ...extraLetters,
 ];
 
 const bySlug = new Map(letterTypes.map((type) => [type.slug, type]));

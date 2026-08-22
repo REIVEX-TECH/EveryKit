@@ -24,10 +24,10 @@ export type LetterSummary = {
  */
 const GROUPS: Record<string, string[]> = {
   visa: ["visa-invitation", "visa-cover-letter", "visa-appeal", "financial-sponsorship"],
-  work: ["employment-verification-request", "noc-request", "resignation"],
-  consumer: ["complaint-product-service", "refund-request", "bank-transaction-dispute"],
-  housing: ["landlord-repair-request", "notice-to-vacate"],
-  personal: ["school-absence", "authorization-letter"],
+  work: ["employment-verification-request", "noc-request", "resignation", "experience-certificate", "salary-certificate-request", "internship-application"],
+  consumer: ["complaint-product-service", "refund-request", "bank-transaction-dispute", "complaint-escalation", "bank-account-closure"],
+  housing: ["landlord-repair-request", "notice-to-vacate", "rent-increase-response"],
+  personal: ["school-absence", "authorization-letter", "character-reference"],
 };
 
 const TINTS: Record<string, string> = {
