@@ -33,6 +33,12 @@ const CONNECT_SOURCES = [
 ];
 
 const CONTENT_SECURITY_POLICY = [
+  // script-src added last of the platform work. 'self' blocks a script
+  // loaded from another origin; 'unsafe-inline' is kept because Next injects
+  // its hydration bootstrap and streaming chunks as inline scripts, and the
+  // alternative, a per-request nonce, needs middleware in every app. The real
+  // win here is the origin restriction. This kit compiles WebAssembly, so wasm-unsafe-eval is added or its decoder fails silently.
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
   `connect-src ${CONNECT_SOURCES.join(" ")}`,
   // The encoder runs in a module worker, which is what keeps the page
   // responsive while the MP3 is written.

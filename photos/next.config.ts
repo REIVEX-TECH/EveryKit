@@ -47,12 +47,12 @@ const CONTENT_SECURITY_POLICY = [
   // The checkout overlay is an iframe served by Lemon Squeezy, and nothing
   // else in this app is framed.
   "frame-src https://*.lemonsqueezy.com",
-  // Deliberately no script-src. Naming one would mean also allowing
-  // 'wasm-unsafe-eval', because Chrome refuses to compile WebAssembly under a
-  // script-src that omits it — and WebAssembly is how the whole tool works.
-  // Without default-src, leaving the directive out keeps scripts unrestricted,
-  // which is where this app already was. There is no user-supplied markup here
-  // for a script-src to protect.
+  // script-src restricts scripts to this origin, which blocks one loaded from
+  // another. 'unsafe-inline' stays because Next injects its hydration bootstrap
+  // inline, and 'wasm-unsafe-eval' is required or Chrome refuses to compile the
+  // WebAssembly this tool runs its model in. A nonce would tighten the inline
+  // case but needs middleware; the origin restriction is the win taken here.
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
   "object-src 'none'",
   "base-uri 'self'",
   "frame-ancestors 'none'",

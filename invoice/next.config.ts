@@ -27,6 +27,12 @@ const CONNECT_SOURCES = [
 ];
 
 const CONTENT_SECURITY_POLICY = [
+  // script-src added last of the platform work. 'self' blocks a script
+  // loaded from another origin; 'unsafe-inline' is kept because Next injects
+  // its hydration bootstrap and streaming chunks as inline scripts, and the
+  // alternative, a per-request nonce, needs middleware in every app. The real
+  // win here is the origin restriction.
+  "script-src 'self' 'unsafe-inline'",
   `connect-src ${CONNECT_SOURCES.join(" ")}`,
   "frame-src https://*.lemonsqueezy.com",
   "object-src 'none'",
