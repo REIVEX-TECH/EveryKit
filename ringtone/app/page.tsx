@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Workbench } from "@/components/ringtone/Workbench";
+import { ToolRow } from "@/components/ringtone/ToolRow";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -64,6 +65,8 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      <ToolRow current="/" />
 
       <div className="ek-shell py-10 sm:py-14">
         <h1 className="max-w-[20ch] text-[32px] leading-tight sm:text-[38px]">
