@@ -1,9 +1,16 @@
 /**
- * The four text tools. One entry per route, and the single source for the
- * directory on the home page, the tool switcher and the SEO pages.
+ * The seven text tools. One entry per route, and the single source for the
+ * directory on the home page, the tool switcher, the sitemap and the SEO pages.
  */
 
-export type ToolSlug = "word-counter" | "case-converter" | "clean-text" | "lorem-ipsum";
+export type ToolSlug =
+  | "word-counter"
+  | "case-converter"
+  | "clean-text"
+  | "find-replace"
+  | "remove-duplicate-lines"
+  | "sort-lines"
+  | "lorem-ipsum";
 
 export type Faq = { q: string; a: string };
 
@@ -104,6 +111,63 @@ export const tools: Tool[] = [
         q: "Does it change anything I have not asked it to?",
         a: "No. With every switch off the text comes out byte for byte as it went in, which is worth knowing before you paste something you care about.",
       },
+    ],
+  },
+  {
+    slug: "find-replace",
+    title: "Find and replace",
+    blurb: "Swap text, plain or with a pattern",
+    seoTitle: "Find and replace text online, plain or regex, free",
+    description:
+      "Find and replace across a block of text, plain or with a regular expression, with a live count of the matches. Runs in your browser.",
+    intro: [
+      "Type what to find and what to put in its place, and see the result and the number of matches update as you go.",
+      "Plain mode treats what you type literally, so a full stop is a full stop. Switch on regular expressions when you need patterns and groups.",
+    ],
+    faq: [
+      PRIVACY_ANSWER,
+      { q: "What is the difference between plain and regex?", a: "Plain mode looks for exactly the characters you type, so \"a.b\" matches \"a.b\" and nothing else. Regex mode reads your search as a pattern, so \".\" means any character and \"(\\d+)\" captures a run of digits you can reuse in the replacement as $1." },
+      { q: "How do I reuse part of a match?", a: "In regex mode, wrap the part in brackets and refer to it in the replacement as $1, $2 and so on. Turning a date around, for example: find (\\d{4})-(\\d{2})-(\\d{2}) and replace with $3/$2/$1." },
+      { q: "What if my regular expression is wrong?", a: "It tells you, rather than doing nothing or breaking. An unclosed bracket or a stray quantifier produces a message under the field, and the text is left untouched until the pattern is valid." },
+      { q: "Is it case-sensitive?", a: "You choose. There is a toggle; by default it ignores case, which is what most everyday replacing wants." },
+    ],
+  },
+  {
+    slug: "remove-duplicate-lines",
+    title: "Remove duplicate lines",
+    blurb: "Keep the first of each line, drop the rest",
+    seoTitle: "Remove duplicate lines from text online, free",
+    description:
+      "Remove repeated lines from a list, keeping the first of each, with options to ignore case and surrounding spaces. Runs in your browser.",
+    intro: [
+      "Paste a list and get it back with the repeats gone and the first of each kept in place. It tells you how many it removed.",
+      "Two toggles handle the awkward cases: ignore the spaces around a line, and ignore whether it is capitalised, when deciding what counts as the same.",
+    ],
+    faq: [
+      PRIVACY_ANSWER,
+      { q: "Which copy of a duplicate is kept?", a: "The first one, in the order they appear, and it is kept exactly as written. The toggles only change how two lines are compared, never how the kept line looks." },
+      { q: "Does it reorder my lines?", a: "No. The lines that survive stay in their original order. If you want them sorted as well, run the result through the sort tool afterwards." },
+      { q: "What do the toggles do?", a: "Ignore surrounding spaces treats \" apple \" and \"apple\" as the same line. Ignore case treats \"Apple\" and \"apple\" as the same. Both off means only exactly identical lines are treated as duplicates." },
+      { q: "Does it change the last line?", a: "No. Blank lines are treated like any other line, so a run of empty lines is collapsed to one if they count as duplicates of each other." },
+    ],
+  },
+  {
+    slug: "sort-lines",
+    title: "Sort lines",
+    blurb: "A to Z, Z to A, numeric, or shuffle",
+    seoTitle: "Sort lines of text online, alphabetical or numeric, free",
+    description:
+      "Sort lines alphabetically, in reverse, in natural numeric order, or shuffle them. Runs in your browser and nothing is uploaded.",
+    intro: [
+      "Paste a list and sort it: A to Z, Z to A, natural order that reads numbers as numbers, or a shuffle when you want them mixed.",
+      "Natural order is the one people usually mean for anything with numbers in it, so \"file2\" comes before \"file10\" rather than after it.",
+    ],
+    faq: [
+      PRIVACY_ANSWER,
+      { q: "What is natural order?", a: "It reads runs of digits as numbers, so \"file2\" sorts before \"file10\". Plain alphabetical order compares character by character and puts \"file10\" first, because \"1\" comes before \"2\", which is almost never what you want for a numbered list." },
+      { q: "Is the sort case-sensitive?", a: "A to Z and Z to A compare by character code, so capitals group ahead of lower case. For a list where that matters, tidy the case first with the case converter, then sort." },
+      { q: "What does shuffle do?", a: "It puts the lines in a random order, which is useful for drawing names or randomising a quiz. Every line is kept; only the order changes." },
+      { q: "Can I compare two lists instead?", a: "That is a different job, and the developer kit does it: its diff tool shows what changed line by line. This tool sorts a single list." },
     ],
   },
   {

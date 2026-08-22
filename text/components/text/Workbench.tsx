@@ -17,6 +17,12 @@ import {
   type CleanOptions,
 } from "@/lib/text/transform";
 import { generateLorem } from "@/lib/text/lorem";
+import {
+  findReplace,
+  removeDuplicateLines,
+  sortLines,
+  type SortOrder,
+} from "@/lib/text/lines";
 
 type CaseMode = "upper" | "lower" | "title" | "sentence";
 
@@ -30,23 +36,51 @@ export function Workbench({ tool }: { tool: ToolSlug }) {
   const [unit, setUnit] = useState<"paragraphs" | "words">("paragraphs");
   const [count, setCount] = useState(3);
   const [classic, setClassic] = useState(true);
+  const [find, setFind] = useState("");
+  const [replace, setReplace] = useState("");
+  const [regexMode, setRegexMode] = useState(false);
+  const [caseSensitive, setCaseSensitive] = useState(false);
+  const [dedupeTrim, setDedupeTrim] = useState(true);
+  const [dedupeCaseInsensitive, setDedupeCaseInsensitive] = useState(false);
+  const [sortOrder, setSortOrder] = useState<SortOrder>("az");
   const [gateFor, setGateFor] = useState<(() => void) | null>(null);
   const [copied, setCopied] = useState(false);
   const outputRef = useRef<HTMLTextAreaElement>(null);
 
   const counts = useMemo(() => countAll(input), [input]);
 
-  const output = useMemo(() => {
-    if (tool === "word-counter") return input;
+  const derived = useMemo((): { output: string; status: string | null; error: string | null } => {
+    if (tool === "word-counter") return { output: input, status: null, error: null };
     if (tool === "case-converter") {
-      if (caseMode === "upper") return toUpper(input);
-      if (caseMode === "lower") return toLower(input);
-      if (caseMode === "title") return toTitle(input);
-      return toSentence(input);
+      const out =
+        caseMode === "upper" ? toUpper(input)
+        : caseMode === "lower" ? toLower(input)
+        : caseMode === "title" ? toTitle(input)
+        : toSentence(input);
+      return { output: out, status: null, error: null };
     }
-    if (tool === "clean-text") return cleanText(input, clean);
-    return generateLorem({ unit, count, startWithClassic: classic });
-  }, [tool, input, caseMode, clean, unit, count, classic]);
+    if (tool === "clean-text") return { output: cleanText(input, clean), status: null, error: null };
+    if (tool === "find-replace") {
+      if (find === "") return { output: input, status: null, error: null };
+      const r = findReplace(input, { find, replace, regex: regexMode, caseSensitive });
+      if (!r.ok) return { output: input, status: null, error: r.error };
+      const status =
+        r.count === 0 ? "No matches." : `${r.count} ${r.count === 1 ? "match" : "matches"} replaced.`;
+      return { output: r.output, status, error: null };
+    }
+    if (tool === "remove-duplicate-lines") {
+      const r = removeDuplicateLines(input, { trim: dedupeTrim, caseInsensitive: dedupeCaseInsensitive });
+      const status =
+        r.removed === 0 ? "No duplicates found." : `${r.removed} ${r.removed === 1 ? "line" : "lines"} removed.`;
+      return { output: r.output, status, error: null };
+    }
+    if (tool === "sort-lines") {
+      return { output: sortLines(input, sortOrder).output, status: null, error: null };
+    }
+    return { output: generateLorem({ unit, count, startWithClassic: classic }), status: null, error: null };
+  }, [tool, input, caseMode, clean, find, replace, regexMode, caseSensitive, dedupeTrim, dedupeCaseInsensitive, sortOrder, unit, count, classic]);
+
+  const output = derived.output;
 
   const outputCounts = useMemo(() => countAll(output), [output]);
 
@@ -227,6 +261,101 @@ export function Workbench({ tool }: { tool: ToolSlug }) {
             Start with the classic opening
           </label>
         </div>
+      ) : null}
+
+      {tool === "find-replace" ? (
+        <div className="flex flex-col gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="find" className="block text-[14px] font-semibold">Find</label>
+              <input
+                id="find"
+                value={find}
+                onChange={(event) => setFind(event.target.value)}
+                placeholder={regexMode ? "(\\d{4})-(\\d{2})-(\\d{2})" : "old text"}
+                className="mt-2 w-full rounded-[10px] border border-line bg-background px-3 py-2 text-[15px] font-mono outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label htmlFor="replace" className="block text-[14px] font-semibold">Replace with</label>
+              <input
+                id="replace"
+                value={replace}
+                onChange={(event) => setReplace(event.target.value)}
+                placeholder={regexMode ? "$3/$2/$1" : "new text"}
+                className="mt-2 w-full rounded-[10px] border border-line bg-background px-3 py-2 text-[15px] font-mono outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            <label className="flex items-center gap-2 text-[14px]">
+              <input type="checkbox" checked={regexMode} onChange={(e) => setRegexMode(e.target.checked)} className="h-4 w-4 accent-[var(--color-primary)]" />
+              Regular expression
+            </label>
+            <label className="flex items-center gap-2 text-[14px]">
+              <input type="checkbox" checked={caseSensitive} onChange={(e) => setCaseSensitive(e.target.checked)} className="h-4 w-4 accent-[var(--color-primary)]" />
+              Match case
+            </label>
+          </div>
+          {derived.error ? (
+            <p role="alert" className="text-[14px] text-warn">{derived.error}</p>
+          ) : derived.status ? (
+            <p className="text-[14px] text-text-light" aria-live="polite">{derived.status}</p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {tool === "remove-duplicate-lines" ? (
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap gap-4">
+            <label className="flex items-center gap-2 text-[14px]">
+              <input type="checkbox" checked={dedupeTrim} onChange={(e) => setDedupeTrim(e.target.checked)} className="h-4 w-4 accent-[var(--color-primary)]" />
+              Ignore surrounding spaces
+            </label>
+            <label className="flex items-center gap-2 text-[14px]">
+              <input type="checkbox" checked={dedupeCaseInsensitive} onChange={(e) => setDedupeCaseInsensitive(e.target.checked)} className="h-4 w-4 accent-[var(--color-primary)]" />
+              Ignore case
+            </label>
+          </div>
+          {derived.status ? (
+            <p className="text-[14px] text-text-light" aria-live="polite">{derived.status}</p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {tool === "sort-lines" ? (
+        <fieldset>
+          <legend className="text-[14px] font-semibold">Order</legend>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {([
+              ["az", "A to Z"],
+              ["za", "Z to A"],
+              ["natural", "Natural (file2 before file10)"],
+              ["shuffle", "Shuffle"],
+            ] as const).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setSortOrder(value)}
+                aria-pressed={sortOrder === value}
+                className={[
+                  "inline-flex min-h-[36px] items-center rounded-full border px-4 py-2 text-[14px] transition-colors",
+                  sortOrder === value
+                    ? "border-primary-dark bg-primary-dark text-white"
+                    : "border-line text-text-light hover:border-line-strong hover:text-foreground",
+                ].join(" ")}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {sortOrder === "shuffle" ? (
+            <p className="mt-2 text-[13px] text-text-light">
+              Shuffle gives a new order each time you change something. Copy the result you want
+              before editing again.
+            </p>
+          ) : null}
+        </fieldset>
       ) : null}
 
       {tool !== "word-counter" ? (
