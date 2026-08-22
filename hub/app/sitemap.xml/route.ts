@@ -37,11 +37,17 @@ function escapeXml(value: string): string {
 
 export function GET(): Response {
   const sitemaps = [absoluteUrl("/sitemap-pages.xml"), ...liveSitemaps()];
+  // Build-time date. The index cannot know when each kit last changed, so it
+  // reports the deploy date, which is consistent and honest for a fresh build.
+  const lastmod = new Date().toISOString().slice(0, 10);
 
   const body = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ...sitemaps.map((url) => `  <sitemap>\n    <loc>${escapeXml(url)}</loc>\n  </sitemap>`),
+    ...sitemaps.map(
+      (url) =>
+        `  <sitemap>\n    <loc>${escapeXml(url)}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </sitemap>`,
+    ),
     "</sitemapindex>",
     "",
   ].join("\n");

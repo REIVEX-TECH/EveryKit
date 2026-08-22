@@ -1,5 +1,5 @@
-export const SITE_NAME = "EveryKit Photos";
-export const KIT_NAME = "Photos";
+export const SITE_NAME = "EveryKit ID Photos";
+export const KIT_NAME = "ID Photos";
 export const KIT_SLUG = "photos";
 export const SITE_TAGLINE = "Passport and visa photos, made on your phone";
 export const PARENT_NAME = "Reivex";

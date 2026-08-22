@@ -2,11 +2,19 @@ import type { MetadataRoute } from "next";
 import { absoluteUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  // One build-time date across every entry, so a crawler sees a
+  // consistent lastmod for the whole kit rather than a spread.
+  const lastModified = new Date();
   return [
-    { url: absoluteUrl("/"), changeFrequency: "monthly", priority: 1 },
-    { url: absoluteUrl("/quote"), changeFrequency: "monthly", priority: 0.8 },
-    { url: absoluteUrl("/receipt"), changeFrequency: "monthly", priority: 0.8 },
-    { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.3 },
-    { url: absoluteUrl("/terms"), changeFrequency: "yearly", priority: 0.3 },
+    { url: absoluteUrl("/"), lastModified,
+      changeFrequency: "monthly", priority: 1 },
+    { url: absoluteUrl("/quote"), lastModified,
+      changeFrequency: "monthly", priority: 0.8 },
+    { url: absoluteUrl("/receipt"), lastModified,
+      changeFrequency: "monthly", priority: 0.8 },
+    { url: absoluteUrl("/privacy"), lastModified,
+      changeFrequency: "yearly", priority: 0.3 },
+    { url: absoluteUrl("/terms"), lastModified,
+      changeFrequency: "yearly", priority: 0.3 },
   ];
 }

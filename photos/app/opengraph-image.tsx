@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "EveryKit Photos, a loose selfie beside the same face cropped to 2 by 2 inches with measurement guides";
+  "EveryKit ID Photos, a loose selfie beside the same face cropped to 2 by 2 inches with measurement guides";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -43,7 +43,7 @@ export default function OpengraphImage() {
               <div style={{ width: 44, height: 44, borderRadius: 11, background: "#1d81f2" }} />
             </div>
             <div style={{ display: "flex", fontSize: 26, color: "#444444", letterSpacing: 1 }}>
-              EveryKit Photos
+              EveryKit ID Photos
             </div>
             <div
               style={{

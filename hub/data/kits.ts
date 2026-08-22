@@ -174,7 +174,7 @@ export function catalog(): CatalogEntry[] {
 export const kits: Kit[] = [
   {
     slug: "photos",
-    name: "EveryKit Photos",
+    name: "EveryKit ID Photos",
     tagline: "Passport & visa photos from a selfie",
     url: "https://photos.useeverykit.com",
     status: "live",

@@ -4,7 +4,7 @@ import { absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Terms",
   description:
-    "The short version: EveryKit Photos gets the measurements right, but cannot promise your application will be accepted.",
+    "The short version: EveryKit ID Photos gets the measurements right, but cannot promise your application will be accepted.",
   alternates: { canonical: absoluteUrl("/terms") },
 };
 

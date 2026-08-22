@@ -4,7 +4,7 @@ import { absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "What EveryKit Photos does and does not collect. Your photo is processed in your browser and never uploaded. If you give us your email, we store that.",
+    "What EveryKit ID Photos does and does not collect. Your photo is processed in your browser and never uploaded. If you give us your email, we store that.",
   alternates: { canonical: absoluteUrl("/privacy") },
 };
 
