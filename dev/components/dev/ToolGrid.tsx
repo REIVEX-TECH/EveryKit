@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import { tools } from "@/data/tools";
 
 /**
- * The ten tools as a launcher, matching the grid on the hub.
+ * The thirteen tools as a launcher, matching the grid on the hub.
  *
  * Same rules as the hub's: one white glyph on one flat tint, corners at 23
  * percent of the size, one shadow, pinned by slug so a tool added later never
@@ -28,6 +28,9 @@ const TINTS: Record<string, string> = {
   diff: BLUES[1],
   timestamp: BLUES[2],
   cron: BLUES[4],
+  color: BLUES[3],
+  markdown: BLUES[0],
+  "json-to-csv": BLUES[2],
 };
 
 const stroke = {
@@ -105,6 +108,28 @@ const GLYPHS: Record<string, ReactElement> = {
       <path d="M3.6 9.6h16.8M8.4 3.4v3.2M15.6 3.4v3.2" {...stroke} />
       <rect x="10.6" y="12.4" width="2.8" height="2.8" rx="0.8" {...solid} />
       <rect x="15.4" y="16.2" width="2.8" height="2.8" rx="0.8" {...solid} />
+    </>
+  ),
+  color: (
+    <>
+      <circle cx="12" cy="12" r="8.4" {...stroke} />
+      <circle cx="9" cy="9.2" r="1.5" {...solid} />
+      <circle cx="15" cy="9.2" r="1.5" {...solid} />
+      <circle cx="9" cy="14.8" r="1.5" {...solid} />
+      <circle cx="15" cy="14.8" r="1.5" {...solid} />
+    </>
+  ),
+  markdown: (
+    <>
+      <rect x="2.8" y="6" width="18.4" height="12" rx="2" {...stroke} />
+      <path d="M6 15V9l2.4 2.6L10.8 9v6" {...stroke} />
+      <path d="M15 9v6M15 15l-2-2.2M15 15l2-2.2" {...stroke} />
+    </>
+  ),
+  "json-to-csv": (
+    <>
+      <path d="M9.6 4.4C7.4 4.4 7.8 8 5.8 8v0c2 0 1.6 3.6 3.8 3.6" {...stroke} transform="translate(0 4)" />
+      <path d="M14.4 4.4c2.2 0 1.8 3.6 3.8 3.6v0c-2 0-1.6 3.6-3.8 3.6" {...stroke} transform="translate(0 4)" />
     </>
   ),
 };

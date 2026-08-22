@@ -1,5 +1,5 @@
 /**
- * The ten developer tools. One entry per route, and the single source for the
+ * The thirteen developer tools. One entry per route, and the single source for the
  * launcher on the home page, the tool switcher and every SEO page.
  */
 
@@ -13,7 +13,10 @@ export type ToolSlug =
   | "regex"
   | "diff"
   | "timestamp"
-  | "cron";
+  | "cron"
+  | "color"
+  | "markdown"
+  | "json-to-csv";
 
 export type Faq = { q: string; a: string };
 
@@ -323,6 +326,63 @@ export const tools: Tool[] = [
         q: "Why does it say a schedule never runs?",
         a: "Because some cannot. The 30th of February is a valid expression that no clock will ever match. Rather than search forever, the tool looks eight years ahead and tells you it found nothing.",
       },
+    ],
+  },
+  {
+    slug: "color",
+    title: "Colour converter",
+    blurb: "Hex, RGB, HSL, and a contrast check",
+    seoTitle: "Colour converter and WCAG contrast checker, free",
+    description:
+      "Convert a colour between hex, RGB and HSL with a live swatch, and check the WCAG contrast between two colours. Runs in your browser.",
+    intro: [
+      "Type a colour in any of the three notations and get the other two, with a swatch that updates as you go.",
+      "Below that, check whether one colour is readable on another against the WCAG thresholds, which is the part that decides whether text passes an accessibility audit.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Which formats does it read?", a: "Hex, with or without the hash and in three or six digits; rgb() and rgba(); and hsl() and hsla(). Any alpha is ignored, because a contrast check is about the colours themselves." },
+      { q: "What do AA and AAA mean?", a: "They are the two WCAG contrast levels. AA is the usual legal and practical target: 4.5 to 1 for normal text, 3 to 1 for large. AAA is stricter, at 7 to 1 and 4.5 to 1. The tool shows all four cells so you can see exactly which your pairing passes." },
+      { q: "What counts as large text?", a: "18 point and over, or 14 point and over if it is bold. Large text is held to a lower contrast ratio because it is easier to read at the same contrast." },
+      { q: "Why does my HSL come back slightly different?", a: "Hex and RGB store whole numbers per channel, and HSL is a different shape of the same space, so a round trip rounds to the nearest whole value. It stays within a point or two, which is not visible." },
+    ],
+  },
+  {
+    slug: "markdown",
+    title: "Markdown preview",
+    blurb: "Live preview, and copy the HTML",
+    seoTitle: "Markdown preview and to-HTML converter, free",
+    description:
+      "Write Markdown and see it rendered side by side, then copy the HTML. Runs in your browser; a safe subset that escapes everything.",
+    intro: [
+      "Type Markdown on the left and see it rendered on the right as you go. When it looks right, copy the HTML.",
+      "It renders a safe subset: headings, bold, italic, code, links, lists, quotes and rules. Everything you type is escaped first, so nothing in the source can run in the preview.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Which Markdown does it support?", a: "The common core: headings, bold and italic, inline code and fenced code blocks, links, unordered and ordered lists, blockquotes and horizontal rules. It is a subset for readmes and comments, not a full engine with tables and footnotes." },
+      { q: "Is the preview safe?", a: "Yes, by construction. Every character you type is HTML-escaped before anything else happens, and the renderer only ever emits a fixed set of tags. A script tag in your source shows up as text, not as a running script, and a javascript: link is left as plain text rather than made clickable." },
+      { q: "Can I copy the HTML?", a: "Yes. The Copy HTML button gives you exactly what the preview shows, ready to paste into a page. There is also a button to copy the Markdown back." },
+      { q: "Does it support tables?", a: "Not yet. Tables and other extended syntax are outside this subset. For a readme, a comment or a description, what is here covers it." },
+    ],
+  },
+  {
+    slug: "json-to-csv",
+    title: "JSON to CSV",
+    blurb: "An array of objects into a spreadsheet",
+    seoTitle: "JSON to CSV converter online, free",
+    description:
+      "Turn a JSON array of objects into CSV, with a choice of separator. Handles one level of nesting. Runs in your browser.",
+    intro: [
+      "Paste a JSON array of objects and get CSV back, with the columns taken from the keys. Pick comma, semicolon or tab for the separator.",
+      "It handles one level of nesting by making dotted columns like address.city. Anything deeper, or an array, is written as its JSON text in a single cell, which the tool says plainly rather than dropping it.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "What shape of JSON does it take?", a: "An array of objects, which is the usual shape of exported records. A single object is treated as one row. An array of plain values or of arrays is not a table, and the tool says so rather than guessing." },
+      { q: "How does it handle nested data?", a: "One level deep becomes dotted columns: an address object turns into address.city and address.zip. Anything deeper than that, and any array, is written as its JSON text in one cell, because forcing it into columns would either lose data or invent structure." },
+      { q: "What about commas inside a value?", a: "They are handled. A value containing the separator, a quote or a line break is wrapped in quotes with its own quotes doubled, which is the standard CSV escaping, so the row never splits in the wrong place." },
+      { q: "Which separator should I use?", a: "Comma for a .csv that opens anywhere. Semicolon if your spreadsheet is set to a locale that uses the comma as a decimal point. Tab for a .tsv, which avoids the comma question entirely." },
     ],
   },
 ];

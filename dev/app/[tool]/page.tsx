@@ -13,6 +13,9 @@ import { RegexTool } from "@/components/dev/RegexTool";
 import { TimestampTool } from "@/components/dev/TimestampTool";
 import { UrlTool } from "@/components/dev/UrlTool";
 import { UuidTool } from "@/components/dev/UuidTool";
+import { ColorTool } from "@/components/dev/ColorTool";
+import { MarkdownTool } from "@/components/dev/MarkdownTool";
+import { JsonToCsvTool } from "@/components/dev/JsonToCsvTool";
 import { getTool, tools, type ToolSlug } from "@/data/tools";
 import { absoluteUrl } from "@/lib/site";
 
@@ -54,6 +57,9 @@ const WORKBENCHES: Record<ToolSlug, () => React.ReactElement> = {
   diff: DiffTool,
   timestamp: TimestampTool,
   cron: CronTool,
+  color: ColorTool,
+  markdown: MarkdownTool,
+  "json-to-csv": JsonToCsvTool,
 };
 
 export default async function ToolPage({ params }: Params) {
