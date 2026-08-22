@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { KitDirectory } from "@/components/KitDirectory";
-import { CATEGORIES, kits } from "@/data/kits";
+import { ToolSearch } from "@/components/ToolSearch";
+import { CATEGORIES, catalog, kits } from "@/data/kits";
 import { PARENT_NAME, PARENT_URL, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -61,6 +62,10 @@ export default function HomePage() {
           </p>
         </div>
 
+        <div className="mt-8">
+          <ToolSearch entries={catalog()} />
+        </div>
+
         <div className="mt-9">
           <KitDirectory kits={kits} categories={CATEGORIES} />
         </div>
@@ -69,6 +74,42 @@ export default function HomePage() {
           <Tick />
           Runs entirely in your browser.
         </p>
+
+        <section className="mt-20 border-t border-line pt-12">
+          <h2 className="text-[22px]">Every tool</h2>
+          <p className="mt-2 max-w-[640px] text-[15px] text-text-light">
+            The whole catalogue, in one place. Everything runs in your browser.
+          </p>
+          <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {kits
+              .filter((kit) => kit.status === "live")
+              .map((kit) => {
+                const tools = catalog().filter((entry) => entry.kitSlug === kit.slug);
+                if (tools.length === 0) return null;
+                return (
+                  <div key={kit.slug}>
+                    <h3 className="text-[15px] font-semibold">
+                      <a href={kit.url} className="no-underline hover:text-primary-dark">
+                        {kit.name.replace(/^EveryKit /, "")}
+                      </a>
+                    </h3>
+                    <ul className="mt-2 flex flex-col gap-1">
+                      {tools.map((entry) => (
+                        <li key={entry.href}>
+                          <a
+                            href={entry.href}
+                            className="text-[14px] text-text-light no-underline hover:text-primary-dark hover:underline"
+                          >
+                            {entry.tool.name}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+          </div>
+        </section>
 
         <section className="mt-20 border-t border-line pt-12">
           <h2 className="text-[22px]">How every kit works</h2>
