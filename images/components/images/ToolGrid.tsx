@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import { tools } from "@/data/tools";
 
 /**
- * The three tools as a launcher, matching the grid on the hub.
+ * The seven tools as a launcher, matching the grid on the hub.
  *
  * Same rules everywhere: one white glyph on one flat tint, corners at 23
  * percent of the size, one shadow, and the colours pinned by slug so adding
@@ -13,7 +13,11 @@ import { tools } from "@/data/tools";
 const TINTS: Record<string, string> = {
   resize: "#ff8a4c",
   convert: "#1d81f2",
-  "strip-exif": "#1769d4",
+  crop: "#1769d4",
+  compress: "#2f6fd0",
+  "flip-rotate": "#3d8ae8",
+  favicon: "#145cb8",
+  "strip-exif": "#2a74e0",
 };
 
 const stroke = {
@@ -39,6 +43,32 @@ const GLYPHS: Record<string, ReactElement> = {
       <rect x="3.2" y="5.4" width="17.6" height="13.2" rx="2.2" {...stroke} />
       <circle cx="8.4" cy="10" r="1.6" {...solid} />
       <path d="M4.4 16.8l4.6-4.4 3.2 3 2.8-2.6 4.4 4.2" {...stroke} />
+    </>
+  ),
+  crop: (
+    <>
+      <path d="M7 2.4v14.2h14.2" {...stroke} />
+      <path d="M2.4 7H16.6V21.6" {...stroke} />
+    </>
+  ),
+  compress: (
+    <>
+      <rect x="4.4" y="4.4" width="15.2" height="15.2" rx="2" {...stroke} />
+      <path d="M9 9l6 6M15 9l-6 6" {...stroke} />
+    </>
+  ),
+  "flip-rotate": (
+    <>
+      <path d="M12 4.6a7.4 7.4 0 1 1-6.7 4.2" {...stroke} />
+      <path d="M4.4 4.2v4.6h4.6" {...stroke} />
+    </>
+  ),
+  favicon: (
+    <>
+      <rect x="3.4" y="3.4" width="17.2" height="17.2" rx="2.2" {...stroke} />
+      <rect x="7.4" y="7.4" width="4.2" height="4.2" rx="0.8" {...solid} />
+      <rect x="13" y="7.4" width="3.2" height="3.2" rx="0.8" {...stroke} />
+      <rect x="7.4" y="13" width="3.2" height="3.2" rx="0.8" {...stroke} />
     </>
   ),
   "strip-exif": (

@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Workbench } from "@/components/images/Workbench";
+import { CropTool } from "@/components/images/CropTool";
+import { CompressTool } from "@/components/images/CompressTool";
+import { FlipRotateTool } from "@/components/images/FlipRotateTool";
+import { FaviconTool } from "@/components/images/FaviconTool";
 import { ToolSwitcher } from "@/components/site/ToolSwitcher";
 import { getTool, tools } from "@/data/tools";
 import { absoluteUrl } from "@/lib/site";
@@ -68,7 +72,17 @@ export default async function ToolPage({ params }: Params) {
         ))}
 
         <div className="mt-8">
-          <Workbench tool={tool.slug} />
+          {tool.slug === "crop" ? (
+            <CropTool />
+          ) : tool.slug === "compress" ? (
+            <CompressTool />
+          ) : tool.slug === "flip-rotate" ? (
+            <FlipRotateTool />
+          ) : tool.slug === "favicon" ? (
+            <FaviconTool />
+          ) : (
+            <Workbench tool={tool.slug} />
+          )}
         </div>
 
         <section className="mt-14 max-w-[820px]">
