@@ -31,6 +31,7 @@ const TINTS: Record<string, string> = {
   color: BLUES[3],
   markdown: BLUES[0],
   "json-to-csv": BLUES[2],
+  "convert-data": BLUES[4],
 };
 
 const stroke = {
@@ -130,6 +131,14 @@ const GLYPHS: Record<string, ReactElement> = {
     <>
       <path d="M9.6 4.4C7.4 4.4 7.8 8 5.8 8v0c2 0 1.6 3.6 3.8 3.6" {...stroke} transform="translate(0 4)" />
       <path d="M14.4 4.4c2.2 0 1.8 3.6 3.8 3.6v0c-2 0-1.6 3.6-3.8 3.6" {...stroke} transform="translate(0 4)" />
+    </>
+  ),
+  "convert-data": (
+    <>
+      <rect x="3.4" y="4.6" width="7.4" height="14.8" rx="1.4" {...stroke} />
+      <rect x="13.2" y="4.6" width="7.4" height="14.8" rx="1.4" {...stroke} />
+      <path d="M9 9.4l2.4 2.6-2.4 2.6" {...stroke} />
+      <path d="M15 9.4l-2.4 2.6 2.4 2.6" {...stroke} />
     </>
   ),
 };

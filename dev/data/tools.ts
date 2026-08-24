@@ -16,7 +16,8 @@ export type ToolSlug =
   | "cron"
   | "color"
   | "markdown"
-  | "json-to-csv";
+  | "json-to-csv"
+  | "convert-data";
 
 export type Faq = { q: string; a: string };
 
@@ -383,6 +384,26 @@ export const tools: Tool[] = [
       { q: "How does it handle nested data?", a: "One level deep becomes dotted columns: an address object turns into address.city and address.zip. Anything deeper than that, and any array, is written as its JSON text in one cell, because forcing it into columns would either lose data or invent structure." },
       { q: "What about commas inside a value?", a: "They are handled. A value containing the separator, a quote or a line break is wrapped in quotes with its own quotes doubled, which is the standard CSV escaping, so the row never splits in the wrong place." },
       { q: "Which separator should I use?", a: "Comma for a .csv that opens anywhere. Semicolon if your spreadsheet is set to a locale that uses the comma as a decimal point. Tab for a .tsv, which avoids the comma question entirely." },
+    ],
+  },
+  {
+    slug: "convert-data",
+    title: "Data file converter",
+    blurb: "CSV, JSON and Excel, in any direction",
+    seoTitle: "Convert CSV, JSON and XLSX online, free",
+    description:
+      "Convert between CSV, JSON and Excel in any direction, in your browser. Choose the delimiter, pick a sheet, nothing uploaded.",
+    intro: [
+      "Pick what you have and what you want, drop in a file or paste the data, and convert. CSV, JSON and Excel all go to each other, so a spreadsheet becomes JSON and an API dump becomes something Excel opens.",
+      "It all runs in the page. The file is read, converted and saved on your own device, and no server here receives it.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Which conversions does it do?", a: "All six directions between CSV, JSON and Excel (XLSX). Everything goes through a table in memory, so the same tool reads whatever you have and writes whatever you want." },
+      { q: "Can I choose the delimiter?", a: "Yes, for CSV in and out: comma, semicolon, tab or pipe. Excel in some locales writes semicolons, so reading a file that came from there is a matter of picking the right one." },
+      { q: "My Excel file has several sheets. Which one?", a: "When a workbook has more than one sheet, a picker appears and you choose which sheet to convert. One sheet becomes one table." },
+      { q: "How does it handle nested JSON?", a: "A table is flat, so a nested object or array inside a JSON row is written as its JSON text in one cell rather than spread across columns. For turning JSON into CSV with dotted columns for one level of nesting, the JSON to CSV tool is the more specific choice." },
+      { q: "Are big files a problem?", a: "It works on what fits in your browser's memory, which is comfortably most everyday files. A very large export can be slow, because the whole table is held in memory to convert it, the same as any spreadsheet app opening it." },
     ],
   },
 ];

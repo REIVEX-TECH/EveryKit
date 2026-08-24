@@ -16,6 +16,13 @@ import { UuidTool } from "@/components/dev/UuidTool";
 import { ColorTool } from "@/components/dev/ColorTool";
 import { MarkdownTool } from "@/components/dev/MarkdownTool";
 import { JsonToCsvTool } from "@/components/dev/JsonToCsvTool";
+import dynamic from "next/dynamic";
+
+// Lazy: this tool pulls in SheetJS, which is large. Splitting it into its own
+// chunk keeps it off the other twelve tool pages, which never touch it.
+const ConvertDataTool = dynamic(() =>
+  import("@/components/dev/ConvertDataTool").then((m) => m.ConvertDataTool),
+);
 import { getTool, tools, type ToolSlug } from "@/data/tools";
 import { absoluteUrl } from "@/lib/site";
 
@@ -46,7 +53,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 /** One component per route, picked here rather than in ten near-identical files. */
-const WORKBENCHES: Record<ToolSlug, () => React.ReactElement> = {
+const WORKBENCHES: Record<ToolSlug, React.ComponentType> = {
   json: JsonTool,
   base64: Base64Tool,
   url: UrlTool,
@@ -60,6 +67,7 @@ const WORKBENCHES: Record<ToolSlug, () => React.ReactElement> = {
   color: ColorTool,
   markdown: MarkdownTool,
   "json-to-csv": JsonToCsvTool,
+  "convert-data": ConvertDataTool,
 };
 
 export default async function ToolPage({ params }: Params) {
