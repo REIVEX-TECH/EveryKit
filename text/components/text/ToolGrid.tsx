@@ -18,6 +18,7 @@ const TINTS: Record<string, string> = {
   "remove-duplicate-lines": "#3d8ae8",
   "sort-lines": "#145cb8",
   "lorem-ipsum": "#2a74e0",
+  "read-aloud": "#1156a8",
 };
 
 const stroke = {
@@ -70,6 +71,13 @@ const GLYPHS: Record<string, ReactElement> = {
     <>
       <rect x="3.4" y="3.6" width="17.2" height="16.8" rx="2.4" {...stroke} />
       <path d="M6.8 8.4h10.4M6.8 12h10.4M6.8 15.6h6.4" {...stroke} />
+    </>
+  ),
+  "read-aloud": (
+    <>
+      <path d="M4 9.4h3l4-3.4v12l-4-3.4H4z" {...stroke} />
+      <path d="M15 8.4a4 4 0 0 1 0 7.2" {...stroke} />
+      <path d="M17.4 6a7 7 0 0 1 0 12" {...stroke} />
     </>
   ),
 };

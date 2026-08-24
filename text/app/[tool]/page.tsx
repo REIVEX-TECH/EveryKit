@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ToolSwitcher } from "@/components/site/ToolSwitcher";
 import { MoreFromEveryKit } from "@/components/site/MoreFromEveryKit";
 import { Workbench } from "@/components/text/Workbench";
+import { ReadAloud } from "@/components/text/ReadAloud";
 import { getTool, tools } from "@/data/tools";
 import { absoluteUrl } from "@/lib/site";
 
@@ -68,7 +69,7 @@ export default async function ToolPage({ params }: Params) {
         ))}
 
         <div className="mt-8">
-          <Workbench tool={tool.slug} />
+          {tool.slug === "read-aloud" ? <ReadAloud /> : <Workbench tool={tool.slug} />}
         </div>
 
         <section className="mt-14 max-w-[820px]">

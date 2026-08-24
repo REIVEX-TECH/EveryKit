@@ -10,7 +10,8 @@ export type ToolSlug =
   | "find-replace"
   | "remove-duplicate-lines"
   | "sort-lines"
-  | "lorem-ipsum";
+  | "lorem-ipsum"
+  | "read-aloud";
 
 export type Faq = { q: string; a: string };
 
@@ -195,6 +196,25 @@ export const tools: Tool[] = [
         q: "Is there a limit?",
         a: "Two thousand words or fifty paragraphs. Past that the page is slower to update than the text is useful, so the request is clamped rather than left to grind.",
       },
+    ],
+  },
+  {
+    slug: "read-aloud",
+    title: "Read aloud",
+    blurb: "Have text spoken by your device's voice",
+    seoTitle: "Read text aloud in your browser, free, with no upload",
+    description:
+      "Paste text and have it read aloud by a voice on your device, with speed and pitch you can set. Runs in your browser; nothing is uploaded.",
+    intro: [
+      "Paste some text, choose a voice, set the speed and pitch, and press play. It is useful for proofreading by ear, for resting your eyes, or for hearing how a paragraph actually sounds.",
+      "The voices are the ones installed on your device, and the reading happens in your browser. Your text is not uploaded, and the sound plays through your speakers rather than being saved to a file.",
+    ],
+    faq: [
+      PRIVACY_ANSWER,
+      { q: "Why can I not download the audio?", a: "Because a browser has no reliable way to record the speech it synthesizes. Rather than a download button that sometimes hands you a silent file, there is none. The reading plays through your speakers, live." },
+      { q: "Where do the voices come from?", a: "From your own device. The list is whatever your operating system and browser have installed, which is why it differs between a phone and a laptop, and between one phone and another. None of them involve a server of ours." },
+      { q: "Which languages are available?", a: "Whichever your device has voices for. Most devices ship with several, and you can add more in your system settings. The tool defaults to a voice in your browser's language when one is present." },
+      { q: "It is silent or the voice list is empty. Why?", a: "Some browsers load their voices a moment after the page, so give it a second and reopen the list. If a browser has no speech synthesis at all the tool says so instead of pretending to work." },
     ],
   },
 ];
