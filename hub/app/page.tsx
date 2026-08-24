@@ -34,6 +34,13 @@ const schema = {
 };
 
 export default function HomePage() {
+  // Tool names per kit, for the category chip previews. Built from the same
+  // catalogue the listing below reads, so nothing here is a second source.
+  const toolsByKit: Record<string, string[]> = {};
+  for (const entry of catalog()) {
+    (toolsByKit[entry.kitSlug] ??= []).push(entry.tool.name);
+  }
+
   return (
     <>
       <script
@@ -67,7 +74,7 @@ export default function HomePage() {
         </div>
 
         <div className="mt-9">
-          <KitDirectory kits={kits} categories={CATEGORIES} />
+          <KitDirectory kits={kits} categories={CATEGORIES} toolsByKit={toolsByKit} />
         </div>
 
         <p className="mt-10 flex items-center justify-center gap-2 text-[15px] text-text-light">
@@ -78,36 +85,80 @@ export default function HomePage() {
         <section className="mt-20 border-t border-line pt-12">
           <h2 className="text-[22px]">Every tool</h2>
           <p className="mt-2 max-w-[640px] text-[15px] text-text-light">
-            The whole catalogue, in one place. Everything runs in your browser.
+            The whole catalogue, by category. Everything runs in your browser.
           </p>
-          <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {kits
-              .filter((kit) => kit.status === "live")
-              .map((kit) => {
-                const tools = catalog().filter((entry) => entry.kitSlug === kit.slug);
-                if (tools.length === 0) return null;
-                return (
-                  <div key={kit.slug}>
-                    <h3 className="text-[15px] font-semibold">
-                      <a href={kit.url} className="no-underline hover:text-primary-dark">
-                        {kit.name.replace(/^EveryKit /, "")}
-                      </a>
-                    </h3>
-                    <ul className="mt-2 flex flex-col gap-1">
-                      {tools.map((entry) => (
-                        <li key={entry.href}>
-                          <a
-                            href={entry.href}
-                            className="text-[14px] text-text-light no-underline hover:text-primary-dark hover:underline"
-                          >
-                            {entry.tool.name}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
+
+          {/*
+            Grouped by the same categories as the chips above. Each kit shows its
+            first four tools on one line, and the rest sit inside a <details> so
+            every deep link is still in the HTML for a crawler and reachable with
+            no JavaScript, while the default view stays short. The category order
+            follows CATEGORIES, minus "all".
+          */}
+          <div className="mt-8 space-y-12">
+            {CATEGORIES.filter((c) => c.id !== "all").map((category) => {
+              const catKits = kits.filter(
+                (kit) => kit.status === "live" && kit.category === category.id,
+              );
+              if (catKits.length === 0) return null;
+              return (
+                <div key={category.id}>
+                  <h3 className="text-[13px] font-semibold uppercase tracking-wide text-text-light">
+                    {category.label}
+                  </h3>
+                  <div className="mt-4 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {catKits.map((kit) => {
+                      const tools = catalog().filter((entry) => entry.kitSlug === kit.slug);
+                      if (tools.length === 0) return null;
+                      const first = tools.slice(0, 4);
+                      const rest = tools.slice(4);
+                      return (
+                        <div key={kit.slug}>
+                          <h4 className="text-[15px] font-semibold">
+                            <a href={kit.url} className="no-underline hover:text-primary-dark">
+                              {kit.name.replace(/^EveryKit /, "")}
+                            </a>
+                          </h4>
+                          <p className="mt-1 text-[14px] leading-relaxed text-text-light">
+                            {first.map((entry, index) => (
+                              <span key={entry.href}>
+                                <a
+                                  href={entry.href}
+                                  className="text-text-light no-underline hover:text-primary-dark hover:underline"
+                                >
+                                  {entry.tool.name}
+                                </a>
+                                {index < first.length - 1 ? ", " : null}
+                              </span>
+                            ))}
+                          </p>
+                          {rest.length > 0 ? (
+                            <details className="mt-1">
+                              <summary className="cursor-pointer text-[14px] text-primary hover:text-primary-dark">
+                                and {rest.length} more
+                              </summary>
+                              <p className="mt-1 text-[14px] leading-relaxed text-text-light">
+                                {rest.map((entry, index) => (
+                                  <span key={entry.href}>
+                                    <a
+                                      href={entry.href}
+                                      className="text-text-light no-underline hover:text-primary-dark hover:underline"
+                                    >
+                                      {entry.tool.name}
+                                    </a>
+                                    {index < rest.length - 1 ? ", " : null}
+                                  </span>
+                                ))}
+                              </p>
+                            </details>
+                          ) : null}
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </div>
+              );
+            })}
           </div>
         </section>
 

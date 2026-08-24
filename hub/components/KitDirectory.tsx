@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppGlyph, tintFor } from "@/components/AppIcon";
 import type { KitCategory } from "@/data/kits";
 
@@ -18,6 +18,8 @@ export type DirectoryKit = {
 type Props = {
   kits: DirectoryKit[];
   categories: Array<{ id: KitCategory | "all"; label: string }>;
+  /** Tool names per kit slug, for the chip previews. From the registry. */
+  toolsByKit: Record<string, string[]>;
 };
 
 /**
@@ -34,8 +36,22 @@ type Props = {
  * screen: it was a second line of type per chip, and the grid underneath
  * answers the same question by being visible.
  */
-export function KitDirectory({ kits, categories }: Props) {
+export function KitDirectory({ kits, categories, toolsByKit }: Props) {
   const [active, setActive] = useState<KitCategory | "all">("all");
+
+  // The chip preview. It is a hover and keyboard-focus affordance only: on a
+  // touch device, tapping a chip filters as it always has, and no popover
+  // appears. `hoverCapable` gates it to devices with a real pointer, computed
+  // after mount so the server and the first client render agree (no popover).
+  const [preview, setPreview] = useState<KitCategory | "all" | null>(null);
+  const [hoverCapable, setHoverCapable] = useState(false);
+  useEffect(() => {
+    setHoverCapable(window.matchMedia("(hover: hover)").matches);
+  }, []);
+  const showPreview = (id: KitCategory | "all") => {
+    if (hoverCapable) setPreview(id);
+  };
+  const clearPreview = () => setPreview(null);
 
   // A shelf with nothing live on it is not a shelf. This keeps the row honest
   // rather than padding it out with an empty category.
@@ -59,6 +75,12 @@ export function KitDirectory({ kits, categories }: Props) {
 
   const visible = active === "all" ? kits : kits.filter((k) => k.category === active);
 
+  // The live kits a chip's preview should list.
+  const previewKits = (id: KitCategory | "all"): DirectoryKit[] =>
+    (id === "all" ? kits : kits.filter((k) => k.category === id)).filter(
+      (k) => k.status === "live",
+    );
+
   return (
     <div>
       <div
@@ -70,29 +92,44 @@ export function KitDirectory({ kits, categories }: Props) {
           const selected = active === category.id;
           const count = counts.get(category.id) ?? 0;
           return (
-            <button
+            <span
               key={category.id}
-              type="button"
-              aria-pressed={selected}
-              // The count is here and not on screen, so the chip still answers
-              // "how many" to anyone who cannot scan the grid below it.
-              aria-label={`${category.label}, ${count} ${count === 1 ? "tool" : "tools"}`}
-              onClick={() => setActive(category.id)}
-              // Not `transition-colors`: that shorthand includes outline-color,
-              // and a chip whose outline-color is being transitioned keeps the
-              // ring at its starting currentColor when focus arrives, so the
-              // focus ring came out near black instead of the primary blue the
-              // design system asks for. Measured: rgb(23,23,23) with the
-              // shorthand, rgb(29,129,242) without it. Only the two colours
-              // that actually change on hover are animated.
-              className={`rounded-full px-4 py-2 text-[14px] font-semibold transition-[background-color,border-color] duration-150 ${
-                selected
-                  ? "bg-primary-dark text-white"
-                  : "border border-line bg-background text-foreground hover:border-line-strong"
-              }`}
+              className="relative"
+              onMouseEnter={() => showPreview(category.id)}
+              onMouseLeave={clearPreview}
             >
-              {category.label}
-            </button>
+              <button
+                type="button"
+                aria-pressed={selected}
+                // The count is here and not on screen, so the chip still answers
+                // "how many" to anyone who cannot scan the grid below it.
+                aria-label={`${category.label}, ${count} ${count === 1 ? "tool" : "tools"}`}
+                onClick={() => {
+                  setActive(category.id);
+                  clearPreview();
+                }}
+                onFocus={() => showPreview(category.id)}
+                onBlur={clearPreview}
+                // Not `transition-colors`: that shorthand includes outline-color,
+                // and a chip whose outline-color is being transitioned keeps the
+                // ring at its starting currentColor when focus arrives, so the
+                // focus ring came out near black instead of the primary blue the
+                // design system asks for. Measured: rgb(23,23,23) with the
+                // shorthand, rgb(29,129,242) without it. Only the two colours
+                // that actually change on hover are animated.
+                className={`rounded-full px-4 py-2 text-[14px] font-semibold transition-[background-color,border-color] duration-150 ${
+                  selected
+                    ? "bg-primary-dark text-white"
+                    : "border border-line bg-background text-foreground hover:border-line-strong"
+                }`}
+              >
+                {category.label}
+              </button>
+
+              {preview === category.id ? (
+                <CategoryPreview kits={previewKits(category.id)} toolsByKit={toolsByKit} />
+              ) : null}
+            </span>
           );
         })}
       </div>
@@ -127,6 +164,62 @@ export function KitDirectory({ kits, categories }: Props) {
         ))}
       </ul>
     </div>
+  );
+}
+
+/**
+ * The little card that appears under a category chip on hover or keyboard
+ * focus. It names the kits on that shelf and their top few tools, so the shelf
+ * can be previewed before it is opened.
+ *
+ * It is `aria-hidden`: everything in it is already reachable by activating the
+ * chip, which filters the grid below, and by the full catalogue further down
+ * the page, so reading it aloud as well would only double the announcement. It
+ * is a pointer-and-keyboard-sighted convenience, not a second source of truth.
+ * A touch tap never opens it; it filters, as it always did.
+ */
+function CategoryPreview({
+  kits,
+  toolsByKit,
+}: {
+  kits: DirectoryKit[];
+  toolsByKit: Record<string, string[]>;
+}) {
+  const MAX_KITS = 6;
+  const shown = kits.slice(0, MAX_KITS);
+  const moreKits = kits.length - shown.length;
+
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute left-1/2 top-full z-20 mt-2 block w-[260px] -translate-x-1/2 rounded-[12px] border border-line bg-background p-3 text-left shadow-card"
+    >
+      <span className="flex flex-col gap-2">
+        {shown.map((kit) => {
+          const tools = toolsByKit[kit.slug] ?? [];
+          const top = tools.slice(0, 3);
+          const extra = tools.length - top.length;
+          return (
+            <span key={kit.slug} className="block">
+              <span className="block text-[13px] font-semibold text-foreground">
+                {kit.name.replace(/^EveryKit /, "")}
+              </span>
+              {top.length > 0 ? (
+                <span className="block text-[12px] leading-snug text-text-light">
+                  {top.join(", ")}
+                  {extra > 0 ? ` and ${extra} more` : null}
+                </span>
+              ) : null}
+            </span>
+          );
+        })}
+        {moreKits > 0 ? (
+          <span className="block text-[12px] text-text-light">
+            and {moreKits} more {moreKits === 1 ? "kit" : "kits"}
+          </span>
+        ) : null}
+      </span>
+    </span>
   );
 }
 
