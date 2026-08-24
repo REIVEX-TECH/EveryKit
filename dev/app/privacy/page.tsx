@@ -59,9 +59,10 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-[19px] text-foreground">Your email address</h2>
           <p className="mt-2">
-            Before your first copy or download we ask for your email address, and it is
-            required. There is no skip link. You are asked once per session; after that
-            every copy and download in that session goes straight through.
+            Before your first copy or download we ask for your email address. You do
+            not have to give it: a skip link takes you straight to your file. You are
+            asked once per session, whether you enter it or skip; after that every copy
+            and download in that session goes straight through.
           </p>
           <p className="mt-2">
             If you do enter it, we store it: the address itself, which kit you were using,

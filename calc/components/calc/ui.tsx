@@ -18,8 +18,8 @@ import { hasGivenEmail } from "@/lib/emailCapture";
  *
  * `take` is the only way a tool hands anything over. If an address has been
  * given this session the action runs immediately; if not, the modal opens and
- * the action runs after it is submitted. Dismissing the modal cancels the
- * action: that is not a bypass, and there is no skip.
+ * the action runs once the address is submitted or the person skips. Cancelling
+ * the modal, and only cancelling, abandons the action.
  */
 export function useTake(actionLabel: string) {
   const [pending, setPending] = useState<(() => void) | null>(null);

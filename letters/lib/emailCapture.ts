@@ -93,3 +93,51 @@ export async function submitEmail(email: string, honeypot: string): Promise<bool
     clearTimeout(timer);
   }
 }
+
+/**
+ * Where a gate choice is counted, sent through the very same aggregate hit as a
+ * page view. Each carries a kit and a path and nothing else, so a submit and a
+ * skip are as anonymous as any page count: two people and one person twice
+ * produce the same row. The `_event` prefix is a namespace no real page uses,
+ * which keeps this conversion trade filterable from ordinary traffic.
+ */
+export const GATE_EVENT_PATHS = {
+  submit: "/_event/email-submit",
+  skip: "/_event/email-skip",
+} as const;
+
+/** The three ways out of the gate. */
+export type GateChoice = "submit" | "skip" | "cancel";
+
+export type GateOutcome = {
+  /** Post the typed address to the hub. Only a submit does. */
+  sendEmail: boolean;
+  /** Mark the session so the gate does not ask again. Submit and skip do. */
+  remember: boolean;
+  /** Run what the person asked for, the download or the copy. */
+  runAction: boolean;
+  /** The aggregate hit path for this choice, or null when nothing is counted. */
+  countPath: string | null;
+};
+
+/**
+ * What each way out of the gate does. The dialog reads this rather than
+ * deciding inline, so the one place that defines the trade is also the place a
+ * test can pin.
+ *
+ * The rule the whole thing turns on: a skip runs the action exactly like a
+ * submit and sends no address. It is a real way to the file, not a trick that
+ * abandons it, and it marks the session so nobody is asked twice. A cancel is
+ * the only path that abandons: it runs nothing and marks nothing, so the ask
+ * returns on the next action.
+ */
+export function gateOutcome(choice: GateChoice): GateOutcome {
+  switch (choice) {
+    case "submit":
+      return { sendEmail: true, remember: true, runAction: true, countPath: GATE_EVENT_PATHS.submit };
+    case "skip":
+      return { sendEmail: false, remember: true, runAction: true, countPath: GATE_EVENT_PATHS.skip };
+    case "cancel":
+      return { sendEmail: false, remember: false, runAction: false, countPath: null };
+  }
+}
