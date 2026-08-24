@@ -1,0 +1,5 @@
+# Vendored OCR assets are binary or minified third-party bundles. Never apply
+# line-ending conversion to them: it would corrupt the gzipped models and is
+# pointless on the minified scripts.
+public/tesseract/** binary
+public/pdfjs/** binary

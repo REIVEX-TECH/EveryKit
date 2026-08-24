@@ -11,6 +11,8 @@ import { tools } from "@/data/tools";
  */
 
 const TINTS: Record<string, string> = {
+  scan: "#0f5fbf",
+  ocr: "#3f86e6",
   merge: "#ff8a4c",
   split: "#1d81f2",
   extract: "#1769d4",
@@ -34,6 +36,22 @@ const stroke = {
 const solid = { fill: "#ffffff" } as const;
 
 const GLYPHS: Record<string, ReactElement> = {
+  scan: (
+    <>
+      <path d="M3.6 7.4v-2a1.8 1.8 0 0 1 1.8-1.8h2" {...stroke} />
+      <path d="M20.4 7.4v-2a1.8 1.8 0 0 0-1.8-1.8h-2" {...stroke} />
+      <path d="M3.6 16.6v2a1.8 1.8 0 0 0 1.8 1.8h2" {...stroke} />
+      <path d="M20.4 16.6v2a1.8 1.8 0 0 1-1.8 1.8h-2" {...stroke} />
+      <path d="M6.4 12h11.2" {...stroke} />
+    </>
+  ),
+  ocr: (
+    <>
+      <path d="M5 3.6h8l4 4v13h-12z" {...stroke} />
+      <path d="M13 3.6v4h4" {...stroke} />
+      <path d="M8 11.4h6M8 14.2h6M8 17h3.4" {...stroke} />
+    </>
+  ),
   merge: (
     <>
       <path d="M4.6 3.6h5.6v2.2H6.8v9.4H4.6z" {...solid} />

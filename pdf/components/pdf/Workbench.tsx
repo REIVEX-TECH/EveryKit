@@ -6,7 +6,7 @@ import { Dropzone } from "@/components/pdf/Dropzone";
 import { FileList } from "@/components/pdf/FileList";
 import { PageGrid, type PageItem } from "@/components/pdf/PageGrid";
 import { ResultPanel, type ResultFile } from "@/components/pdf/ResultPanel";
-import { getTool, type ToolSlug } from "@/data/tools";
+import { getTool, type PdfToolSlug } from "@/data/tools";
 import {
   baseName,
   checkLimits,
@@ -32,7 +32,7 @@ import type {
 
 /** Tools that show a page grid, and so need thumbnails rendered. */
 // Tools that ask the user to point at pages, and so need the pictures drawn.
-const NEEDS_PAGES: ToolSlug[] = ["extract", "organize", "delete-pages"];
+const NEEDS_PAGES: PdfToolSlug[] = ["extract", "organize", "delete-pages"];
 
 const NUMBER_POSITIONS: Array<{ value: NumberPosition; label: string; detail: string }> = [
   { value: "bottom-centre", label: "Bottom centre", detail: "The usual place" },
@@ -89,7 +89,7 @@ const PAGE_SIZES: Array<{ value: PageSize; label: string; detail: string }> = [
   { value: "fit", label: "Fit each image", detail: "No borders" },
 ];
 
-export function Workbench({ slug }: { slug: ToolSlug }) {
+export function Workbench({ slug }: { slug: PdfToolSlug }) {
   const tool = getTool(slug)!;
 
   const [files, setFiles] = useState<PickedFile[]>([]);
@@ -526,7 +526,7 @@ export function Workbench({ slug }: { slug: ToolSlug }) {
 }
 
 type ControlProps = {
-  slug: ToolSlug;
+  slug: PdfToolSlug;
   pageCount: number;
   thumbnails: Map<number, Thumbnail>;
   selected: number[];

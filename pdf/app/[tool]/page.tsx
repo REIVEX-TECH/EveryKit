@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Workbench } from "@/components/pdf/Workbench";
+import { ScanWorkbench } from "@/components/pdf/ScanWorkbench";
+import { OcrWorkbench } from "@/components/pdf/OcrWorkbench";
 import { ToolSwitcher } from "@/components/site/ToolSwitcher";
-import { getTool, tools } from "@/data/tools";
+import { getTool, tools, type PdfToolSlug } from "@/data/tools";
 import { absoluteUrl } from "@/lib/site";
 
 type Params = { params: Promise<{ tool: string }> };
@@ -68,7 +70,13 @@ export default async function ToolPage({ params }: Params) {
         ))}
 
         <div className="mt-8">
-          <Workbench slug={tool.slug} />
+          {tool.render === "scan" ? (
+            <ScanWorkbench />
+          ) : tool.render === "ocr" ? (
+            <OcrWorkbench />
+          ) : (
+            <Workbench slug={tool.slug as PdfToolSlug} />
+          )}
         </div>
 
         <section className="mt-14">

@@ -4,7 +4,8 @@
  * pages. Adding a tool here is all there is to adding a tool.
  */
 
-export type ToolSlug =
+/** The tools that run through the shared PDF-operation Workbench. */
+export type PdfToolSlug =
   | "merge"
   | "split"
   | "extract"
@@ -15,6 +16,9 @@ export type ToolSlug =
   | "pdf-to-images"
   | "images-to-pdf"
   | "compress";
+
+/** Every tool slug, including the two with their own bespoke workbenches. */
+export type ToolSlug = PdfToolSlug | "scan" | "ocr";
 
 export type Faq = { q: string; a: string };
 
@@ -32,6 +36,12 @@ export type Tool = {
   /** Accepts more than one file. */
   multiple: boolean;
   accept: string;
+  /**
+   * Which component renders the tool. Absent means the shared PDF Workbench;
+   * scan and ocr have their own, because neither takes a PDF and hands back
+   * another one the way the ten operations do.
+   */
+  render?: "scan" | "ocr";
 };
 
 /**
@@ -44,6 +54,50 @@ const UPLOAD_ANSWER: Faq = {
 };
 
 export const tools: Tool[] = [
+  {
+    slug: "scan",
+    title: "Scan with your phone",
+    blurb: "Photos of pages into a straightened PDF",
+    seoTitle: "Scan documents with your phone camera, free, and never uploaded",
+    description:
+      "Turn photos of pages into a straightened, high-contrast PDF. Drag the corners to crop each page, pick a look, and export one PDF. Runs in your browser.",
+    intro: [
+      "Take a photo of each page, drop the photos in, and drag the four corners to mark where the page sits. Each one is straightened as if it had been laid flat on a scanner.",
+      "Pick a look for all of them, order them the way you want, and download one PDF. The photos are read and the PDF is written on your device, so nothing is uploaded.",
+    ],
+    faq: [
+      UPLOAD_ANSWER,
+      { q: "How do I mark the page?", a: "Each photo shows four corner handles. Drag them onto the corners of the page in the picture, and the tool straightens the quadrilateral you marked into an upright rectangle. The handles start a little inside the photo, so most pages need only a nudge." },
+      { q: "What do the three looks do?", a: "Original keeps the photo as it is. Grayscale drops the colour, which suits a page you want to keep looking like a photo. Scan turns it to near black and white the way a flatbed would, and it adjusts to uneven lighting so the shadowed side of a page does not go solid black." },
+      { q: "Can I scan more than one page?", a: "Yes. Add as many photos as you like, drag them into order, and they become the pages of one PDF in that order." },
+      { q: "Why does the straightened page look soft?", a: "A photo has only so much detail, and straightening stretches part of it. Hold the camera square and fill the frame with the page for the sharpest result. The scan look then cleans up most of what is left." },
+    ],
+    multiple: true,
+    accept: "image/jpeg,image/png,image/webp",
+    render: "scan",
+  },
+  {
+    slug: "ocr",
+    title: "Get the text out (OCR)",
+    blurb: "Copyable text from an image or a PDF page",
+    seoTitle: "Image and PDF to text with OCR, free, and never uploaded",
+    description:
+      "Read the words out of a photo or a PDF page into text you can copy, in English or Urdu. Recognition runs in your browser, so the file is never uploaded.",
+    intro: [
+      "Drop in a photo or a PDF, pick the language, and the words are read into text you can copy. The recogniser runs in your browser, so the page never leaves your device.",
+      "It works best on clear, printed text that is roughly upright. Handwriting, faint scans and heavy layout are where any recogniser struggles, and this one will too, so check the result against the original before you rely on it.",
+    ],
+    faq: [
+      UPLOAD_ANSWER,
+      { q: "How accurate is it?", a: "On a clean photo of printed text it is good, usually most words correct. On a faint scan, an unusual font, or handwriting it drops off, as every recogniser does. Treat the result as a draft to check, not a certified transcription." },
+      { q: "Which languages does it read?", a: "English and Urdu. Each language is loaded the first time you use it, from this site, and then kept ready for the rest of your visit. Pick the one that matches your document before you run it." },
+      { q: "Can it read a PDF?", a: "Yes. A PDF page is drawn to a picture first and then read, so a scanned PDF works. If the PDF already has selectable text, you can copy that directly in a reader without recognising it again." },
+      { q: "Why is the first run slow?", a: "The recogniser and the language are downloaded once, which is a few megabytes, and then cached. After that, reading a page is quick, and none of it involves a server of ours." },
+    ],
+    multiple: false,
+    accept: "image/jpeg,image/png,image/webp,application/pdf",
+    render: "ocr",
+  },
   {
     slug: "merge",
     title: "Merge PDFs",
