@@ -21,6 +21,7 @@ import {
 } from "@/lib/qr/payloads";
 import {
   DEFAULT_COLOURS,
+  DEFAULT_STYLE,
   QUIET_ZONE,
   logoPlacement,
   scaleFor,
@@ -30,8 +31,12 @@ import {
   toSvgWithLogo,
   type Colours,
   type ErrorCorrection,
+  type FinderStyle,
+  type ModuleShape,
+  type Style,
 } from "@/lib/qr/render";
 import { judgeContrast } from "@/lib/qr/contrast";
+import { PALETTES } from "@/lib/qr/palettes";
 
 const LEVELS: Array<{ value: ErrorCorrection; label: string; detail: string }> = [
   { value: "M", label: "Normal", detail: "The usual choice" },
@@ -169,6 +174,7 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
   const [fields, setFields] = useState<Fields>(EMPTY);
   const [level, setLevel] = useState<ErrorCorrection>("M");
   const [colours, setColours] = useState<Colours>(DEFAULT_COLOURS);
+  const [style, setStyle] = useState<Style>(DEFAULT_STYLE);
   const [logo, setLogo] = useState<string | null>(null);
   const [gateFor, setGateFor] = useState<(() => void) | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -194,10 +200,10 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
     if (payload === null) return null;
     const matrix = toMatrix(payload, effectiveLevel);
     const svg = logo
-      ? toSvgWithLogo(matrix, logo, colours)
-      : toSvg(matrix, colours);
+      ? toSvgWithLogo(matrix, logo, colours, 0.2, style)
+      : toSvg(matrix, colours, style);
     return { matrix, svg, payload };
-  }, [payload, effectiveLevel, colours, logo]);
+  }, [payload, effectiveLevel, colours, logo, style]);
 
   const hadCode = useRef(false);
   useEffect(() => {
@@ -225,7 +231,7 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
   function savePng() {
     if (!code) return;
     const scale = scaleFor(code.matrix, PNG_SIZE);
-    const { data, width, height } = toRgba(code.matrix, scale, colours);
+    const { data, width, height } = toRgba(code.matrix, scale, colours, style);
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
@@ -313,6 +319,8 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
         <Appearance
           colours={colours}
           setColours={setColours}
+          style={style}
+          setStyle={setStyle}
           contrast={contrast}
           logo={logo}
           setLogo={setLogo}
@@ -759,9 +767,22 @@ function Fieldsets({
   );
 }
 
+const MODULE_SHAPES: Array<{ value: ModuleShape; label: string }> = [
+  { value: "square", label: "Square" },
+  { value: "rounded", label: "Rounded" },
+  { value: "dots", label: "Dots" },
+];
+
+const FINDER_STYLES: Array<{ value: FinderStyle; label: string }> = [
+  { value: "square", label: "Square" },
+  { value: "rounded", label: "Rounded" },
+];
+
 function Appearance({
   colours,
   setColours,
+  style,
+  setStyle,
   contrast,
   logo,
   setLogo,
@@ -769,6 +790,8 @@ function Appearance({
 }: {
   colours: Colours;
   setColours: (c: Colours) => void;
+  style: Style;
+  setStyle: (s: Style) => void;
   contrast: ReturnType<typeof judgeContrast>;
   logo: string | null;
   setLogo: (v: string | null) => void;
@@ -828,6 +851,83 @@ function Appearance({
           {contrast.message}
         </p>
       ) : null}
+
+      <div className="mt-4">
+        <span className="block text-[13px] font-semibold text-text-light">Presets</span>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {PALETTES.map((palette) => {
+            const active =
+              colours.dark === palette.colours.dark && colours.light === palette.colours.light;
+            return (
+              <button
+                key={palette.id}
+                type="button"
+                aria-label={`${palette.name} colours`}
+                aria-pressed={active}
+                onClick={() => setColours(palette.colours)}
+                className={[
+                  "flex items-center gap-2 rounded-full border px-2.5 py-1.5 text-[13px]",
+                  active ? "border-primary bg-primary/5" : "border-line hover:border-line-strong",
+                ].join(" ")}
+              >
+                <span
+                  aria-hidden="true"
+                  className="h-4 w-4 rounded-full border border-line"
+                  style={{
+                    background: `linear-gradient(135deg, ${palette.colours.dark} 0 50%, ${palette.colours.light} 50% 100%)`,
+                  }}
+                />
+                {palette.name}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div>
+          <span className="block text-[13px] font-semibold text-text-light">Module shape</span>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {MODULE_SHAPES.map((shape) => (
+              <button
+                key={shape.value}
+                type="button"
+                aria-pressed={style.moduleShape === shape.value}
+                onClick={() => setStyle({ ...style, moduleShape: shape.value })}
+                className={[
+                  "rounded-full border px-3 py-1.5 text-[13px]",
+                  style.moduleShape === shape.value
+                    ? "border-primary bg-primary/5 font-semibold"
+                    : "border-line hover:border-line-strong",
+                ].join(" ")}
+              >
+                {shape.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <span className="block text-[13px] font-semibold text-text-light">Corner style</span>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {FINDER_STYLES.map((finder) => (
+              <button
+                key={finder.value}
+                type="button"
+                aria-pressed={style.finderStyle === finder.value}
+                onClick={() => setStyle({ ...style, finderStyle: finder.value })}
+                className={[
+                  "rounded-full border px-3 py-1.5 text-[13px]",
+                  style.finderStyle === finder.value
+                    ? "border-primary bg-primary/5 font-semibold"
+                    : "border-line hover:border-line-strong",
+                ].join(" ")}
+              >
+                {finder.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <div className="mt-4">
         {logo ? (

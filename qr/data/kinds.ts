@@ -47,6 +47,7 @@ export const kinds: Kind[] = [
       ...SHARED_FAQ,
       { q: "Do I need to type https://?", a: "No. If you leave the scheme off, https is added for you, and the finished address is shown under the code so you can see exactly what was encoded." },
       { q: "Can I edit it later?", a: "Not this code, no. The address is inside the picture, so changing where it points means making a new one. That is the trade for a code that never expires." },
+      { q: "Can one code open two links?", a: "No. A QR code holds one target, and that is the whole of it: a camera finds exactly one thing to open. Two destinations need a page in the middle that offers the choice, which means a server and a link that can stop working, the opposite of what these codes are. If the goal is to share several things at once, a contact card carries a phone number, an email and a website together, and a calendar event carries a title, a time and a place. Pick the one that holds what you actually need." },
       { q: "Which size should I download?", a: "The SVG for anything printed, because it stays sharp at any size. The PNG for anything on a screen." },
     ],
   },
