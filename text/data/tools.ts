@@ -11,7 +11,8 @@ export type ToolSlug =
   | "remove-duplicate-lines"
   | "sort-lines"
   | "lorem-ipsum"
-  | "read-aloud";
+  | "read-aloud"
+  | "transcribe";
 
 export type Faq = { q: string; a: string };
 
@@ -215,6 +216,26 @@ export const tools: Tool[] = [
       { q: "Where do the voices come from?", a: "From your own device. The list is whatever your operating system and browser have installed, which is why it differs between a phone and a laptop, and between one phone and another. None of them involve a server of ours." },
       { q: "Which languages are available?", a: "Whichever your device has voices for. Most devices ship with several, and you can add more in your system settings. The tool defaults to a voice in your browser's language when one is present." },
       { q: "It is silent or the voice list is empty. Why?", a: "Some browsers load their voices a moment after the page, so give it a second and reopen the list. If a browser has no speech synthesis at all the tool says so instead of pretending to work." },
+    ],
+  },
+  {
+    slug: "transcribe",
+    title: "Transcribe speech",
+    blurb: "Turn a recording or mic into text, on your device",
+    seoTitle: "Transcribe audio to text in your browser, free, nothing uploaded",
+    description:
+      "Turn an audio file or your microphone into text with a small speech model that runs in your browser. English, nothing uploaded.",
+    intro: [
+      "Choose an audio file or record from the microphone, and a small speech model turns it into text. The model runs in your browser, so the audio is never uploaded.",
+      "It is honest work rather than magic: the model is tiny so it downloads quickly and runs anywhere, which means a clean recording of clear English comes back as a good draft, and noise, accents or several people talking at once come back rougher. Read it against the audio before you rely on it.",
+    ],
+    faq: [
+      PRIVACY_ANSWER,
+      { q: "Where does the transcription happen?", a: "In your browser. The model and its runtime are downloaded from this site the first time and then cached, and the audio is turned into text on your own device. No recording and no audio file is ever sent to a server of ours." },
+      { q: "How big is the download, and how fast is it?", a: "The model is about 40 MB, fetched once and then cached. Because it runs on your device rather than a data centre, it is slower than a paid cloud service, and a long recording takes a while. A short clip is quick." },
+      { q: "How accurate is it?", a: "It is a tiny English model, so treat it as a first draft. Clear speech with little background noise transcribes well; heavy accents, crosstalk and noise are where it struggles, as every small model does. Always check the result." },
+      { q: "Which languages does it handle?", a: "English, for now. The model that keeps the download small and the tool honest is English-only. A multilingual model exists but is several times the size, which would be a slow first visit for everyone." },
+      { q: "Can I record straight from the microphone?", a: "Yes, where the browser allows it. Press record, speak, and stop, and the recording is transcribed the same way a file is. The browser asks your permission for the microphone first, and the audio stays on your device." },
     ],
   },
 ];

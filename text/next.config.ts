@@ -38,7 +38,10 @@ const CONTENT_SECURITY_POLICY = [
   // its hydration bootstrap and streaming chunks as inline scripts, and the
   // alternative, a per-request nonce, needs middleware in every app. The real
   // win here is the origin restriction.
-  "script-src 'self' 'unsafe-inline'",
+  // 'wasm-unsafe-eval' lets the transcribe tool compile the on-device speech
+  // model's WebAssembly; Chrome refuses to compile wasm under a script-src that
+  // omits it. Everything it loads is served from this origin.
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
   `connect-src ${CONNECT_SOURCES.join(" ")}`,
   "worker-src 'self' blob:",
   // The checkout overlay is an iframe served by Lemon Squeezy, and nothing

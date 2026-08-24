@@ -5,7 +5,15 @@ import { ToolSwitcher } from "@/components/site/ToolSwitcher";
 import { MoreFromEveryKit } from "@/components/site/MoreFromEveryKit";
 import { Workbench } from "@/components/text/Workbench";
 import { ReadAloud } from "@/components/text/ReadAloud";
+import dynamic from "next/dynamic";
 import { getTool, tools } from "@/data/tools";
+
+// Lazy: this tool pulls in transformers.js and the ONNX runtime, which are
+// large. Splitting them into their own chunk keeps them off the other text
+// tools, which never touch them.
+const TranscribeTool = dynamic(() =>
+  import("@/components/text/TranscribeTool").then((m) => m.TranscribeTool),
+);
 import { absoluteUrl } from "@/lib/site";
 
 type Params = { params: Promise<{ tool: string }> };
@@ -69,7 +77,13 @@ export default async function ToolPage({ params }: Params) {
         ))}
 
         <div className="mt-8">
-          {tool.slug === "read-aloud" ? <ReadAloud /> : <Workbench tool={tool.slug} />}
+          {tool.slug === "read-aloud" ? (
+            <ReadAloud />
+          ) : tool.slug === "transcribe" ? (
+            <TranscribeTool />
+          ) : (
+            <Workbench tool={tool.slug} />
+          )}
         </div>
 
         <section className="mt-14 max-w-[820px]">

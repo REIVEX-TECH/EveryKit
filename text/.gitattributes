@@ -1,0 +1,4 @@
+# Vendored speech-model weights and ONNX runtime WebAssembly. Never apply
+# line-ending conversion: it would corrupt these binaries.
+public/models/** binary
+public/ort/** binary

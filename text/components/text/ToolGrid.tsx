@@ -19,6 +19,7 @@ const TINTS: Record<string, string> = {
   "sort-lines": "#145cb8",
   "lorem-ipsum": "#2a74e0",
   "read-aloud": "#1156a8",
+  transcribe: "#3579d6",
 };
 
 const stroke = {
@@ -78,6 +79,13 @@ const GLYPHS: Record<string, ReactElement> = {
       <path d="M4 9.4h3l4-3.4v12l-4-3.4H4z" {...stroke} />
       <path d="M15 8.4a4 4 0 0 1 0 7.2" {...stroke} />
       <path d="M17.4 6a7 7 0 0 1 0 12" {...stroke} />
+    </>
+  ),
+  transcribe: (
+    <>
+      <rect x="9" y="3" width="6" height="10" rx="3" {...stroke} />
+      <path d="M6 11a6 6 0 0 0 12 0" {...stroke} />
+      <path d="M12 17v3M9 20.4h6" {...stroke} />
     </>
   ),
 };
