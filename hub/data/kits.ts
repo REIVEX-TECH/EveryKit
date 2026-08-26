@@ -34,7 +34,16 @@ export type Kit = {
 export type KitTool = {
   name: string;
   path: string;
+  /** Short keywords: other names for the same tool, matched by the search. */
   synonyms: string[];
+  /**
+   * Whole-need phrases, the way someone describes the job to an assistant
+   * rather than the tool's name: "passport photo for us visa", "scan paper to
+   * pdf", "compress image to 100kb". The command bar matches these so a person
+   * who knows what they want but not what we call it still lands on the tool.
+   * Optional: a tool whose name already is the search term does not need them.
+   */
+  intents?: string[];
 };
 
 /**
@@ -48,118 +57,158 @@ export type KitTool = {
  */
 export const kitTools: Record<string, KitTool[]> = {
   photos: [
-    { name: "Passport & visa photo", path: "/", synonyms: ["passport", "visa", "id photo", "biometric", "2x2", "35x45", "headshot"] },
+    { name: "Passport & visa photo", path: "/", synonyms: ["passport", "visa", "id photo", "biometric", "2x2", "35x45", "headshot"], intents: ["passport photo for us visa", "make a passport photo at home", "biometric photo from a selfie", "2x2 inch id photo to print", "schengen visa photo size"] },
   ],
   letters: [
-    { name: "Formal letter generator", path: "/", synonyms: ["letter", "resignation", "complaint", "refund", "visa invitation", "sponsorship", "notice to vacate", "experience certificate", "salary certificate", "internship", "character reference", "bank account closure", "cover letter", "noc"] },
+    { name: "Formal letter generator", path: "/", synonyms: ["letter", "resignation", "complaint", "refund", "visa invitation", "sponsorship", "notice to vacate", "experience certificate", "salary certificate", "internship", "character reference", "bank account closure", "cover letter", "noc"], intents: ["write a resignation letter", "write a complaint letter", "ask for a refund in writing", "letter to my landlord to move out", "visa invitation letter"] },
   ],
   pdf: [
-    { name: "Merge PDFs", path: "/merge", synonyms: ["combine", "join", "join pdf"] },
-    { name: "Split a PDF", path: "/split", synonyms: ["divide", "separate"] },
-    { name: "Extract pages", path: "/extract", synonyms: ["pull pages", "take pages"] },
-    { name: "Organise pages", path: "/organize", synonyms: ["reorder", "rotate", "rearrange"] },
-    { name: "Delete pages", path: "/delete-pages", synonyms: ["remove pages"] },
-    { name: "Add page numbers", path: "/page-numbers", synonyms: ["number pages", "pagination"] },
-    { name: "Watermark a PDF", path: "/watermark", synonyms: ["stamp", "draft mark"] },
-    { name: "PDF to images", path: "/pdf-to-images", synonyms: ["pdf to jpg", "pdf to png", "convert pdf to image"] },
-    { name: "Images to PDF", path: "/images-to-pdf", synonyms: ["jpg to pdf", "png to pdf", "photos to pdf"] },
-    { name: "Compress a PDF", path: "/compress", synonyms: ["shrink", "reduce size", "smaller pdf"] },
+    { name: "Merge PDFs", path: "/merge", synonyms: ["combine", "join", "join pdf"], intents: ["combine several pdfs into one", "join two pdf files", "put pdfs together in order"] },
+    { name: "Split a PDF", path: "/split", synonyms: ["divide", "separate"], intents: ["split a pdf into separate files", "break one pdf into pages"] },
+    { name: "Extract pages", path: "/extract", synonyms: ["pull pages", "take pages"], intents: ["pull a few pages out of a pdf", "save just some pages of a pdf"] },
+    { name: "Organise pages", path: "/organize", synonyms: ["reorder", "rotate", "rearrange"], intents: ["reorder pages in a pdf", "rotate a sideways pdf page"] },
+    { name: "Delete pages", path: "/delete-pages", synonyms: ["remove pages"], intents: ["remove a page from a pdf", "delete blank pages from a pdf"] },
+    { name: "Add page numbers", path: "/page-numbers", synonyms: ["number pages", "pagination"], intents: ["add page numbers to a pdf"] },
+    { name: "Watermark a PDF", path: "/watermark", synonyms: ["stamp", "draft mark"], intents: ["stamp draft on a pdf", "add a watermark to a pdf"] },
+    { name: "Scan with your phone", path: "/scan", synonyms: ["scanner", "scan document", "phone scanner", "camera scan"], intents: ["scan paper to pdf", "scan a document with my phone", "turn a photo of a page into a pdf", "make a scan without a scanner"] },
+    { name: "Get the text out (OCR)", path: "/ocr", synonyms: ["ocr", "image to text", "pdf to text", "extract text"], intents: ["get the text out of a scanned pdf", "copy text from an image", "ocr a photo of a page", "read text from a picture"] },
+    { name: "PDF to images", path: "/pdf-to-images", synonyms: ["pdf to jpg", "pdf to png", "convert pdf to image"], intents: ["turn a pdf into jpg images", "save pdf pages as pictures"] },
+    { name: "Images to PDF", path: "/images-to-pdf", synonyms: ["jpg to pdf", "png to pdf", "photos to pdf"], intents: ["combine photos into one pdf", "turn jpgs into a pdf"] },
+    { name: "Compress a PDF", path: "/compress", synonyms: ["shrink", "reduce size", "smaller pdf"], intents: ["make a pdf smaller to email", "reduce a pdf under 2mb"] },
   ],
   qr: [
-    { name: "Link QR code", path: "/url", synonyms: ["url", "website qr"] },
-    { name: "Text QR code", path: "/text", synonyms: ["plain text qr"] },
-    { name: "Wi-Fi QR code", path: "/wifi", synonyms: ["wifi", "network", "password qr"] },
-    { name: "Email QR code", path: "/email", synonyms: ["mailto qr"] },
-    { name: "SMS QR code", path: "/sms", synonyms: ["text message qr"] },
-    { name: "Calendar event QR code", path: "/event", synonyms: ["ics qr", "add to calendar"] },
-    { name: "Contact card QR code", path: "/vcard", synonyms: ["vcard", "business card qr"] },
-    { name: "WhatsApp QR code", path: "/whatsapp", synonyms: ["wa.me qr", "chat qr"] },
+    { name: "Link QR code", path: "/url", synonyms: ["url", "website qr"], intents: ["qr code for a website link", "make a qr code for my page"] },
+    { name: "Text QR code", path: "/text", synonyms: ["plain text qr"], intents: ["qr code with plain text"] },
+    { name: "Wi-Fi QR code", path: "/wifi", synonyms: ["wifi", "network", "password qr"], intents: ["qr code so guests can join my wifi", "share wifi password with a qr code"] },
+    { name: "Email QR code", path: "/email", synonyms: ["mailto qr"], intents: ["qr code that opens an email"] },
+    { name: "SMS QR code", path: "/sms", synonyms: ["text message qr"], intents: ["qr code that sends a text"] },
+    { name: "Calendar event QR code", path: "/event", synonyms: ["ics qr", "add to calendar"], intents: ["qr code to add an event to a calendar"] },
+    { name: "Contact card QR code", path: "/vcard", synonyms: ["vcard", "business card qr"], intents: ["qr code for my contact details", "business card qr code"] },
+    { name: "WhatsApp QR code", path: "/whatsapp", synonyms: ["wa.me qr", "chat qr"], intents: ["qr code to start a whatsapp chat"] },
   ],
   images: [
-    { name: "Resize images", path: "/resize", synonyms: ["scale", "shrink image", "dimensions"] },
-    { name: "Convert format", path: "/convert", synonyms: ["jpg to png", "png to webp", "heic"] },
-    { name: "Crop an image", path: "/crop", synonyms: ["trim", "square crop", "aspect ratio"] },
-    { name: "Compress an image", path: "/compress", synonyms: ["reduce image size", "target size", "smaller photo"] },
-    { name: "Flip and rotate", path: "/flip-rotate", synonyms: ["mirror", "turn", "rotate photo", "sideways"] },
-    { name: "Make a favicon", path: "/favicon", synonyms: ["favicon", "site icon", "ico"] },
-    { name: "Remove EXIF", path: "/strip-exif", synonyms: ["strip metadata", "remove gps", "location"] },
+    { name: "Resize images", path: "/resize", synonyms: ["scale", "shrink image", "dimensions"], intents: ["resize a photo to exact pixels", "make an image a set width"] },
+    { name: "Convert format", path: "/convert", synonyms: ["jpg to png", "png to webp", "heic"], intents: ["convert heic to jpg", "change png to jpg", "webp to png"] },
+    { name: "Crop an image", path: "/crop", synonyms: ["trim", "square crop", "aspect ratio"], intents: ["crop a photo to a square", "crop an image to 16:9"] },
+    { name: "Compress an image", path: "/compress", synonyms: ["reduce image size", "target size", "smaller photo"], intents: ["compress image to 100kb", "make a photo under 1mb", "shrink a jpg file size"] },
+    { name: "Flip and rotate", path: "/flip-rotate", synonyms: ["mirror", "turn", "rotate photo", "sideways"], intents: ["rotate a sideways photo", "mirror an image"] },
+    { name: "Make a favicon", path: "/favicon", synonyms: ["favicon", "site icon", "ico"], intents: ["make a favicon for my site", "turn a logo into a favicon"] },
+    { name: "Remove EXIF", path: "/strip-exif", synonyms: ["strip metadata", "remove gps", "location"], intents: ["remove location data from a photo", "strip metadata before sharing a picture"] },
   ],
   background: [
-    { name: "Remove the background", path: "/", synonyms: ["background remover", "cut out", "transparent"] },
-    { name: "Transparent background", path: "/transparent-background", synonyms: ["png transparent", "remove background"] },
-    { name: "White background", path: "/white-background", synonyms: ["white bg", "product photo"] },
+    { name: "Remove the background", path: "/", synonyms: ["background remover", "cut out", "transparent"], intents: ["remove background from a product photo", "cut out a person from a photo", "erase the background of an image"] },
+    { name: "Transparent background", path: "/transparent-background", synonyms: ["png transparent", "remove background"], intents: ["make a logo background transparent", "transparent png of a picture"] },
+    { name: "White background", path: "/white-background", synonyms: ["white bg", "product photo"], intents: ["put a photo on a white background", "white background for a product listing"] },
   ],
   text: [
-    { name: "Word counter", path: "/word-counter", synonyms: ["character count", "count words", "reading time"] },
-    { name: "Case converter", path: "/case-converter", synonyms: ["uppercase", "lowercase", "title case", "sentence case"] },
-    { name: "Clean text", path: "/clean-text", synonyms: ["remove line breaks", "tidy", "whitespace"] },
-    { name: "Find and replace", path: "/find-replace", synonyms: ["search replace", "regex replace"] },
-    { name: "Remove duplicate lines", path: "/remove-duplicate-lines", synonyms: ["dedupe", "unique lines"] },
-    { name: "Sort lines", path: "/sort-lines", synonyms: ["alphabetise", "order lines", "shuffle"] },
-    { name: "Lorem ipsum", path: "/lorem-ipsum", synonyms: ["placeholder text", "dummy text", "filler"] },
+    { name: "Word counter", path: "/word-counter", synonyms: ["character count", "count words", "reading time"], intents: ["count the words in my text", "how many characters is this"] },
+    { name: "Case converter", path: "/case-converter", synonyms: ["uppercase", "lowercase", "title case", "sentence case"], intents: ["change text to title case", "make text all uppercase"] },
+    { name: "Clean text", path: "/clean-text", synonyms: ["remove line breaks", "tidy", "whitespace"], intents: ["remove line breaks from pasted text", "clean up messy spacing"] },
+    { name: "Find and replace", path: "/find-replace", synonyms: ["search replace", "regex replace"], intents: ["find and replace across text"] },
+    { name: "Remove duplicate lines", path: "/remove-duplicate-lines", synonyms: ["dedupe", "unique lines"], intents: ["remove duplicate lines from a list"] },
+    { name: "Sort lines", path: "/sort-lines", synonyms: ["alphabetise", "order lines", "shuffle"], intents: ["sort a list alphabetically"] },
+    { name: "Lorem ipsum", path: "/lorem-ipsum", synonyms: ["placeholder text", "dummy text", "filler"], intents: ["generate placeholder text"] },
   ],
   sign: [
-    { name: "Draw your signature", path: "/", synonyms: ["signature", "sign", "handwritten"] },
-    { name: "Type your signature", path: "/type", synonyms: ["typed signature", "font signature"] },
-    { name: "Sign a PDF", path: "/sign-pdf", synonyms: ["e-sign", "add signature to pdf"] },
+    { name: "Draw your signature", path: "/", synonyms: ["signature", "sign", "handwritten"], intents: ["draw my signature to use online", "make a signature image"] },
+    { name: "Type your signature", path: "/type", synonyms: ["typed signature", "font signature"], intents: ["type a signature in a handwriting font"] },
+    { name: "Sign a PDF", path: "/sign-pdf", synonyms: ["e-sign", "add signature to pdf"], intents: ["sign a pdf contract", "add my signature to a pdf", "e-sign a document without an account"] },
   ],
   invoice: [
-    { name: "Invoice maker", path: "/", synonyms: ["invoice", "bill", "pdf invoice"] },
-    { name: "Quote maker", path: "/quote", synonyms: ["quote", "estimate"] },
-    { name: "Receipt maker", path: "/receipt", synonyms: ["receipt", "paid receipt"] },
+    { name: "Invoice maker", path: "/", synonyms: ["invoice", "bill", "pdf invoice"], intents: ["make an invoice for a client", "create a pdf invoice with my totals", "bill a customer"] },
+    { name: "Quote maker", path: "/quote", synonyms: ["quote", "estimate"], intents: ["send a client a quote", "make a price estimate"] },
+    { name: "Receipt maker", path: "/receipt", synonyms: ["receipt", "paid receipt"], intents: ["make a paid receipt", "give a customer a receipt"] },
   ],
   ringtone: [
-    { name: "Make a ringtone", path: "/", synonyms: ["ringtone", "cut audio", "trim mp3", "fade"] },
-    { name: "Convert audio to MP3", path: "/convert", synonyms: ["wav to mp3", "m4a to mp3", "ogg to mp3"] },
-    { name: "Change the volume", path: "/volume", synonyms: ["louder", "quieter", "gain", "normalise"] },
+    { name: "Make a ringtone", path: "/", synonyms: ["ringtone", "cut audio", "trim mp3", "fade"], intents: ["cut a song into a ringtone", "trim an mp3 for a ringtone"] },
+    { name: "Convert audio to MP3", path: "/convert", synonyms: ["wav to mp3", "m4a to mp3", "ogg to mp3"], intents: ["convert m4a to mp3", "turn a wav into an mp3"] },
+    { name: "Change the volume", path: "/volume", synonyms: ["louder", "quieter", "gain", "normalise"], intents: ["make an audio file louder", "normalise the volume of a track"] },
   ],
   dev: [
-    { name: "JSON formatter", path: "/json", synonyms: ["format json", "validate json", "pretty print"] },
-    { name: "Base64 encode and decode", path: "/base64", synonyms: ["base64", "encode", "decode"] },
-    { name: "URL encode and decode", path: "/url", synonyms: ["percent encode", "escape url"] },
-    { name: "UUID generator", path: "/uuid", synonyms: ["uuid", "guid", "unique id"] },
-    { name: "Hash generator", path: "/hash", synonyms: ["md5", "sha256", "checksum"] },
-    { name: "JWT decoder", path: "/jwt", synonyms: ["json web token", "decode jwt"] },
-    { name: "Regex tester", path: "/regex", synonyms: ["regular expression", "test regex"] },
-    { name: "Text diff", path: "/diff", synonyms: ["compare", "difference", "changes"] },
-    { name: "Timestamp converter", path: "/timestamp", synonyms: ["unix time", "epoch"] },
-    { name: "Cron parser", path: "/cron", synonyms: ["crontab", "schedule", "cron expression"] },
-    { name: "Colour converter", path: "/color", synonyms: ["hex rgb hsl", "contrast checker", "wcag"] },
-    { name: "Markdown preview", path: "/markdown", synonyms: ["md to html", "render markdown"] },
-    { name: "JSON to CSV", path: "/json-to-csv", synonyms: ["json csv", "convert json"] },
+    { name: "JSON formatter", path: "/json", synonyms: ["format json", "validate json", "pretty print"], intents: ["pretty print some json", "check if my json is valid"] },
+    { name: "Base64 encode and decode", path: "/base64", synonyms: ["base64", "encode", "decode"], intents: ["decode a base64 string", "encode text to base64"] },
+    { name: "URL encode and decode", path: "/url", synonyms: ["percent encode", "escape url"], intents: ["url encode a query string"] },
+    { name: "UUID generator", path: "/uuid", synonyms: ["uuid", "guid", "unique id"], intents: ["generate a uuid"] },
+    { name: "Hash generator", path: "/hash", synonyms: ["md5", "sha256", "checksum"], intents: ["get the sha256 of some text", "make an md5 hash"] },
+    { name: "JWT decoder", path: "/jwt", synonyms: ["json web token", "decode jwt"], intents: ["decode a jwt to see its claims"] },
+    { name: "Regex tester", path: "/regex", synonyms: ["regular expression", "test regex"], intents: ["test a regular expression against text"] },
+    { name: "Text diff", path: "/diff", synonyms: ["compare", "difference", "changes"], intents: ["compare two blocks of text", "see what changed between two versions"] },
+    { name: "Timestamp converter", path: "/timestamp", synonyms: ["unix time", "epoch"], intents: ["convert a unix timestamp to a date"] },
+    { name: "Cron parser", path: "/cron", synonyms: ["crontab", "schedule", "cron expression"], intents: ["explain a cron expression in words"] },
+    { name: "Colour converter", path: "/color", synonyms: ["hex rgb hsl", "contrast checker", "wcag"], intents: ["convert hex to rgb", "check colour contrast for accessibility"] },
+    { name: "Markdown preview", path: "/markdown", synonyms: ["md to html", "render markdown"], intents: ["preview markdown as html"] },
+    { name: "JSON to CSV", path: "/json-to-csv", synonyms: ["json csv", "convert json"], intents: ["convert json to a csv"] },
   ],
   study: [
-    { name: "GPA calculator", path: "/gpa", synonyms: ["grade point average", "gpa"] },
-    { name: "Final grade calculator", path: "/final-grade", synonyms: ["what do i need", "exam grade"] },
-    { name: "Citation generator", path: "/citation", synonyms: ["apa", "mla", "reference", "bibliography"] },
-    { name: "Reading time", path: "/reading-time", synonyms: ["how long to read", "words per minute"] },
-    { name: "Study timer", path: "/timer", synonyms: ["pomodoro", "countdown timer"] },
-    { name: "Exam countdown", path: "/exam-countdown", synonyms: ["days until exam", "countdown"] },
+    { name: "GPA calculator", path: "/gpa", synonyms: ["grade point average", "gpa"], intents: ["work out my gpa", "calculate grade point average"] },
+    { name: "Final grade calculator", path: "/final-grade", synonyms: ["what do i need", "exam grade"], intents: ["what do i need on my final", "grade i need to pass the class"] },
+    { name: "Citation generator", path: "/citation", synonyms: ["apa", "mla", "reference", "bibliography"], intents: ["make an apa citation", "cite a source in mla"] },
+    { name: "Reading time", path: "/reading-time", synonyms: ["how long to read", "words per minute"], intents: ["how long will this take to read"] },
+    { name: "Study timer", path: "/timer", synonyms: ["pomodoro", "countdown timer"], intents: ["pomodoro timer for studying"] },
+    { name: "Exam countdown", path: "/exam-countdown", synonyms: ["days until exam", "countdown"], intents: ["days until my exam"] },
   ],
   calc: [
-    { name: "Age calculator", path: "/age", synonyms: ["how old", "date of birth"] },
-    { name: "Date difference", path: "/date-difference", synonyms: ["days between", "date calculator"] },
-    { name: "Unit converter", path: "/units", synonyms: ["metric imperial", "convert units", "temperature"] },
-    { name: "Loan and EMI", path: "/emi", synonyms: ["loan", "instalment", "repayment"] },
-    { name: "Percentage calculator", path: "/percentage", synonyms: ["percent", "percentage change"] },
-    { name: "Discount calculator", path: "/discount", synonyms: ["sale price", "percent off", "saving"] },
-    { name: "VAT and GST", path: "/vat", synonyms: ["vat", "gst", "sales tax", "add tax"] },
-    { name: "Trip fuel cost", path: "/trip-cost", synonyms: ["fuel cost", "petrol", "mileage", "split cost"] },
+    { name: "Age calculator", path: "/age", synonyms: ["how old", "date of birth"], intents: ["work out my exact age", "how old am i from my date of birth"] },
+    { name: "Date difference", path: "/date-difference", synonyms: ["days between", "date calculator"], intents: ["how many days between two dates"] },
+    { name: "Unit converter", path: "/units", synonyms: ["metric imperial", "convert units", "temperature"], intents: ["convert cm to inches", "celsius to fahrenheit"] },
+    { name: "Loan and EMI", path: "/emi", synonyms: ["loan", "instalment", "repayment"], intents: ["work out a monthly loan payment", "car loan emi"] },
+    { name: "Percentage calculator", path: "/percentage", synonyms: ["percent", "percentage change"], intents: ["what percent is x of y", "percentage increase between two numbers"] },
+    { name: "Discount calculator", path: "/discount", synonyms: ["sale price", "percent off", "saving"], intents: ["price after a percent off", "how much i save in a sale"] },
+    { name: "VAT and GST", path: "/vat", synonyms: ["vat", "gst", "sales tax", "add tax"], intents: ["add vat to a price", "work out gst on a bill"] },
+    { name: "Trip fuel cost", path: "/trip-cost", synonyms: ["fuel cost", "petrol", "mileage", "split cost"], intents: ["fuel cost for a road trip", "split petrol cost between friends"] },
   ],
   teach: [
-    { name: "Rubric maker", path: "/rubric", synonyms: ["rubric", "marking grid", "criteria", "grading rubric"] },
-    { name: "Gradebook", path: "/gradebook", synonyms: ["gradebook", "weighted grades", "class marks", "grade calculator"] },
-    { name: "Worksheet maker", path: "/worksheet", synonyms: ["worksheet", "question sheet", "handout", "practice sheet"] },
-    { name: "Grade curve", path: "/curve", synonyms: ["curve grades", "z-score", "bell curve", "scale marks", "normalise marks"] },
-    { name: "Random name picker", path: "/random-picker", synonyms: ["random student", "pick a name", "cold call", "name picker"] },
-    { name: "Group maker", path: "/groups", synonyms: ["random groups", "teams", "split class", "group generator"] },
-    { name: "Seating plan", path: "/seating", synonyms: ["seating chart", "seat plan", "classroom layout"] },
-    { name: "Attendance sheet", path: "/attendance", synonyms: ["register", "roll call", "attendance register", "class list"] },
-    { name: "Award certificate", path: "/certificate", synonyms: ["certificate", "award", "star of the week", "reward"] },
-    { name: "Weekly timetable", path: "/timetable", synonyms: ["timetable", "class schedule", "lesson planner", "weekly schedule"] },
-    { name: "Classroom timer", path: "/timer", synonyms: ["countdown", "stopwatch", "class timer", "activity timer"] },
+    { name: "Rubric maker", path: "/rubric", synonyms: ["rubric", "marking grid", "criteria", "grading rubric"], intents: ["make a marking rubric", "grading grid for an assignment"] },
+    { name: "Gradebook", path: "/gradebook", synonyms: ["gradebook", "weighted grades", "class marks", "grade calculator"], intents: ["work out weighted grades for a class", "gradebook with letter grades"] },
+    { name: "Worksheet maker", path: "/worksheet", synonyms: ["worksheet", "question sheet", "handout", "practice sheet"], intents: ["make a printable worksheet"] },
+    { name: "Grade curve", path: "/curve", synonyms: ["curve grades", "z-score", "bell curve", "scale marks", "normalise marks"], intents: ["curve my class marks", "apply a bell curve to grades", "scale exam marks up", "z-score grade boundaries"] },
+    { name: "Random name picker", path: "/random-picker", synonyms: ["random student", "pick a name", "cold call", "name picker"], intents: ["pick a random student to answer"] },
+    { name: "Group maker", path: "/groups", synonyms: ["random groups", "teams", "split class", "group generator"], intents: ["split a class into random groups", "make teams from a class list"] },
+    { name: "Seating plan", path: "/seating", synonyms: ["seating chart", "seat plan", "classroom layout"], intents: ["make a seating chart for my class"] },
+    { name: "Attendance sheet", path: "/attendance", synonyms: ["register", "roll call", "attendance register", "class list"], intents: ["printable attendance register", "roll call sheet for a date range"] },
+    { name: "Award certificate", path: "/certificate", synonyms: ["certificate", "award", "star of the week", "reward"], intents: ["make an award certificate for a student"] },
+    { name: "Weekly timetable", path: "/timetable", synonyms: ["timetable", "class schedule", "lesson planner", "weekly schedule"], intents: ["make a weekly class timetable"] },
+    { name: "Classroom timer", path: "/timer", synonyms: ["countdown", "stopwatch", "class timer", "activity timer"], intents: ["big countdown timer for the class board"] },
   ],
 };
+
+/**
+ * The flagship row on the hub home, the six tools shown under "Start here".
+ *
+ * These are the jobs an AI chat cannot do for you: they hand back a file, at an
+ * exact size, byte for byte, without your original ever leaving the device.
+ * That is the thing worth putting first, so the row is small and every tile is
+ * one of these rather than a commodity a chat does fine.
+ *
+ * Kept as data, keyed by kit slug and path so the tile reuses the kit's own
+ * launcher glyph and tint and the link is built from the registry's own URL.
+ * The outcome line says what you get back, in concrete terms, not what the tool
+ * is called.
+ */
+export type Flagship = {
+  kitSlug: string;
+  path: string;
+  label: string;
+  outcome: string;
+};
+
+export const flagships: Flagship[] = [
+  { kitSlug: "photos", path: "/", label: "Passport & visa photos", outcome: "A compliant print sheet at exact size." },
+  { kitSlug: "pdf", path: "/scan", label: "Scan to PDF", outcome: "A phone photo straightened into a clean page." },
+  { kitSlug: "background", path: "/", label: "Background remover", outcome: "Your subject cut out on a clear background." },
+  { kitSlug: "pdf", path: "/merge", label: "Merge PDFs", outcome: "Several files combined into one, in order." },
+  { kitSlug: "teach", path: "/curve", label: "Grade curve", outcome: "Class marks curved, with the maths shown." },
+  { kitSlug: "invoice", path: "/", label: "Invoice maker", outcome: "A tidy PDF invoice, totals added up." },
+];
+
+/** The flagship row with each tile's absolute link resolved from the registry. */
+export function flagshipLinks(): Array<Flagship & { href: string }> {
+  return flagships.map((f) => {
+    const kit = kits.find((k) => k.slug === f.kitSlug);
+    const base = (kit?.url ?? "").replace(/\/$/, "");
+    return { ...f, href: f.path === "/" ? base : `${base}${f.path}` };
+  });
+}
 
 export type CatalogEntry = {
   kitSlug: string;

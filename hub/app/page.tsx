@@ -1,8 +1,30 @@
 import type { Metadata } from "next";
+import { FlagshipRow } from "@/components/FlagshipRow";
 import { KitDirectory } from "@/components/KitDirectory";
 import { ToolSearch } from "@/components/ToolSearch";
-import { CATEGORIES, catalog, kits } from "@/data/kits";
+import { CATEGORIES, catalog, flagshipLinks, kits } from "@/data/kits";
 import { PARENT_NAME, PARENT_URL, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+
+/**
+ * The objection three real users raised, answered on the page and marked up as
+ * an FAQ. It is the exact question people type into an assistant, so it is the
+ * question worth being the answer to. The visible copy below says the same
+ * thing in the same words; the two must move together.
+ */
+const CHAT_FAQ = [
+  {
+    q: "Can an AI chat like ChatGPT do these things?",
+    a: "For some, yes. A countdown, a word count or a unit conversion is fine in an AI chat, and we are not going to pretend otherwise. What a chat cannot do is hand you back your own file: a passport photo at exactly 35 by 45 mm, a PDF with your pages merged in the order you set, an image compressed to just under 100 KB. Those are byte-for-byte jobs on one specific file, and that is the work these tools do.",
+  },
+  {
+    q: "Do my files get uploaded to a server?",
+    a: "No. Your file is opened, changed and saved in your own browser, and nothing is sent anywhere. Using an AI assistant for a passport scan or a signed contract means uploading it to someone's server; these tools upload nothing, and you can watch the network tab to confirm it.",
+  },
+  {
+    q: "Are the tools really free?",
+    a: "Yes, free to use, with no account and nothing to cancel. The only thing we ever store is an email address, and only if you give one when you take a result.",
+  },
+];
 
 export const metadata: Metadata = {
   title: `${SITE_NAME}: small tools for everyday problems`,
@@ -47,6 +69,20 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: CHAT_FAQ.map((entry) => ({
+              "@type": "Question",
+              name: entry.q,
+              acceptedAnswer: { "@type": "Answer", text: entry.a },
+            })),
+          }),
+        }}
+      />
 
       <div className="ek-shell py-12 sm:py-16">
         <div className="text-center">
@@ -73,7 +109,11 @@ export default function HomePage() {
           <ToolSearch entries={catalog()} />
         </div>
 
-        <div className="mt-9">
+        <div className="mt-12">
+          <FlagshipRow items={flagshipLinks()} />
+        </div>
+
+        <div className="mt-14">
           <KitDirectory kits={kits} categories={CATEGORIES} toolsByKit={toolsByKit} />
         </div>
 
@@ -163,18 +203,26 @@ export default function HomePage() {
         </section>
 
         <section className="mt-20 border-t border-line pt-12">
-          <h2 className="text-[22px]">How every kit works</h2>
+          <h2 className="text-[22px]">Why not just use ChatGPT?</h2>
           <div className="mt-6 max-w-[640px] space-y-3 text-[16px] text-text-light">
             <p>
-              Nothing is uploaded. Your file is processed in your own browser,
-              so it never reaches a server of ours.
+              For some of these, you could. If you want a countdown, a word
+              count or a unit conversion, an AI chat will do it fine, and so will
+              a search box. We are not going to pretend otherwise.
             </p>
             <p>
-              You see the finished result at full quality, so you know whether
-              it worked before you take it.
+              What a chat cannot do is give you back your own file. It cannot
+              hand you a passport photo at exactly 35 by 45 mm, a PDF with your
+              pages merged in the order you set, or an image compressed to land
+              just under 100 KB. Those are byte-for-byte jobs on one specific
+              file, and that is the work these tools do.
             </p>
             <p>
-              Free to use, with no account and nothing to cancel.
+              There is also where your file goes. Using an AI assistant for your
+              passport scan or a signed contract means uploading it to someone&apos;s
+              server. These tools upload nothing. Your file is opened, changed
+              and saved in your own browser, and you can watch the network tab to
+              confirm nothing leaves.
             </p>
           </div>
         </section>
