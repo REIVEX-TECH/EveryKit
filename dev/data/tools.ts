@@ -17,7 +17,12 @@ export type ToolSlug =
   | "color"
   | "markdown"
   | "json-to-csv"
-  | "convert-data";
+  | "convert-data"
+  | "json-yaml"
+  | "json-to-types"
+  | "sql-formatter"
+  | "password"
+  | "base-converter";
 
 export type Faq = { q: string; a: string };
 
@@ -433,6 +438,101 @@ export const tools: Tool[] = [
       { q: "My Excel file has several sheets. Which one?", a: "When a workbook has more than one sheet, a picker appears and you choose which sheet to convert. One sheet becomes one table." },
       { q: "How does it handle nested JSON?", a: "A table is flat, so a nested object or array inside a JSON row is written as its JSON text in one cell rather than spread across columns. For turning JSON into CSV with dotted columns for one level of nesting, the JSON to CSV tool is the more specific choice." },
       { q: "Are big files a problem?", a: "It works on what fits in your browser's memory, which is comfortably most everyday files. A very large export can be slow, because the whole table is held in memory to convert it, the same as any spreadsheet app opening it." },
+    ],
+  },
+  {
+    slug: "json-yaml",
+    category: "data",
+    title: "JSON and YAML",
+    blurb: "Convert between JSON and YAML, either way",
+    seoTitle: "JSON to YAML and YAML to JSON converter online, free",
+    description:
+      "Convert JSON to YAML and YAML to JSON in your browser, with the error line pointed out when the input does not parse. Nothing uploaded.",
+    intro: [
+      "Paste JSON or YAML, pick the direction, and get the other back. When the input does not parse, the message says which line to look at rather than just failing.",
+      "It runs in the page, so nothing you paste is sent anywhere.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Which YAML features are supported?", a: "The common ones: mappings, sequences, scalars, nesting, and multi-line strings. It uses the widely used js-yaml library under the hood, in its safe mode, so it will not run code hidden in custom YAML tags." },
+      { q: "Why did my conversion fail?", a: "Usually a small syntax slip: a tab where YAML wants spaces, a missing quote, or a stray bracket in JSON. The error names the line, so start there. Valid input always converts." },
+      { q: "Does it keep my key order and comments?", a: "Key order is kept. YAML comments are not, because they do not exist in JSON, so a round trip through JSON drops them. That is a limit of the formats, not the tool, and it is worth knowing before you convert a commented config." },
+    ],
+  },
+  {
+    slug: "json-to-types",
+    category: "data",
+    title: "JSON to TypeScript",
+    blurb: "A sample of JSON into typed interfaces",
+    seoTitle: "JSON to TypeScript interface generator online, free",
+    description:
+      "Turn a sample of JSON into TypeScript interfaces, with nested objects, arrays and unions for mixed values. Runs in your browser; nothing uploaded.",
+    intro: [
+      "Paste a representative piece of JSON and get TypeScript interfaces back. Nested objects become their own named interfaces, arrays become typed arrays, and a field that holds more than one kind of value becomes a union.",
+      "It reads the shape of the sample, so the types are only as complete as the example. Where it has to guess, it says so rather than pretending. Nothing is uploaded.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "How good are the generated types?", a: "As good as the sample. Types are inferred from one example, so a field that is null in your sample but a string in real data will come out wrong, and an empty array cannot say what it holds. Feed it a full, representative object and the result is close; treat it as a strong first draft to tidy, not a schema." },
+      { q: "How are mixed types handled?", a: "A field that holds different types across an array of objects, or that is sometimes null, becomes a union like string | number or string | null. An array of mixed values becomes an array of a union. This keeps the types honest about what the data actually contains." },
+      { q: "What are the limits?", a: "It infers, it does not validate: it cannot know a string is really a date or a union has a fixed set of values. Optional fields are detected only when a key is missing from some objects in an array. Anything it cannot pin down becomes unknown rather than a wrong guess." },
+    ],
+  },
+  {
+    slug: "sql-formatter",
+    category: "data",
+    title: "SQL formatter",
+    blurb: "Tidy up SQL, or minify it, by dialect",
+    seoTitle: "SQL formatter and beautifier online, free, by dialect",
+    description:
+      "Format messy SQL into clean, indented statements, or minify it to one line, with a choice of dialect. Runs in your browser; nothing uploaded.",
+    intro: [
+      "Paste SQL and get it back cleanly indented, with keywords and clauses laid out to read. Pick the dialect so the formatting matches your database, or minify to a single line for a config or a log.",
+      "It uses the maintained sql-formatter library and runs entirely in the page, so no query you paste is sent anywhere.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Which dialects are supported?", a: "Standard SQL plus the common ones: PostgreSQL, MySQL, MariaDB, SQLite, SQL Server (Transact-SQL), BigQuery and more. Picking the right one means dialect-specific syntax is laid out correctly rather than misread." },
+      { q: "Does it change what my query does?", a: "No. It only changes the spacing, line breaks and case of keywords. The statement itself is untouched, so a formatted query runs exactly as the original did. It does not execute anything." },
+      { q: "Can it fix broken SQL?", a: "No, and it does not try. It formats the SQL you give it. If a statement has a real syntax error the layout may look off around it, which is often a useful hint, but this is a formatter, not a linter or a fixer." },
+    ],
+  },
+  {
+    slug: "password",
+    category: "encode",
+    title: "Password generator",
+    blurb: "Strong random passwords, made on your device",
+    seoTitle: "Strong random password generator online, free",
+    description:
+      "Generate strong random passwords with a length and character sets you choose, using the browser's cryptographic random source. Nothing is sent anywhere.",
+    intro: [
+      "Set the length and which character sets to include, and get a strong password made from your browser's cryptographic random source. Turn off look-alike characters if the password has to be read aloud or typed from paper.",
+      "A strength reading shows the entropy in bits, worked out from the actual character set and length, not a vague weak-to-strong bar. Nothing is generated on a server, and nothing is sent anywhere.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Where does the randomness come from?", a: "From crypto.getRandomValues, the browser's cryptographic random source, not from Math.random, which is not safe for secrets. Each character is drawn without bias across the sets you picked." },
+      { q: "What does the strength number mean?", a: "It is entropy in bits: the base-2 logarithm of the number of possible passwords, which is length times the log of the character set size. Each extra bit doubles the guesses an attacker needs. More than about 70 bits is strong for most uses; a longer password beats a more complex short one." },
+      { q: "Is generating a password here safe?", a: "The password is made in your browser and never leaves it, which you can confirm in the network tab: generating one produces no request. For your most important accounts, a dedicated password manager that also stores the password is worth using; this is for a quick strong password when you need one." },
+    ],
+  },
+  {
+    slug: "base-converter",
+    category: "encode",
+    title: "Number base converter",
+    blurb: "Hex, binary, decimal and octal, live",
+    seoTitle: "Hex, binary, decimal and octal converter online, free",
+    description:
+      "Convert a number between hexadecimal, binary, decimal and octal, live as you type, with a copy button for each base. Runs in your browser.",
+    intro: [
+      "Type a number in any of the four boxes, hexadecimal, binary, decimal or octal, and the other three update as you go. Copy any one of them.",
+      "It works on whole numbers of any size, using your browser's big integers, so a value too large for a normal number still converts exactly. Nothing is uploaded.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "How big a number can it handle?", a: "Any whole number, however large. It uses BigInt, so a 256-bit hex value converts exactly rather than losing digits the way an ordinary number would past about 15 digits." },
+      { q: "Does it do negative or fractional numbers?", a: "Whole numbers, including negatives. Fractional values in other bases are ambiguous and rarely what people want here, so the tool sticks to integers and says so rather than rounding silently." },
+      { q: "What counts as valid input?", a: "Digits valid for that base: 0 and 1 for binary, 0 to 7 for octal, 0 to 9 for decimal, and 0 to 9 with a to f for hex. An invalid character is flagged rather than guessed at, so a typo does not turn into a wrong answer." },
     ],
   },
 ];

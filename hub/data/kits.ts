@@ -138,6 +138,11 @@ export const kitTools: Record<string, KitTool[]> = {
     { name: "Colour converter", path: "/color", synonyms: ["hex rgb hsl", "contrast checker", "wcag"], intents: ["convert hex to rgb", "check colour contrast for accessibility"] },
     { name: "Markdown preview", path: "/markdown", synonyms: ["md to html", "render markdown"], intents: ["preview markdown as html"] },
     { name: "JSON to CSV", path: "/json-to-csv", synonyms: ["json csv", "convert json"], intents: ["convert json to a csv"] },
+    { name: "JSON and YAML", path: "/json-yaml", synonyms: ["json to yaml", "yaml to json", "yaml converter"], intents: ["convert json to yaml", "turn yaml into json"] },
+    { name: "JSON to TypeScript", path: "/json-to-types", synonyms: ["json to interface", "json to types", "typescript types"], intents: ["generate typescript interfaces from json", "json to ts types"] },
+    { name: "SQL formatter", path: "/sql-formatter", synonyms: ["sql beautifier", "format sql", "prettify sql", "minify sql"], intents: ["format my sql query", "beautify a sql statement", "minify sql to one line"] },
+    { name: "Password generator", path: "/password", synonyms: ["password", "random password", "strong password", "passphrase"], intents: ["generate a strong random password", "make a secure password"] },
+    { name: "Number base converter", path: "/base-converter", synonyms: ["hex to decimal", "binary to decimal", "base converter", "octal"], intents: ["convert hex to binary", "decimal to hexadecimal", "binary to decimal"] },
   ],
   study: [
     { name: "GPA calculator", path: "/gpa", synonyms: ["grade point average", "gpa"], intents: ["work out my gpa", "calculate grade point average"] },

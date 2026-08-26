@@ -16,12 +16,23 @@ import { UuidTool } from "@/components/dev/UuidTool";
 import { ColorTool } from "@/components/dev/ColorTool";
 import { MarkdownTool } from "@/components/dev/MarkdownTool";
 import { JsonToCsvTool } from "@/components/dev/JsonToCsvTool";
+import { PasswordTool } from "@/components/dev/PasswordTool";
+import { BaseConverterTool } from "@/components/dev/BaseConverterTool";
+import { JsonToTypesTool } from "@/components/dev/JsonToTypesTool";
 import dynamic from "next/dynamic";
 
 // Lazy: this tool pulls in SheetJS, which is large. Splitting it into its own
-// chunk keeps it off the other twelve tool pages, which never touch it.
+// chunk keeps it off the other tool pages, which never touch it.
 const ConvertDataTool = dynamic(() =>
   import("@/components/dev/ConvertDataTool").then((m) => m.ConvertDataTool),
+);
+// Lazy for the same reason: js-yaml and sql-formatter are only needed on their
+// own pages, so they load with the tool rather than in the shared bundle.
+const JsonYamlTool = dynamic(() =>
+  import("@/components/dev/JsonYamlTool").then((m) => m.JsonYamlTool),
+);
+const SqlFormatterTool = dynamic(() =>
+  import("@/components/dev/SqlFormatterTool").then((m) => m.SqlFormatterTool),
 );
 import { getTool, tools, type ToolSlug } from "@/data/tools";
 import { absoluteUrl } from "@/lib/site";
@@ -68,6 +79,11 @@ const WORKBENCHES: Record<ToolSlug, React.ComponentType> = {
   markdown: MarkdownTool,
   "json-to-csv": JsonToCsvTool,
   "convert-data": ConvertDataTool,
+  "json-yaml": JsonYamlTool,
+  "json-to-types": JsonToTypesTool,
+  "sql-formatter": SqlFormatterTool,
+  password: PasswordTool,
+  "base-converter": BaseConverterTool,
 };
 
 export default async function ToolPage({ params }: Params) {

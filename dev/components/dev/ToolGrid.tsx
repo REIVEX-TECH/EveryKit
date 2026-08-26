@@ -35,6 +35,11 @@ const TINTS: Record<string, string> = {
   markdown: BLUES[0],
   "json-to-csv": BLUES[2],
   "convert-data": BLUES[4],
+  "json-yaml": BLUES[3],
+  "json-to-types": BLUES[1],
+  "sql-formatter": BLUES[0],
+  password: BLUES[4],
+  "base-converter": BLUES[2],
 };
 
 const stroke = {
@@ -142,6 +147,38 @@ const GLYPHS: Record<string, ReactElement> = {
       <rect x="13.2" y="4.6" width="7.4" height="14.8" rx="1.4" {...stroke} />
       <path d="M9 9.4l2.4 2.6-2.4 2.6" {...stroke} />
       <path d="M15 9.4l-2.4 2.6 2.4 2.6" {...stroke} />
+    </>
+  ),
+  "json-yaml": (
+    <>
+      <path d="M8.5 4.5C6.6 4.5 6.6 8 6.6 9c0 1.6-0.9 3-2.2 3 1.3 0 2.2 1.4 2.2 3 0 1 0 4.5 1.9 4.5" {...stroke} />
+      <path d="M14 6l2.4 3 2.4-3M16.4 9v5" {...stroke} />
+    </>
+  ),
+  "json-to-types": (
+    <>
+      <path d="M4 8V6.4A1.4 1.4 0 0 1 5.4 5H8M4 16v1.6A1.4 1.4 0 0 0 5.4 19H8" {...stroke} />
+      <path d="M12.4 9.4h5M14.9 9.4V16" {...stroke} />
+    </>
+  ),
+  "sql-formatter": (
+    <>
+      <ellipse cx="12" cy="6" rx="6.6" ry="2.6" {...stroke} />
+      <path d="M5.4 6v6c0 1.4 3 2.6 6.6 2.6s6.6-1.2 6.6-2.6V6" {...stroke} />
+      <path d="M5.4 12v5c0 1.4 3 2.6 6.6 2.6s6.6-1.2 6.6-2.6v-5" {...stroke} />
+    </>
+  ),
+  password: (
+    <>
+      <rect x="4.4" y="10.4" width="15.2" height="9.2" rx="2" {...stroke} />
+      <path d="M8 10.4V8a4 4 0 0 1 8 0v2.4" {...stroke} />
+      <circle cx="12" cy="15" r="1.4" {...solid} />
+    </>
+  ),
+  "base-converter": (
+    <>
+      <path d="M6.5 4.6v14.8M6.5 4.6H9M6.5 19.4H9M6.5 12H8.6" {...stroke} />
+      <path d="M13.6 8.6a2.4 2.4 0 1 1 3.8 2c-1.4 1.2-3.8 2.4-3.8 4.4h4" {...stroke} />
     </>
   ),
 };
