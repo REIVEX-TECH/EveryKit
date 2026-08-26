@@ -1,6 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { CATEGORIES, tools } from "@/data/tools";
+import { CATEGORIES, tools, type Category } from "@/data/tools";
 
 /**
  * The tools as a launcher, grouped by category.
@@ -115,43 +118,79 @@ const GLYPHS: Record<string, ReactElement> = {
   ),
 };
 
+/** The chips: "All" first, then each category, mirroring the hub's row. */
+const FILTERS: Array<{ id: Category | "all"; label: string }> = [
+  { id: "all", label: "All" },
+  ...CATEGORIES,
+];
+
+/**
+ * The tools as a launcher, filtered by a row of category chips.
+ *
+ * The chip row matches the hub's exactly: a filled blue chip for the active
+ * filter, outlined chips for the rest, each a real button carrying
+ * `aria-pressed`. "All" is selected by default, so the server renders every
+ * tile and a crawler sees the whole catalogue; clicking a chip filters the grid
+ * client-side. Same tiles as before: one white glyph on one flat tint.
+ */
 export function ToolGrid() {
+  const [active, setActive] = useState<Category | "all">("all");
+  const visible = active === "all" ? tools : tools.filter((tool) => tool.category === active);
+  const countFor = (id: Category | "all") =>
+    id === "all" ? tools.length : tools.filter((tool) => tool.category === id).length;
+
   return (
-    <div className="flex flex-col gap-9">
-      {CATEGORIES.map((category) => {
-        const inCategory = tools.filter((tool) => tool.category === category.id);
-        if (inCategory.length === 0) return null;
-        return (
-          <section key={category.id}>
-            <h2 className="text-[13px] font-semibold uppercase tracking-wide text-text-light">
-              {category.label}
-            </h2>
-            <ul className="mt-4 grid grid-cols-4 gap-x-3 gap-y-6 sm:grid-cols-6">
-              {inCategory.map((tool) => (
-                <li key={tool.slug}>
-                  <Link
-                    href={`/${tool.slug}`}
-                    title={`${tool.title}, ${tool.blurb.toLowerCase()}`}
-                    className="group flex flex-col items-center no-underline"
-                  >
-                    <span
-                      style={{ backgroundColor: TINTS[tool.slug] }}
-                      className="flex h-14 w-14 items-center justify-center rounded-[23%] shadow-card transition-transform duration-150 group-hover:-translate-y-0.5 lg:h-16 lg:w-16"
-                    >
-                      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[55%] w-[55%]">
-                        {GLYPHS[tool.slug]}
-                      </svg>
-                    </span>
-                    <span className="mt-2 block w-full truncate text-center text-[12px] leading-tight text-foreground">
-                      {tool.title}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        );
-      })}
+    <div>
+      <div
+        role="group"
+        aria-label="Filter by category"
+        className="flex flex-wrap justify-center gap-2"
+      >
+        {FILTERS.map((filter) => {
+          const selected = active === filter.id;
+          const count = countFor(filter.id);
+          return (
+            <button
+              key={filter.id}
+              type="button"
+              aria-pressed={selected}
+              aria-label={`${filter.label}, ${count} ${count === 1 ? "tool" : "tools"}`}
+              onClick={() => setActive(filter.id)}
+              className={`rounded-full px-4 py-2 text-[14px] font-semibold transition-[background-color,border-color] duration-150 ${
+                selected
+                  ? "bg-primary-dark text-white"
+                  : "border border-line bg-background text-foreground hover:border-line-strong"
+              }`}
+            >
+              {filter.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <ul className="mt-8 grid grid-cols-4 gap-x-3 gap-y-6 sm:grid-cols-6">
+        {visible.map((tool) => (
+          <li key={tool.slug}>
+            <Link
+              href={`/${tool.slug}`}
+              title={`${tool.title}, ${tool.blurb.toLowerCase()}`}
+              className="group flex flex-col items-center no-underline"
+            >
+              <span
+                style={{ backgroundColor: TINTS[tool.slug] }}
+                className="flex h-14 w-14 items-center justify-center rounded-[23%] shadow-card transition-transform duration-150 group-hover:-translate-y-0.5 lg:h-16 lg:w-16"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[55%] w-[55%]">
+                  {GLYPHS[tool.slug]}
+                </svg>
+              </span>
+              <span className="mt-2 block w-full truncate text-center text-[12px] leading-tight text-foreground">
+                {tool.title}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
