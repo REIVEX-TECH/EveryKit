@@ -9,7 +9,18 @@ import { FinalGradeTool } from "@/components/study/FinalGradeTool";
 import { GpaTool } from "@/components/study/GpaTool";
 import { ReadingTimeTool } from "@/components/study/ReadingTimeTool";
 import { TimerTool } from "@/components/study/TimerTool";
+import { FlashcardsTool } from "@/components/study/FlashcardsTool";
+import { NoteCleanerTool } from "@/components/study/NoteCleanerTool";
+import { ScientificCalculatorTool } from "@/components/study/ScientificCalculatorTool";
+import { EssayLengthTool } from "@/components/study/EssayLengthTool";
+import dynamic from "next/dynamic";
 import { getTool, tools, type ToolSlug } from "@/data/tools";
+
+// Lazy: the timetable pulls in pdf-lib for its PDF export, which is large.
+// Splitting it keeps that weight off the other ten tools.
+const TimetableTool = dynamic(() =>
+  import("@/components/study/TimetableTool").then((m) => m.TimetableTool),
+);
 import { absoluteUrl } from "@/lib/site";
 
 type Params = { params: Promise<{ tool: string }> };
@@ -37,13 +48,18 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-const WORKBENCHES: Record<ToolSlug, () => React.ReactElement> = {
+const WORKBENCHES: Record<ToolSlug, React.ComponentType> = {
   gpa: GpaTool,
   "final-grade": FinalGradeTool,
   citation: CitationTool,
   "reading-time": ReadingTimeTool,
   timer: TimerTool,
   "exam-countdown": ExamCountdownTool,
+  flashcards: FlashcardsTool,
+  timetable: TimetableTool,
+  "note-cleaner": NoteCleanerTool,
+  "scientific-calculator": ScientificCalculatorTool,
+  "essay-length": EssayLengthTool,
 };
 
 export default async function ToolPage({ params }: Params) {

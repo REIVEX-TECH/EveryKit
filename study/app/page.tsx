@@ -7,7 +7,7 @@ import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: { absolute: `${SITE_NAME}, calculators and helpers for students` },
   description:
-    "GPA, what you need on the final, citations in APA 7 and MLA 9, reading time, and a pomodoro timer. Five student tools that run in your browser.",
+    "Student tools that run in your browser: GPA and final grade, a scientific calculator, citations, a note cleaner and essay length, flashcards, reading time, a pomodoro timer, a class timetable and an exam countdown. Nothing is uploaded.",
   alternates: { canonical: absoluteUrl("/") },
 };
 
@@ -18,7 +18,7 @@ const jsonLd = {
   url: SITE_URL,
   applicationCategory: "EducationalApplication",
   operatingSystem: "Any",
-  description: "Five browser-based tools for students. Nothing is stored.",
+  description: "Browser-based tools for students, grouped by grades, writing, revision and planning. Nothing is stored.",
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
 };
 
@@ -36,9 +36,9 @@ export default function Home() {
           <h1 className="mx-auto max-w-[340px] text-[32px] leading-[1.15] sm:max-w-[460px] sm:text-[40px]">
             Calculators and helpers for students
           </h1>
-          <p className="mx-auto mt-4 max-w-[52ch] text-[17px] text-text-light">
-            The five that come up every term. Each one runs in this page, so your grades and your
-            essay stay on your own device.
+          <p className="mx-auto mt-4 max-w-[54ch] text-[17px] text-text-light">
+            The tools that come up every term, grouped so they are quick to find. Each one runs in
+            this page, so your grades, notes and essays stay on your own device.
           </p>
         </div>
 
@@ -51,22 +51,7 @@ export default function Home() {
           No account, nothing stored, nothing uploaded.
         </p>
 
-        <section className="mt-16 max-w-[64ch]">
-          <h2 className="text-[22px]">What these do differently</h2>
-          <p className="mt-3 text-[16px] text-text-light">
-            The GPA calculator weights by credits, which is what a registrar does and what a plain
-            average of your grades does not. The final grade calculator says when a target is out
-            of reach instead of telling you to score 137 percent on the exam. The citation
-            generator keeps the italics when you copy, because italics are part of being correct.
-          </p>
-          <p className="mt-3 text-[16px] text-text-light">
-            The reading time estimate names the font, the size, the spacing and the margins it
-            assumes for a page count, rather than presenting a number as though those did not
-            decide it.
-          </p>
-        </section>
-
-        <section className="mt-12">
+        <section className="mt-16">
           <h2 className="text-[18px]">Every tool</h2>
           <ul className="mt-3 flex flex-col gap-1">
             {tools.map((tool) => (

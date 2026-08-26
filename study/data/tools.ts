@@ -9,9 +9,28 @@ export type ToolSlug =
   | "citation"
   | "reading-time"
   | "timer"
-  | "exam-countdown";
+  | "exam-countdown"
+  | "flashcards"
+  | "timetable"
+  | "note-cleaner"
+  | "scientific-calculator"
+  | "essay-length";
 
 export type Faq = { q: string; a: string };
+
+/**
+ * The shelf a tool sits on. The landing groups by these so eleven tools read as
+ * four short, labelled sets rather than one wall, which keeps the kit feeling
+ * simple. Each tool's own page stays one job with minimal controls.
+ */
+export type Category = "grades" | "writing" | "revision" | "planning";
+
+export const CATEGORIES: Array<{ id: Category; label: string }> = [
+  { id: "grades", label: "Grades and numbers" },
+  { id: "writing", label: "Writing" },
+  { id: "revision", label: "Revision" },
+  { id: "planning", label: "Planning your time" },
+];
 
 export type Tool = {
   slug: ToolSlug;
@@ -21,6 +40,7 @@ export type Tool = {
   description: string;
   intro: string[];
   faq: Faq[];
+  category: Category;
 };
 
 const PRIVACY: Faq = {
@@ -31,6 +51,7 @@ const PRIVACY: Faq = {
 export const tools: Tool[] = [
   {
     slug: "gpa",
+    category: "grades",
     title: "GPA calculator",
     blurb: "Weighted by credits, letters or percentages",
     seoTitle: "GPA calculator, weighted by credits, 4.0 scale or percentages",
@@ -62,6 +83,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "final-grade",
+    category: "grades",
     title: "Final grade calculator",
     blurb: "What you need on the final exam",
     seoTitle: "Final grade calculator, what you need on the exam, honest about 100",
@@ -89,6 +111,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "citation",
+    category: "writing",
     title: "Citation generator",
     blurb: "APA 7 and MLA 9, web, video, podcast, newspaper",
     seoTitle: "APA 7 and MLA 9 citation generator, web, video, podcast and newspaper",
@@ -124,6 +147,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "reading-time",
+    category: "revision",
     title: "Reading time calculator",
     blurb: "Reading, speaking and pages",
     seoTitle: "Reading time calculator, speaking time and page estimate",
@@ -155,6 +179,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "timer",
+    category: "planning",
     title: "Pomodoro timer",
     blurb: "25 and 5, editable, with a gentle chime",
     seoTitle: "Pomodoro timer, 25 and 5 by default, no account and nothing stored",
@@ -186,6 +211,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "exam-countdown",
+    category: "planning",
     title: "Exam countdown",
     blurb: "A shareable countdown, saved in the link",
     seoTitle: "Exam countdown timer, shareable by link, nothing stored",
@@ -212,6 +238,162 @@ export const tools: Tool[] = [
       {
         q: "Does the countdown keep running if I close the tab?",
         a: "It picks up wherever it should be whenever you open the link, because it is worked out from the date each time rather than counted in the background. There is nothing running while the tab is closed, and nothing to run.",
+      },
+    ],
+  },
+  {
+    slug: "flashcards",
+    category: "revision",
+    title: "Flashcards",
+    blurb: "Make a deck, study it, share it by link",
+    seoTitle: "Flashcards online, free, shareable by link with nothing stored",
+    description:
+      "Make a flashcard deck, study it one card at a time, and share the whole deck as a link. Runs in your browser, nothing is stored.",
+    intro: [
+      "Type your terms and definitions, then study: one card at a time, space to flip, arrow keys to move, and a button to mark each one known or still learning.",
+      "The whole deck is packed into the link, so sharing a deck is sending a URL. Nothing is saved on a server, and there is no account.",
+    ],
+    faq: [
+      PRIVACY,
+      {
+        q: "Where is my deck saved?",
+        a: "In the link. The terms and definitions are encoded into the URL, so copying the share link is how you keep a deck or send it to someone. There is no account and no stored list, which also means a very large deck makes a very long link." ,
+      },
+      {
+        q: "How do I study without the mouse?",
+        a: "Space flips the current card between term and definition, and the left and right arrow keys move between cards. The known and still-learning buttons are reachable by tab like any other control.",
+      },
+      {
+        q: "Does it track what I have learned over time?",
+        a: "Only within the current study session. It counts what you marked known this time through and forgets it when you leave, because remembering it would need somewhere to store it, and the only thing this site keeps is an email address.",
+      },
+      {
+        q: "Can I shuffle the deck?",
+        a: "Yes. Shuffle reorders the cards for this session and resets what you had marked, so a second pass is not always in the same order.",
+      },
+    ],
+  },
+  {
+    slug: "timetable",
+    category: "planning",
+    title: "Class timetable",
+    blurb: "Build a weekly grid, export PNG or PDF",
+    seoTitle: "Weekly class timetable maker, export as PNG or PDF, nothing stored",
+    description:
+      "Build a weekly class schedule, see it as a clean grid, and export it as a PNG or a PDF. It lives in the link and in your browser; nothing is uploaded.",
+    intro: [
+      "Add each class with its day, time, name, location and a colour, and the weekly grid fills in. Weekdays always show, and a weekend column appears only if you put a class on it.",
+      "Export the grid as a PNG for your phone or a PDF to print. The schedule is held in the link and in this page only, so nothing is uploaded and nothing is stored on a server.",
+    ],
+    faq: [
+      PRIVACY,
+      {
+        q: "Where is my timetable kept?",
+        a: "In the link and in the page. The classes are encoded into the URL, so copying the share link is how you keep it or send it. There is no account and nothing is stored on a server.",
+      },
+      {
+        q: "How does the export work?",
+        a: "The grid is drawn onto a canvas in your browser and saved straight to your device, as a PNG image or, using the same drawing embedded into a page, a PDF. Neither leaves your device to be made." ,
+      },
+      {
+        q: "Can I add weekend classes?",
+        a: "Yes. Pick Saturday or Sunday when you add a class and that column appears. It stays hidden while there is nothing on it, to keep the weekday grid uncluttered.",
+      },
+      {
+        q: "Why did my class not appear?",
+        a: "A class needs a name and an end time later than its start time. If either is missing the tool says so rather than adding an empty or backwards block.",
+      },
+    ],
+  },
+  {
+    slug: "note-cleaner",
+    category: "writing",
+    title: "Note cleaner",
+    blurb: "Pull the key sentences, tidy the text",
+    seoTitle: "Extract key points from notes, free, and it selects not rewrites",
+    description:
+      "Paste notes and get the most important sentences pulled out, plus a tidy-up: spacing fixed, duplicate lines dropped, bullets normalised. Runs in your browser.",
+    intro: [
+      "Paste lecture notes or an article and get the key sentences pulled out by sentence ranking, and a cleaned-up copy with the spacing and bullets tidied.",
+      "This selects sentences, it does not rewrite them, so the key points are your own words. It is honest extractive work, not an AI summary, and it says so on the results.",
+    ],
+    faq: [
+      PRIVACY,
+      {
+        q: "Is this an AI summary?",
+        a: "No, and the difference matters. It ranks the sentences by how central they are and shows you the top few, unchanged. Nothing is reworded or invented. A tool that rewrites text needs a language model and a server; this is arithmetic on the words you pasted.",
+      },
+      {
+        q: "How does it pick the key sentences?",
+        a: "With a small TextRank pass: sentences that share more words with the rest of the text score higher, the way an important idea is one the rest keeps referring back to. It is a rough guide to what is central, not a judgement of what matters to you.",
+      },
+      {
+        q: "What does the tidy-up change?",
+        a: "It collapses runs of spaces, removes a space left before a comma or full stop, drops lines that repeat, and turns assorted bullet characters into a plain dash. It does not touch your wording.",
+      },
+      {
+        q: "It missed the point I cared about. Why?",
+        a: "Because central is not the same as important to you. Sentence ranking finds what the passage keeps circling, which usually but not always includes the point you were after. Treat the key points as a starting shortlist, not the last word.",
+      },
+    ],
+  },
+  {
+    slug: "scientific-calculator",
+    category: "grades",
+    title: "Scientific calculator",
+    blurb: "Powers, roots, trig, logs, memory",
+    seoTitle: "Scientific calculator online, free, with trig, logs and memory",
+    description:
+      "A scientific calculator: arithmetic, powers, roots, trig, logs, parentheses and memory, with keyboard input. Runs in your browser.",
+    intro: [
+      "Type an expression or use the pad. It handles the usual arithmetic plus powers, roots, trig, logs, factorials, parentheses and memory, and Enter works out the answer.",
+      "Trig follows the degree or radian mode you pick. Everything is worked out in the page, with no server and nothing stored.",
+    ],
+    faq: [
+      PRIVACY,
+      {
+        q: "Degrees or radians?",
+        a: "Your choice, with a toggle above the pad. It starts in degrees, because that is what most homework uses, and switches to radians when you need them. The mode applies to sin, cos, tan and their inverses.",
+      },
+      {
+        q: "Can I type instead of pressing buttons?",
+        a: "Yes. The screen is an ordinary text field, so you can type the whole expression, including function names like sin and sqrt, and press Enter. The buttons just save typing.",
+      },
+      {
+        q: "What does the memory do?",
+        a: "M plus adds the current value to memory, M minus subtracts it, MR puts the stored number into the expression, and MC clears it. It is the standard calculator memory, held only while the page is open.",
+      },
+      {
+        q: "Is it safe to paste a long expression?",
+        a: "Yes. The expression is parsed by a small maths evaluator, not run as code, so there is no way for what you type to do anything other than arithmetic.",
+      },
+    ],
+  },
+  {
+    slug: "essay-length",
+    category: "writing",
+    title: "Essay length",
+    blurb: "Words, pages, reading and speaking time",
+    seoTitle: "Essay word count and page estimate, free, with reading time",
+    description:
+      "Paste an essay to see word count, character count, estimated pages at common formats, reading time and speaking time. Runs in your browser.",
+    intro: [
+      "Paste your writing and see the counts update live: words, characters, sentences, and how many pages it fills at the common submission formats.",
+      "It also estimates reading and speaking time, so you know how a piece will sit in a talk as well as on the page. Nothing is uploaded.",
+    ],
+    faq: [
+      PRIVACY,
+      {
+        q: "How can it know my page count?",
+        a: "It estimates from words, at 12 point with one inch margins, double-spaced, one and a half, and single. Change the font, the size, the spacing or the margins and the real count changes, which is why the format is named next to each number rather than presented as a fact.",
+      },
+      {
+        q: "Which word count is right, this or my word processor's?",
+        a: "They will usually agree within a handful. This counts runs of characters separated by spaces, which is what most processors do, but they differ on things like hyphenated words and numbers, so treat a rubric's limit with a little slack either way.",
+      },
+      {
+        q: "Where do the reading and speaking times come from?",
+        a: "Reading at about 200 words a minute and speaking at about 130, which are comfortable averages. Your own pace will differ, so use them to plan a talk rather than to time it to the second.",
       },
     ],
   },
