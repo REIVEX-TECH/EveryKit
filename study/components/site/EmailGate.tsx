@@ -17,10 +17,9 @@ type Props = {
   /**
    * Runs when the dialog is cancelled. The action does not happen.
    *
-   * Cancel is the abandon path, and the only one: the X, the Escape key and a
-   * backdrop click all land here, dropping what the user was about to do exactly
-   * as if they had never pressed the button. It is distinct from Skip, which
-   * runs the action without an address and calls `onDone`.
+   * A cancel, not a skip: the X, the Escape key and a backdrop click all land
+   * here, dropping what the user was about to do exactly as if they had never
+   * pressed the button. There is no route to the file without an address.
    */
   onCancel: () => void;
   /** What the user was about to do, so the button says something concrete. */
@@ -43,12 +42,11 @@ type Props = {
  * the browser closes the dialog itself, and `settled` keeps the two paths from
  * both firing.
  *
- * The ask is dismissible. A quiet "Skip for now" under the button runs the
- * action with no address and marks the session, so a skip and a submit both
- * mean the gate is not seen again this session. Only Cancel, the X, Escape and
- * a backdrop click abandon. Both real choices, submit and skip, are counted
- * once through the aggregate hit so the trade is measurable, carrying a kit and
- * a path and nothing about the person.
+ * The gate is mandatory. A validly formatted address, submitted, is the only
+ * route to the file: submit sends it, marks the session and runs the action,
+ * and a submit is counted once through the aggregate hit so the trade is
+ * measurable, carrying a kit and a path and nothing about the person. Cancel,
+ * the X, Escape and a backdrop click abandon, and there is no other way past.
  *
  * The one thing that must never be removed: if the request to the hub fails or
  * times out, the action still runs. That lives in `submitEmail`, which resolves
@@ -111,23 +109,21 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
   }, []);
 
   /**
-   * Take the file, by whichever route the user chose. Submit sends the address
-   * first; skip sends nothing. Both mark the session, count their choice through
-   * the aggregate hit, and run the action. Cancel never arrives here: it goes
-   * through `dismiss`, which abandons.
+   * Submit the address and take the file. The only path that completes an
+   * action: it sends the address, marks the session, counts the one event, and
+   * runs what the person asked for. Cancel goes through `dismiss` instead, which
+   * abandons.
    */
-  async function resolve(choice: "submit" | "skip") {
-    if (settled.current || busy) return;
-    const outcome = gateOutcome(choice);
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    if (settled.current || !valid || busy) return;
+    const outcome = gateOutcome("submit");
 
-    if (outcome.sendEmail) {
-      if (!valid) return;
-      setBusy(true);
-      // Whatever comes back, the action proceeds. A failed request must not cost
-      // the user their file or show them an error that is not their problem.
-      await submitEmail(email, honeypot);
-      setBusy(false);
-    }
+    setBusy(true);
+    // Whatever comes back, the action proceeds. A failed request must not cost
+    // the user their file or show them an error that is not their problem.
+    await submitEmail(email, honeypot);
+    setBusy(false);
 
     if (outcome.remember) rememberEmailGiven();
     if (outcome.countPath) countPageview(outcome.countPath);
@@ -135,11 +131,6 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
     settled.current = true;
     dialogRef.current?.close();
     if (outcome.runAction) onDone();
-  }
-
-  function onSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    void resolve("submit");
   }
 
   return (
@@ -161,7 +152,7 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
       }}
       className="ek-dialog"
     >
-      <form onSubmit={onSubmit} className="p-5">
+      <form onSubmit={submit} className="p-5">
         <div className="flex items-start justify-between gap-4">
           <h2 id={titleId} className="text-[18px] font-semibold text-foreground">
             Your email
@@ -177,8 +168,8 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
         </div>
 
         <p className="mt-2 text-[14px] text-text-light">
-          Get one email when a new kit launches. Nothing else, and we do not pass
-          it on.
+          An email address is needed to continue. One email when a kit launches,
+          nothing else, and we do not pass it on.
         </p>
 
         <label htmlFor={fieldId} className="mt-4 block text-[14px] font-semibold text-foreground">
@@ -226,19 +217,6 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
             disabled={!valid || busy}
           >
             {busy ? "One moment" : actionLabel}
-          </button>
-        </div>
-
-        {/* A real way past, not a trick. Body size, plain link, keyboard
-            reachable, and it runs the action rather than abandoning it. */}
-        <div className="mt-3 text-center">
-          <button
-            type="button"
-            onClick={() => void resolve("skip")}
-            disabled={busy}
-            className="rounded text-[14px] text-text-light underline underline-offset-2 hover:text-foreground"
-          >
-            Skip for now
           </button>
         </div>
       </form>

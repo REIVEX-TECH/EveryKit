@@ -1,17 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  GATE_EVENT_PATHS,
+  GATE_SUBMIT_EVENT,
   gateOutcome,
   hasGivenEmail,
   rememberEmailGiven,
 } from "./emailCapture";
 
 /**
- * The gate is dismissible, and these pin what each way out of it does. The
- * dialog reads `gateOutcome` rather than deciding inline, so asserting the
- * outcomes here is asserting the behaviour the person sees: a skip that hands
- * over the file with no address, a submit that is unchanged, and a session flag
- * that stops the ask returning whichever of the two was taken.
+ * The gate is mandatory. The dialog reads `gateOutcome` rather than deciding
+ * inline, so asserting the outcomes here is asserting the behaviour the person
+ * sees: a submit that hands over the file and marks the session, a cancel that
+ * abandons with no address and no flag, and no third way past.
  */
 
 /** A minimal sessionStorage, so the flag can be exercised without a browser. */
@@ -39,27 +38,16 @@ afterEach(() => {
 });
 
 describe("gateOutcome", () => {
-  it("submit sends the address, marks the session, and runs the action", () => {
+  it("submit sends the address, marks the session, counts one event, and runs the action", () => {
     expect(gateOutcome("submit")).toEqual({
       sendEmail: true,
       remember: true,
       runAction: true,
-      countPath: GATE_EVENT_PATHS.submit,
+      countPath: GATE_SUBMIT_EVENT,
     });
   });
 
-  it("skip runs the action and marks the session, but sends no address", () => {
-    const outcome = gateOutcome("skip");
-    // The download or copy still happens: skip is a real way to the file.
-    expect(outcome.runAction).toBe(true);
-    // And no address leaves the device on that path.
-    expect(outcome.sendEmail).toBe(false);
-    // The session is marked, so the gate does not return this session.
-    expect(outcome.remember).toBe(true);
-    expect(outcome.countPath).toBe(GATE_EVENT_PATHS.skip);
-  });
-
-  it("cancel is the only path that abandons: nothing runs, nothing is marked", () => {
+  it("cancel abandons: no address, no session flag, no event, no action", () => {
     expect(gateOutcome("cancel")).toEqual({
       sendEmail: false,
       remember: false,
@@ -68,32 +56,42 @@ describe("gateOutcome", () => {
     });
   });
 
-  it("counts submit and skip under distinct paths a hit can accept, with no personal data", () => {
-    expect(GATE_EVENT_PATHS.submit).not.toBe(GATE_EVENT_PATHS.skip);
-    for (const path of Object.values(GATE_EVENT_PATHS)) {
-      // Same shape /api/hit demands of any path: absolute, short, no controls.
-      expect(path.startsWith("/")).toBe(true);
-      expect(path.length).toBeLessThanOrEqual(128);
-      expect(NOT_IN_A_PATH.test(path)).toBe(false);
-    }
+  it("has no skip path: submit is the only choice that completes an action", () => {
+    // @ts-expect-error "skip" is not a GateChoice; the path no longer exists.
+    expect(gateOutcome("skip")).toBeUndefined();
+    // The only completing choice is a submit, and it is the only counted event.
+    expect(gateOutcome("submit").runAction).toBe(true);
+    expect(gateOutcome("cancel").runAction).toBe(false);
+    expect(gateOutcome("cancel").countPath).toBeNull();
+  });
+
+  it("counts the submit under a path a hit can accept, with no personal data", () => {
+    expect(GATE_SUBMIT_EVENT).toBe("/_event/email-submit");
+    expect(GATE_SUBMIT_EVENT.startsWith("/")).toBe(true);
+    expect(GATE_SUBMIT_EVENT.length).toBeLessThanOrEqual(128);
+    expect(NOT_IN_A_PATH.test(GATE_SUBMIT_EVENT)).toBe(false);
+    // Nothing anywhere counts a skip.
+    expect(GATE_SUBMIT_EVENT).not.toContain("skip");
   });
 });
 
 describe("the once-per-session flag", () => {
-  it("is unset until a choice remembers it", () => {
+  it("is unset until a submit remembers it", () => {
     stubSession();
     expect(hasGivenEmail()).toBe(false);
   });
 
-  it("prevents re-asking after either a submit or a skip", () => {
-    // Both real choices set `remember`, and remembering flips the flag the guard
-    // reads to run the next action straight through, with no second dialog.
-    for (const choice of ["submit", "skip"] as const) {
-      stubSession();
-      expect(gateOutcome(choice).remember).toBe(true);
-      rememberEmailGiven();
-      expect(hasGivenEmail()).toBe(true);
-      vi.unstubAllGlobals();
-    }
+  it("is set by a submit, so the gate does not ask again this session", () => {
+    stubSession();
+    expect(gateOutcome("submit").remember).toBe(true);
+    rememberEmailGiven();
+    expect(hasGivenEmail()).toBe(true);
+  });
+
+  it("is not set by a cancel: the ask returns on the next action", () => {
+    stubSession();
+    // A cancel does not remember, so the flag stays unset and the gate reopens.
+    expect(gateOutcome("cancel").remember).toBe(false);
+    expect(hasGivenEmail()).toBe(false);
   });
 });
