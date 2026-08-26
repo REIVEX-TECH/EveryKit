@@ -122,6 +122,33 @@ export const specs: PhotoSpec[] = [
     ],
   },
   {
+    slug: "uk-visa",
+    country: "United Kingdom",
+    countryCode: "GB",
+    document: "Visa",
+    widthMm: 35,
+    heightMm: 45,
+    // 600 DPI to match the UK passport entry: the UK photo standard is shared
+    // between passport and visa, and a 35 x 45 mm photo at 300 DPI would fall
+    // short of the digital minimum.
+    dpi: 600,
+    pixelWidth: 827,
+    pixelHeight: 1063,
+    // Verified: GOV.UK states a visa photograph must meet the same standard as a
+    // UK passport photo, which publishes a 29 to 34 mm chin-to-crown range.
+    headMinMm: 29,
+    headMaxMm: 34,
+    eyeLineFromBottomMm: null,
+    background: "light-grey",
+    notes: [
+      "35 x 45 mm printed, the same size and rules as a UK passport photo.",
+      "GOV.UK asks visa photos to meet the passport photo standard, so the head from chin to crown must be 29 to 34 mm.",
+      "Plain cream or light grey background, evenly lit, with no shadow and no pattern.",
+      "No glasses, a neutral expression and the mouth closed.",
+      "Many UK visa routes now take your photo in the app instead. This size is for a printed photo where one is asked for.",
+    ],
+  },
+  {
     slug: "schengen-visa",
     country: "Schengen area",
     countryCode: "EU",
