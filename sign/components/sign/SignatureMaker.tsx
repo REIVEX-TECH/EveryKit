@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Download } from "lucide-react";
 import { EmailGate } from "@/components/site/EmailGate";
 import { hasGivenEmail } from "@/lib/emailCapture";
@@ -204,14 +204,16 @@ function TypedPad({
               onClick={() => onFont(option)}
               aria-pressed={font.id === option.id}
               className={[
-                "flex min-h-[56px] items-center rounded-[12px] border px-4 py-2 text-left transition-colors",
+                "flex min-h-[56px] items-center overflow-hidden rounded-[12px] border px-4 py-2 text-left transition-colors",
                 font.id === option.id
                   ? "border-primary-dark bg-primary/5"
                   : "border-line hover:border-line-strong",
               ].join(" ")}
               style={{ fontFamily: `var(${option.cssVariable})`, fontSize: 24 }}
             >
-              {name.trim() === "" ? option.label : name}
+              <span className="min-w-0 truncate">
+                {name.trim() === "" ? option.label : name}
+              </span>
             </button>
           ))}
         </div>
@@ -245,22 +247,93 @@ function TypedPad({
         </div>
       </fieldset>
 
-      <div className="ek-card flex min-h-[120px] items-center justify-center p-4">
-        {name.trim() === "" ? (
+      {name.trim() === "" ? (
+        <div className="ek-card flex min-h-[120px] items-center justify-center p-4">
           <p className="text-[14px] text-text-light">Your signature appears here as you type.</p>
-        ) : (
-          <p
-            style={{
-              fontFamily: `var(${font.cssVariable})`,
-              fontSize: 56,
-              color: inkHex(ink),
-              lineHeight: 1.4,
-            }}
-          >
-            {name}
-          </p>
-        )}
-      </div>
+        </div>
+      ) : (
+        <FitSignature text={name} fontVariable={font.cssVariable} color={inkHex(ink)} />
+      )}
+    </div>
+  );
+}
+
+/**
+ * The on-screen signature preview, scaled so it always sits inside its box.
+ *
+ * The name is laid out once at a comfortable base size and then shrunk with a
+ * transform to fit the box's width, with its padding respected, however long the
+ * name is. Only the preview is scaled: the exported PNG and SVG are drawn
+ * separately at their own true proportions. The box clips, so even the single
+ * frame before the measurement runs can never spill onto the page, and it
+ * re-measures on resize and once the handwriting font has loaded, since the text
+ * width depends on the face.
+ */
+function FitSignature({
+  text,
+  fontVariable,
+  color,
+}: {
+  text: string;
+  fontVariable: string;
+  color: string;
+}) {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const box = boxRef.current;
+    const el = textRef.current;
+    if (!box || !el) return;
+
+    const measure = () => {
+      const style = window.getComputedStyle(box);
+      const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+      const available = box.clientWidth - padX;
+      // scrollWidth is the unscaled layout width: the transform never changes it,
+      // so this is the natural width at the base size whatever the current scale.
+      const natural = el.scrollWidth;
+      if (natural > 0 && available > 0) setScale(Math.min(1, available / natural));
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(box);
+
+    let active = true;
+    if (typeof document !== "undefined" && document.fonts?.ready) {
+      void document.fonts.ready.then(() => {
+        if (active) measure();
+      });
+    }
+
+    return () => {
+      active = false;
+      observer.disconnect();
+    };
+  }, [text, fontVariable]);
+
+  return (
+    <div
+      ref={boxRef}
+      className="ek-card flex min-h-[120px] items-center justify-center overflow-hidden p-4"
+    >
+      <span
+        ref={textRef}
+        style={{
+          fontFamily: `var(${fontVariable})`,
+          fontSize: 56,
+          color,
+          lineHeight: 1.4,
+          whiteSpace: "nowrap",
+          display: "inline-block",
+          transform: `scale(${scale})`,
+          transformOrigin: "center",
+        }}
+      >
+        {text}
+      </span>
     </div>
   );
 }
