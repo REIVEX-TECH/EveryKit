@@ -7,7 +7,7 @@ import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: { absolute: `${SITE_NAME}, everyday calculators that just answer` },
   description:
-    "Age, the days between two dates, unit conversion, loan instalments and percentages. Five everyday calculators that run in your browser.",
+    "Age, the days between two dates, unit conversion, loan instalments, percentages, discounts, VAT and trip fuel cost. Everyday calculators that run in your browser.",
   alternates: { canonical: absoluteUrl("/") },
 };
 
@@ -18,7 +18,7 @@ const jsonLd = {
   url: SITE_URL,
   applicationCategory: "UtilitiesApplication",
   operatingSystem: "Any",
-  description: "Five browser-based everyday calculators. Nothing is stored.",
+  description: "Browser-based everyday calculators, grouped by dates, everyday maths and money. Nothing is stored.",
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
 };
 

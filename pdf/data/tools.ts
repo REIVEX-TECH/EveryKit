@@ -22,6 +22,20 @@ export type ToolSlug = PdfToolSlug | "scan" | "ocr";
 
 export type Faq = { q: string; a: string };
 
+/**
+ * The shelf a tool sits on. The landing groups by these so twelve tools read as
+ * four short, labelled sets rather than one grid, which is easier to scan. The
+ * order here is the order the sections appear.
+ */
+export type Category = "read" | "pages" | "convert" | "finish";
+
+export const CATEGORIES: Array<{ id: Category; label: string }> = [
+  { id: "read", label: "Scan and read" },
+  { id: "pages", label: "Combine and split" },
+  { id: "convert", label: "Convert" },
+  { id: "finish", label: "Edit and shrink" },
+];
+
 export type Tool = {
   slug: ToolSlug;
   title: string;
@@ -36,6 +50,7 @@ export type Tool = {
   /** Accepts more than one file. */
   multiple: boolean;
   accept: string;
+  category: Category;
   /**
    * Which component renders the tool. Absent means the shared PDF Workbench;
    * scan and ocr have their own, because neither takes a PDF and hands back
@@ -56,6 +71,7 @@ const UPLOAD_ANSWER: Faq = {
 export const tools: Tool[] = [
   {
     slug: "scan",
+    category: "read",
     title: "Scan with your phone",
     blurb: "Photos of pages into a straightened PDF",
     seoTitle: "Scan documents with your phone camera, free, and never uploaded",
@@ -78,6 +94,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "ocr",
+    category: "read",
     title: "Get the text out (OCR)",
     blurb: "Copyable text from an image or a PDF page",
     seoTitle: "Image and PDF to text with OCR, free, and never uploaded",
@@ -100,6 +117,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "merge",
+    category: "pages",
     title: "Merge PDFs",
     blurb: "Combine files into one, in the order you choose",
     seoTitle: "Merge PDF files online, free, and never uploaded",
@@ -121,6 +139,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "split",
+    category: "pages",
     title: "Split a PDF",
     blurb: "Cut one file into several, by page ranges",
     seoTitle: "Split a PDF by page range, free, and never uploaded",
@@ -142,6 +161,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "extract",
+    category: "pages",
     title: "Extract pages",
     blurb: "Pick the pages you want into a new PDF",
     seoTitle: "Extract pages from a PDF, free, and never uploaded",
@@ -162,6 +182,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "organize",
+    category: "pages",
     title: "Organise pages",
     blurb: "Reorder and rotate the pages of one file",
     seoTitle: "Reorder and rotate PDF pages, free, and never uploaded",
@@ -182,6 +203,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "delete-pages",
+    category: "pages",
     title: "Delete pages",
     blurb: "Remove the pages you do not want and keep the rest",
     seoTitle: "Delete pages from a PDF, free, and never uploaded",
@@ -204,6 +226,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "page-numbers",
+    category: "finish",
     title: "Add page numbers",
     blurb: "Stamp numbers onto the pages, in the corner you choose",
     seoTitle: "Add page numbers to a PDF, free, and never uploaded",
@@ -226,6 +249,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "watermark",
+    category: "finish",
     title: "Watermark a PDF",
     blurb: "Draw text across every page, at the angle you choose",
     seoTitle: "Add a watermark to a PDF, free, and never uploaded",
@@ -248,6 +272,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "pdf-to-images",
+    category: "convert",
     title: "PDF to images",
     blurb: "Turn every page into a JPG or PNG, in one zip",
     seoTitle: "PDF to JPG and PNG online, free, and never uploaded",
@@ -270,6 +295,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "images-to-pdf",
+    category: "convert",
     title: "Images to PDF",
     blurb: "Turn photos into one PDF, in your order",
     seoTitle: "Convert JPG and PNG images to PDF, free, and never uploaded",
@@ -290,6 +316,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "compress",
+    category: "finish",
     title: "Compress a PDF",
     blurb: "Make a file smaller by re-encoding its images",
     seoTitle: "Compress a PDF, free, and never uploaded",

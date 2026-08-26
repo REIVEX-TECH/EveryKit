@@ -21,6 +21,20 @@ export type ToolSlug =
 
 export type Faq = { q: string; a: string };
 
+/**
+ * The shelf a tool sits on. The landing groups by these so fourteen tools read
+ * as four short, labelled sets rather than one grid, which is easier to scan.
+ * The order here is the order the sections appear.
+ */
+export type Category = "data" | "encode" | "text" | "time";
+
+export const CATEGORIES: Array<{ id: Category; label: string }> = [
+  { id: "data", label: "Data and formats" },
+  { id: "encode", label: "Encode and decode" },
+  { id: "text", label: "Text" },
+  { id: "time", label: "Time and IDs" },
+];
+
 export type Tool = {
   slug: ToolSlug;
   title: string;
@@ -30,6 +44,7 @@ export type Tool = {
   description: string;
   intro: string[];
   faq: Faq[];
+  category: Category;
 };
 
 /** The answer every one of these pages needs first. */
@@ -41,6 +56,7 @@ const PRIVACY: Faq = {
 export const tools: Tool[] = [
   {
     slug: "json",
+    category: "data",
     title: "JSON formatter",
     blurb: "Format, minify and validate",
     seoTitle: "JSON formatter and validator, with the error line and column",
@@ -72,6 +88,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "base64",
+    category: "encode",
     title: "Base64 encoder",
     blurb: "Encode and decode, text or file",
     seoTitle: "Base64 encode and decode, UTF-8 correct, files too",
@@ -103,6 +120,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "url",
+    category: "encode",
     title: "URL encoder",
     blurb: "Encode and decode, two rules",
     seoTitle: "URL encoder and decoder, component or whole URL",
@@ -130,6 +148,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "uuid",
+    category: "time",
     title: "UUID generator",
     blurb: "Version 4, one to a hundred",
     seoTitle: "UUID v4 generator, up to 100 at once, cryptographically random",
@@ -157,6 +176,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "hash",
+    category: "encode",
     title: "Hash generator",
     blurb: "SHA-256, SHA-1 and MD5 at once",
     seoTitle: "SHA-256, SHA-1 and MD5 hash generator, text or file",
@@ -184,6 +204,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "jwt",
+    category: "encode",
     title: "JWT decoder",
     blurb: "Header, payload and expiry",
     seoTitle: "JWT decoder, header and payload, nothing sent anywhere",
@@ -215,6 +236,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "regex",
+    category: "text",
     title: "Regex tester",
     blurb: "Live matches, groups and flags",
     seoTitle: "JavaScript regex tester with named groups and a runaway guard",
@@ -246,6 +268,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "diff",
+    category: "text",
     title: "Text diff",
     blurb: "Compare two blocks, by line or word",
     seoTitle: "Text diff tool, line and word modes, nothing uploaded",
@@ -273,6 +296,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "timestamp",
+    category: "time",
     title: "Timestamp converter",
     blurb: "Unix time to a date, and back",
     seoTitle: "Unix timestamp converter, seconds and milliseconds, local and UTC",
@@ -300,6 +324,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "cron",
+    category: "time",
     title: "Cron explainer",
     blurb: "A schedule, in plain English",
     seoTitle: "Cron expression explainer, in plain English, with the next run times",
@@ -331,6 +356,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "color",
+    category: "data",
     title: "Colour converter",
     blurb: "Hex, RGB, HSL, and a contrast check",
     seoTitle: "Colour converter and WCAG contrast checker, free",
@@ -350,6 +376,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "markdown",
+    category: "text",
     title: "Markdown preview",
     blurb: "Live preview, and copy the HTML",
     seoTitle: "Markdown preview and to-HTML converter, free",
@@ -369,6 +396,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "json-to-csv",
+    category: "data",
     title: "JSON to CSV",
     blurb: "An array of objects into a spreadsheet",
     seoTitle: "JSON to CSV converter online, free",
@@ -388,6 +416,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "convert-data",
+    category: "data",
     title: "Data file converter",
     blurb: "CSV, JSON and Excel, in any direction",
     seoTitle: "Convert CSV, JSON and XLSX online, free",

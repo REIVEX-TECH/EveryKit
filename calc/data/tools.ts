@@ -16,6 +16,19 @@ export type ToolSlug =
 
 export type Faq = { q: string; a: string };
 
+/**
+ * The shelf a calculator sits on. The landing groups by these so the tools read
+ * as a few short, labelled sets rather than one grid, which is easier to scan.
+ * The order here is the order the sections appear.
+ */
+export type Category = "dates" | "everyday" | "money";
+
+export const CATEGORIES: Array<{ id: Category; label: string }> = [
+  { id: "dates", label: "Dates" },
+  { id: "everyday", label: "Everyday maths" },
+  { id: "money", label: "Money" },
+];
+
 export type Tool = {
   slug: ToolSlug;
   title: string;
@@ -24,6 +37,7 @@ export type Tool = {
   description: string;
   intro: string[];
   faq: Faq[];
+  category: Category;
 };
 
 const PRIVACY: Faq = {
@@ -34,6 +48,7 @@ const PRIVACY: Faq = {
 export const tools: Tool[] = [
   {
     slug: "age",
+    category: "dates",
     title: "Age calculator",
     blurb: "Years, months and days, exactly",
     seoTitle: "Age calculator, exact years months and days, with the next birthday",
@@ -61,6 +76,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "date-difference",
+    category: "dates",
     title: "Date difference",
     blurb: "Days, weeks and months between two dates",
     seoTitle: "Date difference calculator, days weeks and months, with an end date switch",
@@ -88,6 +104,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "units",
+    category: "everyday",
     title: "Unit converter",
     blurb: "Length, weight, temperature and area",
     seoTitle: "Unit converter, length weight temperature and area, exact factors",
@@ -115,6 +132,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "emi",
+    category: "money",
     title: "Loan calculator",
     blurb: "Monthly payment, interest and schedule",
     seoTitle: "Loan and EMI calculator, monthly payment with a full schedule",
@@ -146,6 +164,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "percentage",
+    category: "everyday",
     title: "Percentage calculator",
     blurb: "The three questions people actually ask",
     seoTitle: "Percentage calculator, percent of, what percent, and percent change",
@@ -173,6 +192,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "discount",
+    category: "money",
     title: "Discount",
     blurb: "A price, a percent off, the amount saved",
     seoTitle: "Discount calculator with stacked discounts, free",
@@ -192,6 +212,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "vat",
+    category: "money",
     title: "VAT and GST",
     blurb: "Add tax, or take it out of a total",
     seoTitle: "VAT and GST calculator, add or extract tax, free",
@@ -211,6 +232,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "trip-cost",
+    category: "money",
     title: "Trip fuel cost",
     blurb: "Distance, fuel use and price, split per person",
     seoTitle: "Trip fuel cost calculator, metric and imperial, free",

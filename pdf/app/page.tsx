@@ -66,7 +66,7 @@ export default function Home() {
         </section>
 
         <section className="mt-12">
-          <h2 className="text-[18px]">All six tools</h2>
+          <h2 className="text-[18px]">Every tool</h2>
           <ul className="mt-3 grid gap-1 sm:grid-cols-2">
             {tools.map((tool) => (
               <li key={tool.slug}>

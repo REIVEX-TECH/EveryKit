@@ -6,9 +6,9 @@ import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   // Absolute, so the layout template does not append the site name twice.
-  title: { absolute: `${SITE_NAME}, ten small developer tools that run in your browser` },
+  title: { absolute: `${SITE_NAME}, small developer tools that run in your browser` },
   description:
-    "JSON, base64, URL encoding, UUIDs, hashes, JWT, regex, diff, timestamps and cron. Ten developer tools that run entirely in your browser. Nothing is uploaded.",
+    "JSON, CSV and XLSX, base64, URL encoding, JWT, hashes, UUIDs, regex, diff, markdown, colour, timestamps and cron. Small developer tools that run entirely in your browser. Nothing is uploaded.",
   alternates: { canonical: absoluteUrl("/") },
 };
 
@@ -19,7 +19,7 @@ const jsonLd = {
   url: SITE_URL,
   applicationCategory: "DeveloperApplication",
   operatingSystem: "Any",
-  description: "Ten browser-based developer tools. Nothing is uploaded.",
+  description: "Browser-based developer tools, grouped by data, encoding, text and time. Nothing is uploaded.",
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
 };
 
@@ -35,7 +35,7 @@ export default function Home() {
       <div className="ek-shell py-10 sm:py-14">
         <div className="text-center">
           <h1 className="mx-auto max-w-[340px] text-[32px] leading-[1.15] sm:max-w-[460px] sm:text-[40px]">
-            Ten small developer tools
+            Small developer tools
           </h1>
           <p className="mx-auto mt-4 max-w-[52ch] text-[17px] text-text-light">
             The ones you reach for between other jobs. Every one of them runs in this page, so
