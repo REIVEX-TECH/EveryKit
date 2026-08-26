@@ -14,7 +14,10 @@ export type ToolSlug =
   | "timetable"
   | "note-cleaner"
   | "scientific-calculator"
-  | "essay-length";
+  | "essay-length"
+  | "molar-mass"
+  | "periodic-table"
+  | "roman-numerals";
 
 export type Faq = { q: string; a: string };
 
@@ -395,6 +398,63 @@ export const tools: Tool[] = [
         q: "Where do the reading and speaking times come from?",
         a: "Reading at about 200 words a minute and speaking at about 130, which are comfortable averages. Your own pace will differ, so use them to plan a talk rather than to time it to the second.",
       },
+    ],
+  },
+  {
+    slug: "molar-mass",
+    category: "grades",
+    title: "Molar mass calculator",
+    blurb: "A chemical formula to its molar mass, with the breakdown",
+    seoTitle: "Molar mass calculator online, with per-element breakdown, free",
+    description:
+      "Type a chemical formula, including brackets and hydrates, and get its molar mass in grams per mole with a per-element breakdown. Runs in your browser.",
+    intro: [
+      "Type a formula, brackets and hydrate dots included, like Ca(OH)2 or CuSO4·5H2O, and the molar mass appears in grams per mole, with each element's contribution and its share of the total.",
+      "The atomic weights are the standard IUPAC values, held in the page, so nothing you type is sent anywhere.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Does it understand brackets and hydrates?", a: "Yes. Nested brackets like (NH4)2SO4 and hydrates written with a dot like CuSO4·5H2O or CuSO4.5H2O both work, with the coefficient after the dot applied to the water. It sums every element across the whole formula." },
+      { q: "Why does case matter?", a: "Because a symbol is one capital letter and up to one small one. Co is cobalt; CO is carbon then oxygen. Getting the case wrong is a common way to a confidently wrong answer, so the tool reads symbols exactly and flags anything that is not a real element." },
+      { q: "How accurate are the masses?", a: "They are the IUPAC standard atomic weights to four significant figures, which is plenty for school and undergraduate work. A few elements have no stable isotope, so their mass is the best-known isotope's mass number, and the tool says so when one appears in your formula." },
+    ],
+  },
+  {
+    slug: "periodic-table",
+    category: "revision",
+    title: "Periodic table",
+    blurb: "Every element, searchable, with its details",
+    seoTitle: "Interactive periodic table online, searchable, free",
+    description:
+      "A searchable periodic table: find any element by name, symbol or number and see its atomic number, symbol, mass, category, group and period. Runs in your browser.",
+    intro: [
+      "Search by name, symbol or atomic number, or pick any element from the table, and its details appear: the atomic number, symbol, standard atomic weight, category, group and period.",
+      "The whole table is held in the page from standard data, so it works offline once loaded and sends nothing anywhere.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Where does the data come from?", a: "The standard IUPAC atomic weights, vendored into the page rather than fetched, so the table loads instantly and works with no connection. The masses are to four significant figures." },
+      { q: "How do I find an element quickly?", a: "Type its name, its symbol or its atomic number in the search box and the matches stay bright while the rest dim. Then click it, or any element in the grid, to read its details." },
+      { q: "What do the colours mean?", a: "Each colour is a category: alkali metal, noble gas, halogen and so on, listed in the key under the table. They group elements that behave alike, which is much of what the table is for." },
+    ],
+  },
+  {
+    slug: "roman-numerals",
+    category: "grades",
+    title: "Roman numeral converter",
+    blurb: "Numbers to Roman numerals and back, live",
+    seoTitle: "Roman numeral converter online, number to Roman and back, free",
+    description:
+      "Convert a number to Roman numerals and a Roman numeral back to a number, live, from 1 to 3999, with the rules explained. Runs in your browser.",
+    intro: [
+      "Type a number and see its Roman numeral, or type a numeral and see the number. It works both ways as you type, across the range the numerals actually cover, 1 to 3999.",
+      "A malformed numeral is flagged rather than half-read, so IIII does not quietly become 4. Nothing is sent anywhere.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Why does it stop at 3999?", a: "Because the plain numerals do. There is no zero, no single letter past M for 1000, and the standard way to write larger numbers, a bar over a letter for a thousand times its value, is not agreed on or easy to type. So the tool covers 1 to 3999 rather than inventing notation." },
+      { q: "What makes a numeral valid?", a: "The canonical subtractive form: a letter repeats at most three times, and only I, X and C subtract, each only before the next one or two sizes up. IIII, VX and IC are not valid, and the tool says so instead of guessing what you meant." },
+      { q: "Is it case-sensitive?", a: "No. You can type mcmxciv or MCMXCIV; both read as 1994. The output is always in capitals, which is the usual way to write numerals." },
     ],
   },
 ];

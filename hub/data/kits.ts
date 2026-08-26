@@ -151,6 +151,9 @@ export const kitTools: Record<string, KitTool[]> = {
     { name: "Reading time", path: "/reading-time", synonyms: ["how long to read", "words per minute"], intents: ["how long will this take to read"] },
     { name: "Study timer", path: "/timer", synonyms: ["pomodoro", "countdown timer"], intents: ["pomodoro timer for studying"] },
     { name: "Exam countdown", path: "/exam-countdown", synonyms: ["days until exam", "countdown"], intents: ["days until my exam"] },
+    { name: "Molar mass calculator", path: "/molar-mass", synonyms: ["molar mass", "molecular weight", "formula mass", "gram formula mass"], intents: ["work out the molar mass of a compound", "molecular weight of h2so4", "molar mass with the breakdown"] },
+    { name: "Periodic table", path: "/periodic-table", synonyms: ["periodic table", "elements", "atomic mass", "atomic number"], intents: ["look up an element", "atomic mass of an element", "searchable periodic table"] },
+    { name: "Roman numeral converter", path: "/roman-numerals", synonyms: ["roman numerals", "roman to number", "number to roman"], intents: ["convert a number to roman numerals", "what is a roman numeral as a number"] },
   ],
   calc: [
     { name: "Age calculator", path: "/age", synonyms: ["how old", "date of birth"], intents: ["work out my exact age", "how old am i from my date of birth"] },

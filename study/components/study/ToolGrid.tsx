@@ -26,6 +26,9 @@ const TINTS: Record<string, string> = {
   "note-cleaner": "#3579d6",
   "scientific-calculator": "#0e63c4",
   "essay-length": "#4a93ef",
+  "molar-mass": "#2461c0",
+  "periodic-table": "#1b6fd6",
+  "roman-numerals": "#2d80e4",
 };
 
 const stroke = {
@@ -114,6 +117,27 @@ const GLYPHS: Record<string, ReactElement> = {
       <path d="M4 6.4h16M4 10h16M4 13.6h10" {...stroke} />
       <path d="M4 18.4h16" {...stroke} strokeDasharray="2 2" />
       <path d="M4 17.2v2.4M20 17.2v2.4" {...stroke} />
+    </>
+  ),
+  "molar-mass": (
+    <>
+      <circle cx="12" cy="12" r="2.4" {...solid} />
+      <ellipse cx="12" cy="12" rx="8.4" ry="3.4" {...stroke} />
+      <ellipse cx="12" cy="12" rx="8.4" ry="3.4" {...stroke} transform="rotate(60 12 12)" />
+      <ellipse cx="12" cy="12" rx="8.4" ry="3.4" {...stroke} transform="rotate(120 12 12)" />
+    </>
+  ),
+  "periodic-table": (
+    <>
+      <rect x="3.6" y="4.6" width="16.8" height="14.8" rx="1.8" {...stroke} />
+      <rect x="6.2" y="7.2" width="3.4" height="3.4" rx="0.5" {...solid} />
+      <path d="M3.6 12.4h16.8M8.9 4.6v14.8M14.2 4.6v14.8" {...stroke} strokeWidth="1.2" />
+    </>
+  ),
+  "roman-numerals": (
+    <>
+      <path d="M5 7v10M8.4 7l2 10 2-10" {...stroke} />
+      <path d="M16.6 7v10M16.6 7c2.4 0 2.4 4.6 0 4.6" {...stroke} />
     </>
   ),
 };

@@ -13,6 +13,9 @@ import { FlashcardsTool } from "@/components/study/FlashcardsTool";
 import { NoteCleanerTool } from "@/components/study/NoteCleanerTool";
 import { ScientificCalculatorTool } from "@/components/study/ScientificCalculatorTool";
 import { EssayLengthTool } from "@/components/study/EssayLengthTool";
+import { MolarMassTool } from "@/components/study/MolarMassTool";
+import { PeriodicTableTool } from "@/components/study/PeriodicTableTool";
+import { RomanNumeralsTool } from "@/components/study/RomanNumeralsTool";
 import dynamic from "next/dynamic";
 import { getTool, tools, type ToolSlug } from "@/data/tools";
 
@@ -60,6 +63,9 @@ const WORKBENCHES: Record<ToolSlug, React.ComponentType> = {
   "note-cleaner": NoteCleanerTool,
   "scientific-calculator": ScientificCalculatorTool,
   "essay-length": EssayLengthTool,
+  "molar-mass": MolarMassTool,
+  "periodic-table": PeriodicTableTool,
+  "roman-numerals": RomanNumeralsTool,
 };
 
 export default async function ToolPage({ params }: Params) {
