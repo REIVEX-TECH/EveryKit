@@ -20,10 +20,13 @@ const TINTS: Record<string, string> = {
   gradebook: "#1d81f2",
   worksheet: "#1769d4",
   curve: "#0e63c4",
+  "bubble-sheet": "#2461c0",
+  "result-cards": "#1b6fd6",
   "random-picker": "#2f6fd0",
   groups: "#3d8ae8",
   seating: "#145cb8",
   attendance: "#2a74e0",
+  "name-labels": "#2d80e4",
   certificate: "#3579d6",
   timetable: "#1156a8",
   timer: "#4a93ef",
@@ -66,6 +69,21 @@ const GLYPHS: Record<string, ReactElement> = {
       <path d="M3.6 20.4h16.8" {...stroke} />
     </>
   ),
+  "bubble-sheet": (
+    <>
+      <rect x="4.4" y="3.6" width="15.2" height="16.8" rx="2" {...stroke} />
+      <circle cx="8" cy="8.4" r="1.5" {...solid} />
+      <circle cx="8" cy="14.4" r="1.5" {...stroke} />
+      <path d="M11.6 8.4h5M11.6 14.4h5" {...stroke} />
+    </>
+  ),
+  "result-cards": (
+    <>
+      <rect x="3.6" y="5.4" width="16.8" height="13.2" rx="2" {...stroke} />
+      <path d="M6.6 9h5M6.6 12.4h7" {...stroke} />
+      <circle cx="16.4" cy="10.4" r="2.4" {...solid} />
+    </>
+  ),
   "random-picker": (
     <>
       <circle cx="12" cy="8" r="3.4" {...stroke} />
@@ -96,6 +114,13 @@ const GLYPHS: Record<string, ReactElement> = {
       <rect x="4.4" y="3.6" width="15.2" height="16.8" rx="2" {...stroke} />
       <path d="M7.4 8l1.4 1.4 2.4-2.6M7.4 14l1.4 1.4 2.4-2.6" {...stroke} />
       <path d="M13.6 8h3.4M13.6 14h3.4" {...stroke} />
+    </>
+  ),
+  "name-labels": (
+    <>
+      <rect x="3.6" y="6.4" width="16.8" height="11.2" rx="2.4" {...stroke} />
+      <circle cx="8.4" cy="12" r="2" {...solid} />
+      <path d="M12 10.4h5.2M12 13.6h3.4" {...stroke} />
     </>
   ),
   certificate: (

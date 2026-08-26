@@ -7,10 +7,13 @@ import { RubricTool } from "@/components/teach/RubricTool";
 import { GradebookTool } from "@/components/teach/GradebookTool";
 import { WorksheetTool } from "@/components/teach/WorksheetTool";
 import { CurveTool } from "@/components/teach/CurveTool";
+import { BubbleSheetTool } from "@/components/teach/BubbleSheetTool";
+import { ResultCardsTool } from "@/components/teach/ResultCardsTool";
 import { RandomPickerTool } from "@/components/teach/RandomPickerTool";
 import { GroupsTool } from "@/components/teach/GroupsTool";
 import { SeatingTool } from "@/components/teach/SeatingTool";
 import { AttendanceTool } from "@/components/teach/AttendanceTool";
+import { NameLabelsTool } from "@/components/teach/NameLabelsTool";
 import { CertificateTool } from "@/components/teach/CertificateTool";
 import { TimetableTool } from "@/components/teach/TimetableTool";
 import { ClassroomTimerTool } from "@/components/teach/ClassroomTimerTool";
@@ -47,10 +50,13 @@ const WORKBENCHES: Record<ToolSlug, React.ComponentType> = {
   gradebook: GradebookTool,
   worksheet: WorksheetTool,
   curve: CurveTool,
+  "bubble-sheet": BubbleSheetTool,
+  "result-cards": ResultCardsTool,
   "random-picker": RandomPickerTool,
   groups: GroupsTool,
   seating: SeatingTool,
   attendance: AttendanceTool,
+  "name-labels": NameLabelsTool,
   certificate: CertificateTool,
   timetable: TimetableTool,
   timer: ClassroomTimerTool,

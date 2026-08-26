@@ -8,10 +8,13 @@ export type ToolSlug =
   | "gradebook"
   | "worksheet"
   | "curve"
+  | "bubble-sheet"
+  | "result-cards"
   | "random-picker"
   | "groups"
   | "seating"
   | "attendance"
+  | "name-labels"
   | "certificate"
   | "timetable"
   | "timer";
@@ -127,6 +130,44 @@ export const tools: Tool[] = [
     ],
   },
   {
+    slug: "bubble-sheet",
+    category: "grading",
+    title: "Bubble answer sheet",
+    blurb: "A printable multiple-choice answer sheet and key",
+    seoTitle: "Printable bubble answer sheet maker, OMR style, export PDF",
+    description:
+      "Make a printable multiple-choice answer sheet: set the number of questions and options, add name and ID fields, and export a clean PDF, with a matching answer key. Runs in your browser.",
+    intro: [
+      "Set how many questions and how many options each has, choose whether to include name and ID fields, and the sheet lays out numbered rows of bubbles ready to fill in by hand.",
+      "Export the student sheet as a PDF, and a matching answer key if you mark the correct option for each question. Nothing is uploaded; the sheets are drawn on your device.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Can it read filled-in sheets?", a: "No. This prints blank sheets for students to fill and a key for you to mark against by eye. Reading scanned sheets automatically needs a scanner and a server to process the images, which is exactly what this site does not do." },
+      { q: "How many questions fit on a page?", a: "The rows flow into columns and onto more pages as needed, so a hundred questions is fine; the preview shows the length. Fewer, larger bubbles are easier to fill and to read, so pick the option count your test actually uses." },
+      { q: "A to D or A to E?", a: "Either. Set the number of options per question from two to five, and every row shows that many labelled bubbles. Mixing counts across one sheet is not supported, to keep the sheet readable." },
+    ],
+  },
+  {
+    slug: "result-cards",
+    category: "grading",
+    title: "Result cards",
+    blurb: "Per-student result slips from a roster, as a PDF",
+    seoTitle: "Student result card maker, marks to grades, export PDF",
+    description:
+      "Paste or upload a roster with marks per subject and get a result slip for each student, with total, percentage and a grade from an editable scale. Export a multi-page PDF. Runs in your browser.",
+    intro: [
+      "Paste your roster with a column of marks per subject, or upload a CSV, and each student gets a slip: their subjects and marks, the total, the percentage, and a grade from a scale you can edit.",
+      "Export them as a PDF, one slip per page or four to a page. Nothing is uploaded; the slips are made on your device.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "What should the CSV look like?", a: "A header row with Name first and then one column per subject, and a row per student with their marks. Blank cells are treated as no mark for that subject. Names with commas are fine if they are in quotes, as a spreadsheet exports them." },
+      { q: "How is the percentage worked out?", a: "Each subject is taken as out of the maximum you set, the same maximum across subjects, and the percentage is the total marks over the total possible. If your subjects are out of different maximums, this simple total will not match; that is a limit worth knowing before you print." },
+      { q: "Can I change the grade boundaries?", a: "Yes. The grade scale is a table of percentage cutoffs and letters you can edit, so the grades follow your institution's bands rather than a fixed set." },
+    ],
+  },
+  {
     slug: "random-picker",
     category: "class",
     title: "Random student picker",
@@ -200,6 +241,25 @@ export const tools: Tool[] = [
       { q: "How many dates fit across a page?", a: "About two to three weeks of dates fit across a landscape page before the columns get too narrow to tick. For a longer range the PDF continues onto more pages, each with the student names repeated." },
       { q: "Can it skip weekends?", a: "Yes. There is an option to leave out Saturdays and Sundays, so a fortnight of school days does not waste columns on days nobody is in." },
       { q: "Is this a digital register?", a: "No, and it is not trying to be. It prints a paper sheet to mark by hand. A digital register would need to store who was in, which is exactly the kind of data this site does not keep." },
+    ],
+  },
+  {
+    slug: "name-labels",
+    category: "class",
+    title: "Name labels",
+    blurb: "Roster to printable name labels or desk tags",
+    seoTitle: "Printable name label and desk tag maker for a class, export PDF",
+    description:
+      "Turn a class list into printable name labels or folded desk tags, in a few sizes, with an optional shared subtitle like the class or room. Export a PDF. Runs in your browser.",
+    intro: [
+      "Paste your class list, pick a size from small labels to folded desk tags, and add a shared line like the class or room if you want one. The labels lay out on a page ready to print and cut.",
+      "Export the PDF and print on plain paper or label sheets. Nothing is uploaded; the labels are drawn on your device.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "What sizes are there?", a: "A small label for trays and books, a medium badge, and a large folded desk tag that reads from both sides when stood up. Each lays out as many per page as the size allows, so the page fills neatly." },
+      { q: "Do they line up with sticker sheets?", a: "The labels are laid on a regular grid with margins, which suits plain paper and many common label sheets. Exact-brand alignment varies, so print one page and check against your sheet before running the batch." },
+      { q: "Can I add the same class name to all of them?", a: "Yes. The optional subtitle is printed small under every name, so a set can carry the class, the room or the year without typing it per student." },
     ],
   },
   {
