@@ -17,6 +17,7 @@ import { NameLabelsTool } from "@/components/teach/NameLabelsTool";
 import { CertificateTool } from "@/components/teach/CertificateTool";
 import { TimetableTool } from "@/components/teach/TimetableTool";
 import { ClassroomTimerTool } from "@/components/teach/ClassroomTimerTool";
+import { LessonPlanTool } from "@/components/teach/LessonPlanTool";
 import { getTool, tools, type ToolSlug } from "@/data/tools";
 import { absoluteUrl } from "@/lib/site";
 
@@ -60,6 +61,7 @@ const WORKBENCHES: Record<ToolSlug, React.ComponentType> = {
   certificate: CertificateTool,
   timetable: TimetableTool,
   timer: ClassroomTimerTool,
+  "lesson-plan": LessonPlanTool,
 };
 
 export default async function ToolPage({ params }: Params) {

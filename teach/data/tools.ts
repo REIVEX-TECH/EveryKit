@@ -17,7 +17,8 @@ export type ToolSlug =
   | "name-labels"
   | "certificate"
   | "timetable"
-  | "timer";
+  | "timer"
+  | "lesson-plan";
 
 export type Faq = { q: string; a: string };
 
@@ -317,6 +318,25 @@ export const tools: Tool[] = [
       { q: "Will it keep time in a background tab?", a: "Yes. Browsers slow timers in hidden tabs, so this works the remaining time out from the clock rather than counting down by one each second, and it is right whatever the browser did while it was hidden." },
       { q: "Where does the chime come from?", a: "It is generated in the page, two soft tones with a gentle envelope. No sound file is downloaded. Browsers only allow audio after you have interacted with the page, so the chime works because you pressed start." },
       { q: "Can students see it from the back?", a: "That is the point of the large display. Put the tab full screen on the board and the digits fill the space, so a countdown is readable across the room." },
+    ],
+  },
+  {
+    slug: "lesson-plan",
+    category: "motivation",
+    title: "Lesson plan builder",
+    blurb: "A structured lesson plan, live preview, as a PDF",
+    seoTitle: "Lesson plan maker for teachers, printable PDF, free",
+    description:
+      "Fill in a structured lesson plan: objectives, materials, a warm-up, timed activities, assessment and homework, with a live preview and a clean PDF. Runs in your browser.",
+    intro: [
+      "Fill in the parts of a lesson, the objectives, materials, a warm-up, the activities with a time each, how you will check learning and any homework, and the plan builds beside the form as you type.",
+      "Export a tidy PDF to print or keep. Nothing is uploaded; the plan is made on your device.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Does it add up the timings?", a: "Yes. Each activity carries a number of minutes, and the total is shown so you can see whether the lesson fits the period before you print it." },
+      { q: "Is there a fixed template I have to follow?", a: "No. Every section is optional, so a plan can be as full or as light as you want. Leave a part blank and it simply does not appear in the preview or the PDF." },
+      { q: "Can I save a plan to edit later?", a: "Keep the PDF, or copy the text. Nothing is stored on a server, so there is no saved list here, which is also why nothing about your lesson is kept once you close the tab." },
     ],
   },
 ];

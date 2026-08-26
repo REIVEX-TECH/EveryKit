@@ -180,6 +180,7 @@ export const kitTools: Record<string, KitTool[]> = {
     { name: "Award certificate", path: "/certificate", synonyms: ["certificate", "award", "star of the week", "reward"], intents: ["make an award certificate for a student"] },
     { name: "Weekly timetable", path: "/timetable", synonyms: ["timetable", "class schedule", "lesson planner", "weekly schedule"], intents: ["make a weekly class timetable"] },
     { name: "Classroom timer", path: "/timer", synonyms: ["countdown", "stopwatch", "class timer", "activity timer"], intents: ["big countdown timer for the class board"] },
+    { name: "Lesson plan builder", path: "/lesson-plan", synonyms: ["lesson plan", "lesson planner", "teaching plan"], intents: ["make a lesson plan", "printable lesson plan template", "lesson plan with timed activities"] },
   ],
 };
 

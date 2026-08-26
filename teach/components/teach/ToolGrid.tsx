@@ -30,6 +30,7 @@ const TINTS: Record<string, string> = {
   certificate: "#3579d6",
   timetable: "#1156a8",
   timer: "#4a93ef",
+  "lesson-plan": "#2f6fd0",
 };
 
 const stroke = {
@@ -143,6 +144,14 @@ const GLYPHS: Record<string, ReactElement> = {
       <circle cx="12" cy="13.4" r="7.4" {...stroke} />
       <path d="M12 9.6v3.8l2.6 1.6" {...stroke} />
       <path d="M9.4 2.8h5.2" {...stroke} />
+    </>
+  ),
+  "lesson-plan": (
+    <>
+      <path d="M6 3.6h9l3.4 3.4V20.4H6z" {...stroke} />
+      <path d="M15 3.6v3.4h3.4" {...stroke} />
+      <path d="M8.8 11.2l1.2 1.2 2.2-2.4" {...stroke} />
+      <path d="M13.6 11.6h3M8.8 15.6l1.2 1.2 2.2-2.4M13.6 16h3" {...stroke} />
     </>
   ),
 };
