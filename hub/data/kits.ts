@@ -13,7 +13,7 @@ export type KitStatus = "live" | "soon";
  * strips parse this same file and ignore fields they do not know about, so new
  * ones may be added but existing names and shapes never change.
  */
-export type KitCategory = "photos" | "documents" | "everyday" | "developers";
+export type KitCategory = "photos" | "documents" | "everyday" | "developers" | "teachers";
 
 export type Kit = {
   slug: string;
@@ -145,6 +145,19 @@ export const kitTools: Record<string, KitTool[]> = {
     { name: "Discount calculator", path: "/discount", synonyms: ["sale price", "percent off", "saving"] },
     { name: "VAT and GST", path: "/vat", synonyms: ["vat", "gst", "sales tax", "add tax"] },
     { name: "Trip fuel cost", path: "/trip-cost", synonyms: ["fuel cost", "petrol", "mileage", "split cost"] },
+  ],
+  teach: [
+    { name: "Rubric maker", path: "/rubric", synonyms: ["rubric", "marking grid", "criteria", "grading rubric"] },
+    { name: "Gradebook", path: "/gradebook", synonyms: ["gradebook", "weighted grades", "class marks", "grade calculator"] },
+    { name: "Worksheet maker", path: "/worksheet", synonyms: ["worksheet", "question sheet", "handout", "practice sheet"] },
+    { name: "Grade curve", path: "/curve", synonyms: ["curve grades", "z-score", "bell curve", "scale marks", "normalise marks"] },
+    { name: "Random name picker", path: "/random-picker", synonyms: ["random student", "pick a name", "cold call", "name picker"] },
+    { name: "Group maker", path: "/groups", synonyms: ["random groups", "teams", "split class", "group generator"] },
+    { name: "Seating plan", path: "/seating", synonyms: ["seating chart", "seat plan", "classroom layout"] },
+    { name: "Attendance sheet", path: "/attendance", synonyms: ["register", "roll call", "attendance register", "class list"] },
+    { name: "Award certificate", path: "/certificate", synonyms: ["certificate", "award", "star of the week", "reward"] },
+    { name: "Weekly timetable", path: "/timetable", synonyms: ["timetable", "class schedule", "lesson planner", "weekly schedule"] },
+    { name: "Classroom timer", path: "/timer", synonyms: ["countdown", "stopwatch", "class timer", "activity timer"] },
   ],
 };
 
@@ -303,6 +316,16 @@ export const kits: Kit[] = [
     icon: "/icons/calc.svg",
     outputAlt: "A calculator with an answer on its display",
   },
+  {
+    slug: "teach",
+    name: "EveryKit Teach",
+    tagline: "Classroom tools that save teachers time",
+    url: "https://teach.useeverykit.com",
+    status: "live",
+    category: "teachers",
+    icon: "/icons/teach.svg",
+    outputAlt: "A marking grid beside a row of small classroom tool squares",
+  },
 ];
 
 /** Exactly the shape published at /kits.json, per the shared registry schema. */
@@ -331,4 +354,5 @@ export const CATEGORIES: Array<{ id: KitCategory | "all"; label: string }> = [
   { id: "documents", label: "Documents & letters" },
   { id: "everyday", label: "Everyday" },
   { id: "developers", label: "For developers" },
+  { id: "teachers", label: "For teachers" },
 ];

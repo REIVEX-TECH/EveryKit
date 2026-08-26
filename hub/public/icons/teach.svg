@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="EveryKit Teach">
+  <!-- A classroom board: the shape a teacher stands at all day. -->
+  <rect x="6" y="8" width="36" height="26" rx="3" fill="#1d81f2"/>
+  <rect x="10" y="12" width="28" height="18" rx="1.5" fill="#1d81f2" opacity="0.35"/>
+  <path d="M15 22l4 4 9-10" fill="none" stroke="#ff8a4c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M18 34v5M30 34v5" fill="none" stroke="#1d81f2" stroke-width="3" stroke-linecap="round"/>
+</svg>

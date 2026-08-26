@@ -138,5 +138,8 @@ module.exports = {
     app("everykit-calc", "calc", 3023, {
       NEXT_PUBLIC_SITE_URL: "https://calc.useeverykit.com",
     }),
+    app("everykit-teach", "teach", 3024, {
+      NEXT_PUBLIC_SITE_URL: "https://teach.useeverykit.com",
+    }),
   ],
 };
