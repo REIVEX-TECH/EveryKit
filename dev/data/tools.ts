@@ -22,7 +22,8 @@ export type ToolSlug =
   | "json-to-types"
   | "sql-formatter"
   | "password"
-  | "base-converter";
+  | "base-converter"
+  | "curl-converter";
 
 export type Faq = { q: string; a: string };
 
@@ -533,6 +534,25 @@ export const tools: Tool[] = [
       { q: "How big a number can it handle?", a: "Any whole number, however large. It uses BigInt, so a 256-bit hex value converts exactly rather than losing digits the way an ordinary number would past about 15 digits." },
       { q: "Does it do negative or fractional numbers?", a: "Whole numbers, including negatives. Fractional values in other bases are ambiguous and rarely what people want here, so the tool sticks to integers and says so rather than rounding silently." },
       { q: "What counts as valid input?", a: "Digits valid for that base: 0 and 1 for binary, 0 to 7 for octal, 0 to 9 for decimal, and 0 to 9 with a to f for hex. An invalid character is flagged rather than guessed at, so a typo does not turn into a wrong answer." },
+    ],
+  },
+  {
+    slug: "curl-converter",
+    category: "encode",
+    title: "curl converter",
+    blurb: "A curl command to fetch, axios or Python",
+    seoTitle: "Convert curl to fetch, axios and Python requests, free",
+    description:
+      "Paste a curl command and get the equivalent fetch, axios and Python requests code, with method, headers, body and basic auth. Runs in your browser.",
+    intro: [
+      "Paste a curl command and get it back as JavaScript fetch, axios, and Python requests. It reads the method, headers, body and basic auth, and defaults the method the way curl does.",
+      "Anything it does not model, like multipart form uploads, is listed rather than dropped, so the output is never quietly wrong. Nothing you paste is sent anywhere.",
+    ],
+    faq: [
+      PRIVACY,
+      { q: "Which curl options does it understand?", a: "The ones that shape a request: -X for the method, -H for headers, -d and its variants and --json for the body, -u for basic auth, -b for cookies, -G to move data onto the query string, and the URL. It defaults to POST when there is a body, exactly as curl does." },
+      { q: "What does it not handle?", a: "Multipart uploads (-F), client certificates, proxies and the many transfer flags. When one appears it is listed under the output as not carried over, so you know to add it by hand rather than trusting an incomplete conversion." },
+      { q: "Are my headers and tokens safe to paste?", a: "Yes. The whole conversion runs in the page, so a bearer token or a cookie in your command is parsed on your own device and never sent anywhere, which you can confirm in the network tab." },
     ],
   },
 ];

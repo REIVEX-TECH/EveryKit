@@ -143,6 +143,7 @@ export const kitTools: Record<string, KitTool[]> = {
     { name: "SQL formatter", path: "/sql-formatter", synonyms: ["sql beautifier", "format sql", "prettify sql", "minify sql"], intents: ["format my sql query", "beautify a sql statement", "minify sql to one line"] },
     { name: "Password generator", path: "/password", synonyms: ["password", "random password", "strong password", "passphrase"], intents: ["generate a strong random password", "make a secure password"] },
     { name: "Number base converter", path: "/base-converter", synonyms: ["hex to decimal", "binary to decimal", "base converter", "octal"], intents: ["convert hex to binary", "decimal to hexadecimal", "binary to decimal"] },
+    { name: "curl converter", path: "/curl-converter", synonyms: ["curl to fetch", "curl to python", "curl to axios", "convert curl"], intents: ["convert a curl command to fetch", "turn curl into python requests", "curl to javascript"] },
   ],
   study: [
     { name: "GPA calculator", path: "/gpa", synonyms: ["grade point average", "gpa"], intents: ["work out my gpa", "calculate grade point average"] },

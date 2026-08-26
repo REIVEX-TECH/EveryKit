@@ -40,6 +40,7 @@ const TINTS: Record<string, string> = {
   "sql-formatter": BLUES[0],
   password: BLUES[4],
   "base-converter": BLUES[2],
+  "curl-converter": BLUES[3],
 };
 
 const stroke = {
@@ -179,6 +180,13 @@ const GLYPHS: Record<string, ReactElement> = {
     <>
       <path d="M6.5 4.6v14.8M6.5 4.6H9M6.5 19.4H9M6.5 12H8.6" {...stroke} />
       <path d="M13.6 8.6a2.4 2.4 0 1 1 3.8 2c-1.4 1.2-3.8 2.4-3.8 4.4h4" {...stroke} />
+    </>
+  ),
+  "curl-converter": (
+    <>
+      <path d="M8.4 7.2L4.6 12l3.8 4.8" {...stroke} />
+      <path d="M15.6 7.2L19.4 12l-3.8 4.8" {...stroke} />
+      <path d="M13.4 5.4l-2.8 13.2" {...stroke} />
     </>
   ),
 };

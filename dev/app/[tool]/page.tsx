@@ -19,6 +19,7 @@ import { JsonToCsvTool } from "@/components/dev/JsonToCsvTool";
 import { PasswordTool } from "@/components/dev/PasswordTool";
 import { BaseConverterTool } from "@/components/dev/BaseConverterTool";
 import { JsonToTypesTool } from "@/components/dev/JsonToTypesTool";
+import { CurlConverterTool } from "@/components/dev/CurlConverterTool";
 import dynamic from "next/dynamic";
 
 // Lazy: this tool pulls in SheetJS, which is large. Splitting it into its own
@@ -84,6 +85,7 @@ const WORKBENCHES: Record<ToolSlug, React.ComponentType> = {
   "sql-formatter": SqlFormatterTool,
   password: PasswordTool,
   "base-converter": BaseConverterTool,
+  "curl-converter": CurlConverterTool,
 };
 
 export default async function ToolPage({ params }: Params) {
