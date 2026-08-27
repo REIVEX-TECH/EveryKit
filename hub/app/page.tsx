@@ -110,10 +110,6 @@ export default function HomePage() {
         </div>
 
         <div className="mt-12">
-          <FlagshipRow items={flagshipLinks()} />
-        </div>
-
-        <div className="mt-14">
           <KitDirectory kits={kits} categories={CATEGORIES} toolsByKit={toolsByKit} />
         </div>
 
@@ -201,6 +197,10 @@ export default function HomePage() {
             })}
           </div>
         </section>
+
+        <div className="mt-20 border-t border-line pt-12">
+          <FlagshipRow items={flagshipLinks()} />
+        </div>
 
         <section className="mt-20 border-t border-line pt-12">
           <h2 className="text-[22px]">Why not just use ChatGPT?</h2>
