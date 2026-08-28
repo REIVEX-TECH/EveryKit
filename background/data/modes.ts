@@ -11,6 +11,12 @@ export type Faq = { q: string; a: string };
 export type ModePage = {
   slug: "transparent-background" | "white-background";
   title: string;
+  /**
+   * The on-page H1, when it should differ from the launcher title. The white
+   * page uses this to say the searcher's exact words, "make your background
+   * white", while the tile and the cross-links stay the short noun phrase.
+   */
+  h1?: string;
   blurb: string;
   seoTitle: string;
   description: string;
@@ -65,26 +71,31 @@ export const modePages: ModePage[] = [
   {
     slug: "white-background",
     title: "White background",
+    h1: "Make your background white",
     blurb: "Put the subject on a clean white ground",
-    seoTitle: "Change a photo background to white, free and never uploaded",
+    seoTitle: "Make photo background white online, free",
     description:
-      "Replace a photo's background with plain white, or any colour you choose. Runs in your browser; nothing is uploaded.",
+      "Change any photo background to white in your browser, free, nothing uploaded. Other solid colours too.",
     intro: [
-      "Drop in a photo and the background is replaced with plain white. Useful for a product shot, a profile picture, or anything that has to sit on a clean page.",
-      "White is only the starting point. There is a row of presets and a hex box, so any flat colour works the same way.",
+      "Drop in a photo and make your background white in one step. The background is removed and replaced with plain white, ready for an ID or passport photo, a product shot, a profile picture, or a form that asks for a white background.",
+      "White is the default here. There is also a row of colour presets and a hex box, so any flat colour works the same way. It all happens on your own device, and the photo is never uploaded.",
     ],
     preset: { kind: "colour", hex: "#ffffff" },
     faq: [
+      {
+        q: "How do I make a photo background white?",
+        a: "Drop your photo in above and press the button. The tool removes the background and puts your subject on plain white, which is the default here. Then save the file. It all runs in your browser, so the photo is never uploaded, and there is a row of other colours and a hex box if you want a different one.",
+      },
       UPLOAD_ANSWER,
       {
         q: "Is this white good enough for a passport photo?",
-        a: "Possibly, but this is not the tool for that job. Passport photos have rules about size, head height and eye position that this kit does not check. EveryKit Photos does exactly that, and it has the same background replacement built in.",
+        a: "The white is clean and even, but this kit does not check the size, head height and eye position a passport photo needs. For that, EveryKit Photos does the exact sizing and has this same white background replacement built in.",
       },
       EDGE_ANSWER,
       BATCH_ANSWER,
       {
-        q: "Can I use a colour that is not on the row?",
-        a: "Yes. Type any hex code into the box beside the presets. Three digits or six, with or without the hash.",
+        q: "Can I use a colour that is not white?",
+        a: "Yes. There is a row of presets, off white, light grey and more, and a hex box for any exact colour. Three digits or six, with or without the hash.",
       },
     ],
   },

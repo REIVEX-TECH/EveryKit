@@ -98,7 +98,7 @@ export const kitTools: Record<string, KitTool[]> = {
   background: [
     { name: "Remove the background", path: "/", synonyms: ["background remover", "cut out", "transparent"], intents: ["remove background from a product photo", "cut out a person from a photo", "erase the background of an image"] },
     { name: "Transparent background", path: "/transparent-background", synonyms: ["png transparent", "remove background"], intents: ["make a logo background transparent", "transparent png of a picture"] },
-    { name: "White background", path: "/white-background", synonyms: ["white bg", "product photo"], intents: ["put a photo on a white background", "white background for a product listing"] },
+    { name: "White background", path: "/white-background", synonyms: ["white bg", "product photo", "make background white", "change background to white"], intents: ["make a photo background white", "how to make the background white", "white background photo", "put a photo on a white background", "white background for a product listing", "change a photo background to white"] },
   ],
   text: [
     { name: "Word counter", path: "/word-counter", synonyms: ["character count", "count words", "reading time"], intents: ["count the words in my text", "how many characters is this"] },

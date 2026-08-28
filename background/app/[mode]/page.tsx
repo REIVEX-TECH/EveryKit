@@ -71,7 +71,7 @@ export default async function ModePage({ params }: Params) {
           <span aria-hidden="true">&larr;</span>All background options
         </Link>
 
-        <h1 className="mt-6 text-[30px] leading-tight sm:text-[34px]">{page.title}</h1>
+        <h1 className="mt-6 text-[30px] leading-tight sm:text-[34px]">{page.h1 ?? page.title}</h1>
         {page.intro.map((paragraph) => (
           <p key={paragraph} className="mt-3 max-w-[60ch] text-[16px] text-text-light">
             {paragraph}
