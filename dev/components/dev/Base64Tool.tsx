@@ -8,6 +8,7 @@ import {
   encodeBase64,
 } from "@/lib/dev/encode";
 import { CopyButton, DownloadButton, Note, TextBox } from "./ui";
+import { RecentChips, useRecent } from "@/components/site/RecentChips";
 
 type Mode = "encode" | "decode";
 type Source = "text" | "file";
@@ -29,6 +30,7 @@ export function Base64Tool() {
   const [file, setFile] = useState<{ name: string; base64: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
+  const recent = useRecent("dev-base64");
 
   function run(nextMode: Mode, text: string) {
     setError(null);
@@ -131,6 +133,9 @@ export function Base64Tool() {
                 setInput(event.target.value);
                 run(mode, event.target.value);
               }}
+              onBlur={() => {
+                if (input.trim() !== "" && output !== "") recent.remember(input);
+              }}
               placeholder={mode === "encode" ? "Anything, in any language" : "aGVsbG8="}
               className="mt-2"
             />
@@ -146,6 +151,16 @@ export function Base64Tool() {
             </div>
             <TextBox id="b64-out" readOnly value={output} className="mt-2 bg-bg-soft" />
             {error ? <Note tone="bad">{error}</Note> : null}
+          </div>
+          <div className="lg:col-span-2">
+            <RecentChips
+              items={recent.items}
+              onClear={recent.clear}
+              onPick={(entry) => {
+                setInput(entry.v);
+                run(mode, entry.v);
+              }}
+            />
           </div>
         </div>
       ) : mode === "encode" ? (

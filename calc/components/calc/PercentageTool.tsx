@@ -10,6 +10,7 @@ import {
   type Answer,
 } from "@/lib/calc/percentage";
 import { CopyButton, Input, Note } from "./ui";
+import { RecentChips, useRecent } from "@/components/site/RecentChips";
 
 /**
  * The three percentage questions, on one page, in their own words.
@@ -77,12 +78,14 @@ function Cell({
   value,
   onChange,
   placeholder,
+  onBlur,
 }: {
   id: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
+  onBlur?: () => void;
 }) {
   return (
     <div className="w-32">
@@ -93,6 +96,7 @@ function Cell({
         id={id}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        onBlur={onBlur}
         inputMode="decimal"
         placeholder={placeholder}
         className="mt-1"
@@ -104,16 +108,34 @@ function Cell({
 function PercentOf() {
   const [percent, setPercent] = useState("");
   const [total, setTotal] = useState("");
+  const recent = useRecent("calc-percentage");
   const answer = useMemo(
     () => percentOf(parseNumber(percent), parseNumber(total)),
     [percent, total],
   );
 
+  const remember = () => {
+    if (answer && !("error" in answer) && percent.trim() !== "" && total.trim() !== "") {
+      recent.remember(`${percent}|${total}`, answer.sentence);
+    }
+  };
+
   return (
     <Block title="What is X percent of Y" answer={answer}>
-      <Cell id="p1-a" label="Percent" value={percent} onChange={setPercent} placeholder="15" />
+      <Cell id="p1-a" label="Percent" value={percent} onChange={setPercent} placeholder="15" onBlur={remember} />
       <span className="pb-2.5 text-[15px] text-text-light">percent of</span>
-      <Cell id="p1-b" label="Number" value={total} onChange={setTotal} placeholder="200" />
+      <Cell id="p1-b" label="Number" value={total} onChange={setTotal} placeholder="200" onBlur={remember} />
+      <div className="w-full">
+        <RecentChips
+          items={recent.items}
+          onClear={recent.clear}
+          onPick={(entry) => {
+            const [p, t] = entry.v.split("|");
+            setPercent(p ?? "");
+            setTotal(t ?? "");
+          }}
+        />
+      </div>
     </Block>
   );
 }

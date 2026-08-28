@@ -92,8 +92,18 @@ export function FlashcardsTool() {
       </div>
 
       {shareUrl ? (
-        <div>
-          <CopyButton text={shareUrl} label="Copy the share link" className="ek-btn ek-btn-quiet" />
+        <div className="rounded-[12px] border border-line bg-bg-soft p-4">
+          <p className="text-[14px] font-semibold">Share this deck</p>
+          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+            <input
+              readOnly
+              value={shareUrl}
+              onFocus={(e) => e.currentTarget.select()}
+              aria-label="Share link for this deck"
+              className="min-w-0 flex-1 rounded-[10px] border border-line bg-background px-3 py-2 text-[13px] text-text-light outline-none"
+            />
+            <CopyButton text={shareUrl} label="Copy the share link" className="ek-btn ek-btn-accent shrink-0" />
+          </div>
           <Note tone="quiet">
             The whole deck is in that link. Nothing is stored on a server: sharing the deck is
             sending the link, and it works for as long as the link does.

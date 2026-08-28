@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Download } from "lucide-react";
 import { EmailGate } from "@/components/site/EmailGate";
 import { MoreFromEveryKit } from "@/components/site/MoreFromEveryKit";
+import { RecentChips, useRecent } from "@/components/site/RecentChips";
 import { hasGivenEmail } from "@/lib/emailCapture";
 import { revealResult } from "@/lib/revealResult";
 import {
@@ -179,6 +180,11 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
   const [gateFor, setGateFor] = useState<(() => void) | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  // Recent is kept only for the two kinds whose whole content is one non-secret
+  // string. Wi-Fi passwords, contact cards and the rest are deliberately never
+  // stored, even locally.
+  const recentEnabled = kind === "url" || kind === "text";
+  const recent = useRecent(`qr-${kind}`);
 
   // A logo covers the centre, so the code is built at the toughest level
   // whenever one is present; H can lose the covered modules and still decode.
@@ -216,6 +222,10 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
   }, [code]);
 
   function take(save: () => void) {
+    if (recentEnabled) {
+      const value = kind === "url" ? fields.url : fields.text;
+      if (value.trim() !== "") recent.remember(value);
+    }
     if (hasGivenEmail()) {
       save();
       return;
@@ -278,6 +288,14 @@ export function QrWorkbench({ kind }: { kind: QrKind }) {
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)] lg:items-start">
       <div className="flex flex-col gap-4">
         <Fieldsets kind={kind} fields={fields} set={set} />
+
+        {recentEnabled ? (
+          <RecentChips
+            items={recent.items}
+            onClear={recent.clear}
+            onPick={(entry) => set(kind === "url" ? "url" : "text", entry.v)}
+          />
+        ) : null}
 
         <fieldset>
           <legend className="text-[14px] font-semibold">How much damage it survives</legend>

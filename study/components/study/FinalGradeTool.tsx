@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { percent, sentence, whatIsNeeded } from "@/lib/study/finalGrade";
 import { CopyButton, Field, Input } from "./ui";
+import { RecentChips, useRecent } from "@/components/site/RecentChips";
 
 /**
  * What do I need on the final.
@@ -14,12 +15,19 @@ export function FinalGradeTool() {
   const [current, setCurrent] = useState("");
   const [weight, setWeight] = useState("");
   const [target, setTarget] = useState("");
+  const recent = useRecent("study-final-grade");
 
   const answer = useMemo(
     () => whatIsNeeded(current, weight, target),
     [current, weight, target],
   );
   const line = sentence(answer, target.trim() || "your target");
+
+  const remember = () => {
+    if ((answer.kind === "needed" || answer.kind === "already" || answer.kind === "unreachable") && current && weight && target) {
+      recent.remember(`${current}|${weight}|${target}`, line);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -33,6 +41,7 @@ export function FinalGradeTool() {
             id="fg-current"
             value={current}
             onChange={(event) => setCurrent(event.target.value)}
+            onBlur={remember}
             inputMode="decimal"
             placeholder="85"
             aria-describedby="fg-current-unit"
@@ -48,6 +57,7 @@ export function FinalGradeTool() {
             id="fg-weight"
             value={weight}
             onChange={(event) => setWeight(event.target.value)}
+            onBlur={remember}
             inputMode="decimal"
             placeholder="30"
           />
@@ -58,6 +68,7 @@ export function FinalGradeTool() {
             id="fg-target"
             value={target}
             onChange={(event) => setTarget(event.target.value)}
+            onBlur={remember}
             inputMode="decimal"
             placeholder="90"
           />
@@ -101,6 +112,17 @@ export function FinalGradeTool() {
         It assumes the rest of your grade is already final, which it is once the only thing left
         is the exam.
       </p>
+
+      <RecentChips
+        items={recent.items}
+        onClear={recent.clear}
+        onPick={(entry) => {
+          const [c, w, t] = entry.v.split("|");
+          setCurrent(c ?? "");
+          setWeight(w ?? "");
+          setTarget(t ?? "");
+        }}
+      />
     </div>
   );
 }

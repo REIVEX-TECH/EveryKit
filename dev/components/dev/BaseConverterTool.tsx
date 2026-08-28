@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { BASES, parseInBase, toBase, type Base } from "@/lib/dev/baseConvert";
 import { CopyButton, Field, Note } from "./ui";
+import { RecentChips, useRecent } from "@/components/site/RecentChips";
 
 export function BaseConverterTool() {
   const [value, setValue] = useState<bigint>(255n);
   const [active, setActive] = useState<Base | null>(null);
   const [activeText, setActiveText] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const recent = useRecent("dev-base-converter");
 
   function onChange(base: Base, text: string) {
     setActive(base);
@@ -33,6 +35,9 @@ export function BaseConverterTool() {
               id={name}
               value={fieldValue(base)}
               onChange={(e) => onChange(base, e.target.value)}
+              onBlur={() => {
+                if (!error) recent.remember(toBase(value, 10), `${toBase(value, 10)} (dec)`);
+              }}
               inputMode={base === 10 ? "numeric" : "text"}
               spellCheck={false}
               className="w-full rounded-[10px] border border-line bg-background px-3 py-2 font-mono text-[15px] outline-none focus:border-primary"
@@ -43,6 +48,19 @@ export function BaseConverterTool() {
       ))}
 
       {error ? <Note tone="bad">{error}</Note> : null}
+
+      <RecentChips
+        items={recent.items}
+        onClear={recent.clear}
+        onPick={(entry) => {
+          const parsed = parseInBase(entry.v, 10);
+          if ("value" in parsed) {
+            setValue(parsed.value);
+            setActive(null);
+            setError(null);
+          }
+        }}
+      />
 
       <Note tone="quiet">
         Whole numbers of any size, using your browser&apos;s big integers, so a value too large for an

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ALGORITHM_LABELS, hashFile, hashText, matchesDigest, type Algorithm, type Digests } from "@/lib/dev/hash";
 import { CopyButton, Input, Note, TextBox } from "./ui";
+import { RecentChips, useRecent } from "@/components/site/RecentChips";
 
 /**
  * All three digests at once, of text or of a file.
@@ -22,6 +23,7 @@ export function HashTool() {
   const [error, setError] = useState<string | null>(null);
   const [candidate, setCandidate] = useState("");
   const picker = useRef<HTMLInputElement>(null);
+  const recent = useRecent("dev-hash");
 
   // Text hashes as it is typed. The digest of a few kilobytes is microseconds,
   // so there is nothing to debounce and nothing to put in a worker.
@@ -94,6 +96,9 @@ export function HashTool() {
             id="hash-in"
             value={text}
             onChange={(event) => setText(event.target.value)}
+            onBlur={() => {
+              if (text.trim() !== "" && digests) recent.remember(text);
+            }}
             placeholder="Type or paste. The digests update as you go."
             className="mt-2 min-h-[160px]"
           />
@@ -101,6 +106,9 @@ export function HashTool() {
             Hashed as UTF-8, so text in any language gives the same answer any other correct tool
             would.
           </p>
+          <div className="mt-3">
+            <RecentChips items={recent.items} onClear={recent.clear} onPick={(entry) => setText(entry.v)} />
+          </div>
         </div>
       ) : (
         <div className="ek-card flex flex-col items-start gap-3 p-4">

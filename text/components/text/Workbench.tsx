@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Copy, Download } from "lucide-react";
 import { EmailGate } from "@/components/site/EmailGate";
+import { RecentChips, useRecent } from "@/components/site/RecentChips";
 import { hasGivenEmail } from "@/lib/emailCapture";
 import type { ToolSlug } from "@/data/tools";
 import { countAll, describeReadingTime } from "@/lib/text/count";
@@ -46,6 +47,7 @@ export function Workbench({ tool }: { tool: ToolSlug }) {
   const [gateFor, setGateFor] = useState<(() => void) | null>(null);
   const [copied, setCopied] = useState(false);
   const outputRef = useRef<HTMLTextAreaElement>(null);
+  const recent = useRecent(`text-${tool}`);
 
   const counts = useMemo(() => countAll(input), [input]);
 
@@ -138,10 +140,16 @@ export function Workbench({ tool }: { tool: ToolSlug }) {
             id="input"
             value={input}
             onChange={(event) => setInput(event.target.value)}
+            onBlur={() => {
+              if (input.trim() !== "") recent.remember(input);
+            }}
             rows={8}
             placeholder="Paste or type here. Everything updates as you go."
             className="mt-2 w-full rounded-[10px] border border-line bg-background px-3 py-2 text-[15px] outline-none placeholder:text-text-light focus:border-primary"
           />
+          <div className="mt-3">
+            <RecentChips items={recent.items} onClear={recent.clear} onPick={(entry) => setInput(entry.v)} />
+          </div>
         </div>
       ) : null}
 
