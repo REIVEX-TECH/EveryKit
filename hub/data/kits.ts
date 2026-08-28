@@ -57,7 +57,7 @@ export type KitTool = {
  */
 export const kitTools: Record<string, KitTool[]> = {
   photos: [
-    { name: "Passport & visa photo", path: "/", synonyms: ["passport", "visa", "id photo", "biometric", "2x2", "35x45", "headshot"], intents: ["passport photo for us visa", "make a passport photo at home", "biometric photo from a selfie", "2x2 inch id photo to print", "schengen visa photo size", "uk visa photo size", "pakistan passport photo size"] },
+    { name: "Passport & visa photo", path: "/", synonyms: ["passport", "visa", "id photo", "biometric", "2x2", "35x45", "headshot", "green card", "dv lottery", "oci", "pan card"], intents: ["passport photo for us visa", "make a passport photo at home", "biometric photo from a selfie", "2x2 inch id photo to print", "schengen visa photo size", "uk visa photo size", "pakistan passport photo size", "green card dv lottery photo size", "india visa and oci photo size", "india pan card photo size", "canada visa photo size", "germany passport photo size", "france passport photo size", "australia visa photo size", "south korea passport photo size", "singapore passport photo size"] },
   ],
   letters: [
     { name: "Formal letter generator", path: "/", synonyms: ["letter", "resignation", "complaint", "refund", "visa invitation", "sponsorship", "notice to vacate", "experience certificate", "salary certificate", "internship", "character reference", "bank account closure", "cover letter", "noc"], intents: ["write a resignation letter", "write a complaint letter", "ask for a refund in writing", "letter to my landlord to move out", "visa invitation letter"] },

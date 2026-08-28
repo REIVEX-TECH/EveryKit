@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExamplePair } from "@/components/site/ExamplePair";
-import { OtherSizes } from "@/components/site/OtherSizes";
+import { DocumentIndex } from "@/components/site/DocumentIndex";
 import { PhotoTool } from "@/components/tool/PhotoTool";
-import { DEFAULT_SPEC_SLUG, getSpecOrDefault } from "@/data/specs";
+import { DEFAULT_SPEC_SLUG, getSpecOrDefault, specs } from "@/data/specs";
 import { PARENT_NAME, PARENT_URL, SITE_NAME, absoluteUrl, hubUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -32,7 +32,7 @@ const applicationSchema = {
   },
   featureList: [
     "Automatic face detection and cropping",
-    "16 country and document sizes",
+    `${specs.length} country and document sizes`,
     "Background replacement",
     "4 x 6 inch print sheet",
   ],
@@ -54,9 +54,9 @@ export default function HomePage() {
           intro={
             <>
               <p className="mt-4 text-[17px] text-text-light">
-                Upload a selfie and get the exact file your application asks for
-                , at 600 x 600 px, exactly 2 x 2 inches at 300 DPI for a US
-                passport, and fifteen other sizes.
+                Upload a selfie and get the exact file your application asks for,
+                at 600 x 600 px, exactly 2 x 2 inches at 300 DPI for a US
+                passport, and {specs.length - 1} other verified sizes.
               </p>
               <p className="mt-3 text-[15px] text-text-light">
                 The cropping happens in this browser tab. Your photo never leaves
@@ -109,7 +109,7 @@ export default function HomePage() {
           </ul>
         </section>
 
-        <OtherSizes />
+        <DocumentIndex />
       </div>
     </>
   );
