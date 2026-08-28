@@ -95,24 +95,29 @@ export async function submitEmail(email: string, honeypot: string): Promise<bool
 }
 
 /**
- * Where a submit is counted, sent through the very same aggregate hit as a page
- * view: a kit and a path and nothing else, so a submit is as anonymous as any
- * page count. The `_event` prefix is a namespace no real page uses, which keeps
- * this conversion signal filterable from ordinary traffic. Submit is the only
- * event: the gate is mandatory, so there is nothing else to count.
+ * Where each choice is counted, sent through the very same aggregate hit as a
+ * page view: a kit and a path and nothing else, so a choice is as anonymous as
+ * any page count. The `_event` prefix is a namespace no real page uses, which
+ * keeps these conversion signals filterable from ordinary traffic.
+ *
+ * Both a submit and a skip are counted. Together with the pageview they let the
+ * dashboard show submit against skip against abandon, so whether the gate should
+ * ask at all is settled by the numbers rather than by opinion.
  */
 export const GATE_SUBMIT_EVENT = "/_event/email-submit";
+export const GATE_SKIP_EVENT = "/_event/email-skip";
 
 /**
- * The two ways out of the gate. There is no skip: submit is the only path that
- * completes the action, and cancel is the only path that abandons it.
+ * The ways out of the gate. Skip is back: a submit hands over an address, a skip
+ * declines it but still takes the file, and both mark the session so the ask
+ * comes once. Cancel, the X and Escape abandon the action entirely.
  */
-export type GateChoice = "submit" | "cancel";
+export type GateChoice = "submit" | "skip" | "cancel";
 
 export type GateOutcome = {
   /** Post the typed address to the hub. Only a submit does. */
   sendEmail: boolean;
-  /** Mark the session so the gate does not ask again. Only a submit does. */
+  /** Mark the session so the gate does not ask again. A submit or a skip does. */
   remember: boolean;
   /** Run what the person asked for, the download or the copy. */
   runAction: boolean;
@@ -125,15 +130,18 @@ export type GateOutcome = {
  * deciding inline, so the one place that defines the trade is also the place a
  * test can pin.
  *
- * The gate is mandatory. A submit sends the address, marks the session, counts
- * the one event, and runs the action; it is the only route to the file. A
+ * A submit sends the address, marks the session, counts the submit, and runs the
+ * action. A skip sends nothing, still marks the session, counts the skip, and
+ * still runs the action: it is a quiet decline, not a bypass of the product. A
  * cancel abandons: it runs nothing and marks nothing, so the ask returns on the
- * next action. There is no third way past.
+ * next action.
  */
 export function gateOutcome(choice: GateChoice): GateOutcome {
   switch (choice) {
     case "submit":
       return { sendEmail: true, remember: true, runAction: true, countPath: GATE_SUBMIT_EVENT };
+    case "skip":
+      return { sendEmail: false, remember: true, runAction: true, countPath: GATE_SKIP_EVENT };
     case "cancel":
       return { sendEmail: false, remember: false, runAction: false, countPath: null };
   }

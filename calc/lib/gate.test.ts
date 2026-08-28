@@ -1,16 +1,18 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   GATE_SUBMIT_EVENT,
+  GATE_SKIP_EVENT,
   gateOutcome,
   hasGivenEmail,
   rememberEmailGiven,
 } from "./emailCapture";
 
 /**
- * The gate is mandatory. The dialog reads `gateOutcome` rather than deciding
+ * The gate is skippable. The dialog reads `gateOutcome` rather than deciding
  * inline, so asserting the outcomes here is asserting the behaviour the person
- * sees: a submit that hands over the file and marks the session, a cancel that
- * abandons with no address and no flag, and no third way past.
+ * sees: a submit that hands over the file and marks the session, a skip that
+ * also hands over the file and marks the session but sends no address, and a
+ * cancel that abandons with no address and no flag.
  */
 
 /** A minimal sessionStorage, so the flag can be exercised without a browser. */
@@ -38,12 +40,21 @@ afterEach(() => {
 });
 
 describe("gateOutcome", () => {
-  it("submit sends the address, marks the session, counts one event, and runs the action", () => {
+  it("submit sends the address, marks the session, counts the submit, and runs the action", () => {
     expect(gateOutcome("submit")).toEqual({
       sendEmail: true,
       remember: true,
       runAction: true,
       countPath: GATE_SUBMIT_EVENT,
+    });
+  });
+
+  it("skip sends no address, still marks the session, counts the skip, and runs the action", () => {
+    expect(gateOutcome("skip")).toEqual({
+      sendEmail: false,
+      remember: true,
+      runAction: true,
+      countPath: GATE_SKIP_EVENT,
     });
   });
 
@@ -56,27 +67,27 @@ describe("gateOutcome", () => {
     });
   });
 
-  it("has no skip path: submit is the only choice that completes an action", () => {
-    // @ts-expect-error "skip" is not a GateChoice; the path no longer exists.
-    expect(gateOutcome("skip")).toBeUndefined();
-    // The only completing choice is a submit, and it is the only counted event.
+  it("has two completing choices, submit and skip, and only cancel abandons", () => {
     expect(gateOutcome("submit").runAction).toBe(true);
+    expect(gateOutcome("skip").runAction).toBe(true);
     expect(gateOutcome("cancel").runAction).toBe(false);
-    expect(gateOutcome("cancel").countPath).toBeNull();
+    // Skip is the quiet decline: it never sends an address.
+    expect(gateOutcome("skip").sendEmail).toBe(false);
   });
 
-  it("counts the submit under a path a hit can accept, with no personal data", () => {
+  it("counts both choices under paths a hit can accept, with no personal data", () => {
+    for (const path of [GATE_SUBMIT_EVENT, GATE_SKIP_EVENT]) {
+      expect(path.startsWith("/_event/")).toBe(true);
+      expect(path.length).toBeLessThanOrEqual(128);
+      expect(NOT_IN_A_PATH.test(path)).toBe(false);
+    }
     expect(GATE_SUBMIT_EVENT).toBe("/_event/email-submit");
-    expect(GATE_SUBMIT_EVENT.startsWith("/")).toBe(true);
-    expect(GATE_SUBMIT_EVENT.length).toBeLessThanOrEqual(128);
-    expect(NOT_IN_A_PATH.test(GATE_SUBMIT_EVENT)).toBe(false);
-    // Nothing anywhere counts a skip.
-    expect(GATE_SUBMIT_EVENT).not.toContain("skip");
+    expect(GATE_SKIP_EVENT).toBe("/_event/email-skip");
   });
 });
 
 describe("the once-per-session flag", () => {
-  it("is unset until a submit remembers it", () => {
+  it("is unset until a choice remembers it", () => {
     stubSession();
     expect(hasGivenEmail()).toBe(false);
   });
@@ -88,9 +99,15 @@ describe("the once-per-session flag", () => {
     expect(hasGivenEmail()).toBe(true);
   });
 
+  it("is also set by a skip, so a skip is once per session too", () => {
+    stubSession();
+    expect(gateOutcome("skip").remember).toBe(true);
+    rememberEmailGiven();
+    expect(hasGivenEmail()).toBe(true);
+  });
+
   it("is not set by a cancel: the ask returns on the next action", () => {
     stubSession();
-    // A cancel does not remember, so the flag stays unset and the gate reopens.
     expect(gateOutcome("cancel").remember).toBe(false);
     expect(hasGivenEmail()).toBe(false);
   });

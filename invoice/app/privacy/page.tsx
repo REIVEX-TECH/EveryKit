@@ -39,7 +39,7 @@ export default function PrivacyPage() {
           <h2 className="text-[19px] text-foreground">Your email address</h2>
           <p className="mt-2">
             Before you copy or download a document we ask for your email address,
-            and it is required. There is no skip link. You are asked once per
+            and you can skip it. You are asked once per
             session; after that, copying and downloading go straight through.
           </p>
           <p className="mt-2">

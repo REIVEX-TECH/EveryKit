@@ -27,6 +27,13 @@ type Props = {
 };
 
 /**
+ * Skip is a completion, not a cancel: it declines the address but still hands
+ * over the file, marks the session so the ask comes once, and counts the skip.
+ * It is deliberately quiet, under the submit, so it never competes with giving
+ * an address, but it is a real, keyboard-reachable button with no dark pattern.
+ */
+
+/**
  * Asked once a session, at the point someone takes their file.
  *
  * A native <dialog> rather than a div, for the focus trap, the top layer and
@@ -42,11 +49,11 @@ type Props = {
  * the browser closes the dialog itself, and `settled` keeps the two paths from
  * both firing.
  *
- * The gate is mandatory. A validly formatted address, submitted, is the only
- * route to the file: submit sends it, marks the session and runs the action,
- * and a submit is counted once through the aggregate hit so the trade is
- * measurable, carrying a kit and a path and nothing about the person. Cancel,
- * the X, Escape and a backdrop click abandon, and there is no other way past.
+ * The gate is skippable. Submitting a valid address sends it, marks the session
+ * and runs the action; skipping declines the address but still marks the session
+ * and runs the action. Both are counted once through the aggregate hit so the
+ * trade is measurable, each carrying a kit and a path and nothing about the
+ * person. Cancel, the X, Escape and a backdrop click abandon the action.
  *
  * The one thing that must never be removed: if the request to the hub fails or
  * times out, the action still runs. That lives in `submitEmail`, which resolves
@@ -133,6 +140,20 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
     if (outcome.runAction) onDone();
   }
 
+  /**
+   * Decline the address but still take the file. Marks the session so the ask
+   * comes once, counts the skip, and runs the action. No email is sent.
+   */
+  function skip() {
+    if (settled.current || busy) return;
+    const outcome = gateOutcome("skip");
+    if (outcome.remember) rememberEmailGiven();
+    if (outcome.countPath) countPageview(outcome.countPath);
+    settled.current = true;
+    dialogRef.current?.close();
+    if (outcome.runAction) onDone();
+  }
+
   return (
     <dialog
       ref={dialogRef}
@@ -168,8 +189,8 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
         </div>
 
         <p className="mt-2 text-[14px] text-text-light">
-          An email address is needed to continue. One email when a kit launches,
-          nothing else, and we do not pass it on.
+          Leave your email for one message when a new kit launches, nothing else,
+          and we do not pass it on. Or skip and take your file now.
         </p>
 
         <label htmlFor={fieldId} className="mt-4 block text-[14px] font-semibold text-foreground">
@@ -217,6 +238,17 @@ export function EmailGate({ onDone, onCancel, actionLabel }: Props) {
             disabled={!valid || busy}
           >
             {busy ? "One moment" : actionLabel}
+          </button>
+        </div>
+
+        <div className="mt-3 text-center">
+          <button
+            type="button"
+            onClick={skip}
+            disabled={busy}
+            className="rounded-[6px] px-2 py-1 text-[13px] text-text-light underline underline-offset-2 hover:text-foreground disabled:opacity-50"
+          >
+            Skip for now
           </button>
         </div>
       </form>
