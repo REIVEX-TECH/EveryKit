@@ -21,6 +21,13 @@ export type Overview = {
 
 export type Count = { label: string; count: number };
 export type DayCount = { day: string; count: number };
+export type FunnelRow = {
+  kit: string;
+  opened: number;
+  completed: number;
+  submit: number;
+  skip: number;
+};
 
 export type Signup = {
   email: string;
@@ -35,9 +42,18 @@ export type Dashboard = {
   signupsByKit: Count[];
   signupsPerDay: DayCount[];
   viewsByKit: Count[];
+  funnel: FunnelRow[];
   countingSince: string | null;
   recent: Signup[];
 };
+
+/**
+ * The reserved namespace for our own events. Page views must exclude it, so the
+ * traffic numbers count pages a person saw and nothing we fired ourselves. The
+ * underscore is escaped because it is a wildcard in LIKE.
+ */
+const NOT_EVENT = "path NOT LIKE '/\\_event/%' ESCAPE '\\'";
+const IS_EVENT = "path LIKE '/\\_event/%' ESCAPE '\\'";
 
 /** How many days the two histories cover. */
 export const SIGNUP_DAYS = 14;
@@ -77,8 +93,8 @@ export async function loadDashboard(): Promise<Dashboard | null> {
        (SELECT count(*) FROM emails WHERE created_at >= current_date) AS emails_today,
        (SELECT count(*) FROM emails WHERE created_at >= current_date - 6) AS emails_week,
        (SELECT count(*) FROM emails WHERE hits > 1) AS emails_returning,
-       (SELECT coalesce(sum(count), 0) FROM pageviews WHERE day = current_date) AS views_today,
-       (SELECT coalesce(sum(count), 0) FROM pageviews WHERE day >= current_date - 6) AS views_week,
+       (SELECT coalesce(sum(count), 0) FROM pageviews WHERE day = current_date AND ${NOT_EVENT}) AS views_today,
+       (SELECT coalesce(sum(count), 0) FROM pageviews WHERE day >= current_date - 6 AND ${NOT_EVENT}) AS views_week,
        to_char(current_date, 'YYYY-MM-DD') AS today,
        (SELECT to_char(min(day), 'YYYY-MM-DD') FROM pageviews) AS counting_since`,
   );
@@ -103,9 +119,23 @@ export async function loadDashboard(): Promise<Dashboard | null> {
   const traffic = await pool.query(
     `SELECT kit, sum(count) AS count
        FROM pageviews
-      WHERE day >= current_date - $1::int
+      WHERE day >= current_date - $1::int AND ${NOT_EVENT}
       GROUP BY kit
       ORDER BY count DESC, kit`,
+    [TRAFFIC_DAYS - 1],
+  );
+
+  // The conversion funnel: our own events, per kit, over the traffic window.
+  const funnel = await pool.query(
+    `SELECT kit,
+            coalesce(sum(count) FILTER (WHERE path = '/_event/tool-opened'), 0) AS opened,
+            coalesce(sum(count) FILTER (WHERE path = '/_event/tool-completed'), 0) AS completed,
+            coalesce(sum(count) FILTER (WHERE path = '/_event/email-submit'), 0) AS submit,
+            coalesce(sum(count) FILTER (WHERE path = '/_event/email-skip'), 0) AS skip
+       FROM pageviews
+      WHERE day >= current_date - $1::int AND ${IS_EVENT}
+      GROUP BY kit
+      ORDER BY completed DESC, opened DESC, kit`,
     [TRAFFIC_DAYS - 1],
   );
 
@@ -141,6 +171,13 @@ export async function loadDashboard(): Promise<Dashboard | null> {
     viewsByKit: traffic.rows.map((row) => ({
       label: String(row.kit),
       count: toNumber(row.count),
+    })),
+    funnel: funnel.rows.map((row) => ({
+      kit: String(row.kit),
+      opened: toNumber(row.opened),
+      completed: toNumber(row.completed),
+      submit: toNumber(row.submit),
+      skip: toNumber(row.skip),
     })),
     countingSince: totals.counting_since ? String(totals.counting_since) : null,
     recent: recent.rows.map((row) => ({

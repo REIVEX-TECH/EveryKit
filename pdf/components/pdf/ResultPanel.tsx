@@ -5,6 +5,7 @@ import { Download, Lock } from "lucide-react";
 import { EmailGate } from "@/components/site/EmailGate";
 import { MoreFromEveryKit } from "@/components/site/MoreFromEveryKit";
 import { hasGivenEmail } from "@/lib/emailCapture";
+import { countToolCompleted } from "@/lib/pageview";
 import { PAYMENTS_ENABLED, PRICE_LABEL, hasPaid, startCheckout } from "@/lib/payments";
 import { formatBytes } from "@/lib/pdf/files";
 import { revealResult } from "@/lib/revealResult";
@@ -59,6 +60,7 @@ export function ResultPanel({ files, note, lockedReason, onStartOver }: Props) {
   function take(selection: ResultFile[]) {
     if (hasGivenEmail()) {
       selection.forEach(saveFile);
+      countToolCompleted();
       return;
     }
     setGateFor(selection);
@@ -164,6 +166,7 @@ export function ResultPanel({ files, note, lockedReason, onStartOver }: Props) {
           actionLabel={gateFor.length === 1 ? "Save the file" : `Save ${gateFor.length} files`}
           onDone={() => {
             gateFor.forEach(saveFile);
+            countToolCompleted();
             setGateFor(null);
           }}
           // Dismissed: the files are not saved. This is a cancel, not a skip.

@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Check, Copy, Download } from "lucide-react";
 import { EmailGate } from "@/components/site/EmailGate";
 import { hasGivenEmail } from "@/lib/emailCapture";
+import { countToolCompleted, countToolOpened } from "@/lib/pageview";
 
 /**
  * The pieces every tool in this kit is built from.
@@ -24,9 +25,15 @@ import { hasGivenEmail } from "@/lib/emailCapture";
 export function useTake(actionLabel: string) {
   const [pending, setPending] = useState<(() => void) | null>(null);
 
+  // The tool's main action UI is present, so count the open once per tool view.
+  useEffect(() => {
+    countToolOpened();
+  }, []);
+
   const take = useCallback((action: () => void) => {
     if (hasGivenEmail()) {
       action();
+      countToolCompleted();
       return;
     }
     setPending(() => action);
@@ -37,6 +44,7 @@ export function useTake(actionLabel: string) {
       actionLabel={actionLabel}
       onDone={() => {
         pending();
+        countToolCompleted();
         setPending(null);
       }}
       onCancel={() => setPending(null)}

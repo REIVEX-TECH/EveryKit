@@ -6,6 +6,7 @@ import {
   loadDashboard,
   type Count,
   type DayCount,
+  type FunnelRow,
 } from "@/lib/admin/stats";
 
 export const metadata: Metadata = {
@@ -43,7 +44,7 @@ export default async function AdminDashboard() {
     );
   }
 
-  const { overview, signupsByKit, signupsPerDay, viewsByKit, countingSince, recent } = data;
+  const { overview, signupsByKit, signupsPerDay, viewsByKit, funnel, countingSince, recent } = data;
   const now = Date.now();
 
   return (
@@ -82,6 +83,16 @@ export default async function AdminDashboard() {
           <Bars rows={viewsByKit} empty="Nothing counted yet." />
         </section>
       </div>
+
+      <section className="mt-8">
+        <h2 className="text-[18px]">Conversion funnel by kit</h2>
+        <p className="mt-1 text-[13px] text-text-light">
+          Last {TRAFFIC_DAYS} days. Opened is a tool view, completed is a result taken, then the
+          email choice. Opened and completed are instrumented on the busier kits so far; email
+          submit and skip are counted everywhere.
+        </p>
+        <Funnel rows={funnel} />
+      </section>
 
       <section className="mt-8">
         <h2 className="text-[18px]">Signups per day</h2>
@@ -184,6 +195,46 @@ function Bars({ rows, empty }: { rows: Count[]; empty: string }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/** The funnel table: opened, completed, submit, skip per kit, with a rate. */
+function Funnel({ rows }: { rows: FunnelRow[] }) {
+  if (rows.length === 0) {
+    return <p className="mt-3 text-[14px] text-text-light">No events counted yet.</p>;
+  }
+  return (
+    <div className="mt-3 overflow-x-auto">
+      <table className="w-full min-w-[560px] border-collapse text-[13px]">
+        <thead>
+          <tr className="border-b border-line text-left text-text-light">
+            <th className="py-2 pr-3 font-semibold">Kit</th>
+            <th className="py-2 pr-3 text-right font-semibold">Opened</th>
+            <th className="py-2 pr-3 text-right font-semibold">Completed</th>
+            <th className="py-2 pr-3 text-right font-semibold">Done rate</th>
+            <th className="py-2 pr-3 text-right font-semibold">Email given</th>
+            <th className="py-2 pr-3 text-right font-semibold">Skipped</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => {
+            const rate = row.opened > 0 ? Math.round((row.completed / row.opened) * 100) : null;
+            return (
+              <tr key={row.kit} className="border-b border-line">
+                <td className="py-1.5 pr-3 font-semibold">{row.kit}</td>
+                <td className="py-1.5 pr-3 text-right tabular-nums">{row.opened.toLocaleString("en")}</td>
+                <td className="py-1.5 pr-3 text-right tabular-nums">{row.completed.toLocaleString("en")}</td>
+                <td className="py-1.5 pr-3 text-right tabular-nums text-text-light">
+                  {rate === null ? "" : `${rate}%`}
+                </td>
+                <td className="py-1.5 pr-3 text-right tabular-nums">{row.submit.toLocaleString("en")}</td>
+                <td className="py-1.5 pr-3 text-right tabular-nums">{row.skip.toLocaleString("en")}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
