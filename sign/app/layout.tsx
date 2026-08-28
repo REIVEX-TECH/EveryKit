@@ -6,6 +6,7 @@ import {
   Homemade_Apple,
   IBM_Plex_Sans,
 } from "next/font/google";
+import { BookmarkNudge } from "@/components/site/BookmarkNudge";
 import { PageViews } from "@/components/site/PageViews";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteHeader />
         <main id="main">{children}</main>
         <SiteFooter />
+        <BookmarkNudge />
         <PageViews />
       </body>
     </html>
