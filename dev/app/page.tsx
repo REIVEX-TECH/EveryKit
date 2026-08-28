@@ -41,6 +41,9 @@ export default function Home() {
             The ones you reach for between other jobs. Every one of them runs in this page, so
             nothing you paste leaves your browser.
           </p>
+          <p className="mx-auto mt-4 inline-flex items-center rounded-full border border-line bg-bg-soft px-4 py-1.5 text-[14px] text-foreground">
+            Runs in your browser. Your tokens and payloads never leave the tab.
+          </p>
         </div>
 
         <div className="mt-10">

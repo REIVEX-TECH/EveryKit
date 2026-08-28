@@ -40,6 +40,9 @@ export default function Home() {
             The tools that come up every term, grouped so they are quick to find. Each one runs in
             this page, so your grades, notes and essays stay on your own device.
           </p>
+          <p className="mx-auto mt-4 inline-flex items-center rounded-full border border-line bg-bg-soft px-4 py-1.5 text-[14px] text-foreground">
+            Runs in your browser. Your grades and notes never leave your device.
+          </p>
         </div>
 
         <div className="mt-10">

@@ -40,6 +40,9 @@ export default function Home() {
             Filter by what you need and get on with it. Each tool runs in this page, so your
             students&apos; names and marks stay on your own device.
           </p>
+          <p className="mx-auto mt-4 inline-flex items-center rounded-full border border-line bg-bg-soft px-4 py-1.5 text-[14px] text-foreground">
+            Runs in your browser. Your students&apos; names and marks never leave your device.
+          </p>
         </div>
 
         <div className="mt-10">
