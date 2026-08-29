@@ -4,7 +4,7 @@ import { ExamplePair } from "@/components/site/ExamplePair";
 import { DocumentIndex } from "@/components/site/DocumentIndex";
 import { PhotoTool } from "@/components/tool/PhotoTool";
 import { DEFAULT_SPEC_SLUG, getSpecOrDefault, specs } from "@/data/specs";
-import { PARENT_NAME, PARENT_URL, SITE_NAME, absoluteUrl, hubUrl } from "@/lib/site";
+import { PARENT_NAME, PARENT_URL, SITE_NAME, absoluteUrl, hubUrl, kitUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: `Passport and visa photos from a selfie, free | ${SITE_NAME}`,
@@ -108,6 +108,14 @@ export default function HomePage() {
             </li>
           </ul>
         </section>
+
+        <p className="mt-16 max-w-[640px] text-[15px] text-text-light">
+          Just need a white background and not a specific photo size?{" "}
+          <a href={kitUrl("background", "/white-background")} className="ek-link">
+            Make a photo background white
+          </a>{" "}
+          with the background tool.
+        </p>
 
         <DocumentIndex />
       </div>

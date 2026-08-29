@@ -46,6 +46,22 @@ export default async function ModePage({ params }: Params) {
     })),
   };
 
+  // The first steps block, if any, is also the source for HowTo structured data,
+  // so the words Google reads for a rich result are the words on the page.
+  const howToSection = page.sections?.find((section) => section.steps?.length);
+  const howToJsonLd = howToSection
+    ? {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        name: howToSection.heading,
+        step: (howToSection.steps ?? []).map((text, index) => ({
+          "@type": "HowToStep",
+          position: index + 1,
+          text,
+        })),
+      }
+    : null;
+
   const others = modePages.filter((other) => other.slug !== page.slug);
 
   return (
@@ -54,6 +70,12 @@ export default async function ModePage({ params }: Params) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
+      {howToJsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }}
+        />
+      ) : null}
 
       <div className="ek-shell py-10 sm:py-12">
         {/*
@@ -81,6 +103,32 @@ export default async function ModePage({ params }: Params) {
         <div className="mt-8">
           <Workbench initialMode={page.preset} />
         </div>
+
+        {page.sections?.map((section) => (
+          <section key={section.heading} className="mt-14 max-w-[820px]">
+            <h2 className="text-[22px]">{section.heading}</h2>
+            {section.steps ? (
+              <ol className="mt-5 flex flex-col gap-3">
+                {section.steps.map((step, index) => (
+                  <li key={step} className="flex max-w-[64ch] gap-3 text-[16px] text-text-light">
+                    <span
+                      aria-hidden="true"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-bg-soft text-[14px] font-semibold text-foreground"
+                    >
+                      {index + 1}
+                    </span>
+                    <span className="pt-0.5">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : null}
+            {section.body?.map((paragraph) => (
+              <p key={paragraph} className="mt-3 max-w-[64ch] text-[16px] text-text-light">
+                {paragraph}
+              </p>
+            ))}
+          </section>
+        ))}
 
         <section className="mt-14 max-w-[820px]">
           <h2 className="text-[22px]">Questions</h2>

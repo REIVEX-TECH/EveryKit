@@ -8,19 +8,34 @@ import type { OutputMode } from "@/lib/background/output";
 
 export type Faq = { q: string; a: string };
 
+/**
+ * A block of on-page prose under its own H2. Either a run of paragraphs or a
+ * numbered list of steps. The steps block on the white page doubles as the
+ * source for the HowTo structured data, so the on-page words and the words
+ * Google reads for a rich result are the same words.
+ */
+export type Section = {
+  heading: string;
+  body?: string[];
+  steps?: string[];
+};
+
 export type ModePage = {
   slug: "transparent-background" | "white-background";
   title: string;
   /**
    * The on-page H1, when it should differ from the launcher title. The white
-   * page uses this to say the searcher's exact words, "make your background
-   * white", while the tile and the cross-links stay the short noun phrase.
+   * page uses this to say the searcher's exact words, "make your photo
+   * background white", while the tile and the cross-links stay the short noun
+   * phrase.
    */
   h1?: string;
   blurb: string;
   seoTitle: string;
   description: string;
   intro: string[];
+  /** Rich content under the tool, before the FAQ. Optional per page. */
+  sections?: Section[];
   preset: OutputMode;
   faq: Faq[];
 };
@@ -71,20 +86,46 @@ export const modePages: ModePage[] = [
   {
     slug: "white-background",
     title: "White background",
-    h1: "Make your background white",
+    h1: "Make your photo background white",
     blurb: "Put the subject on a clean white ground",
-    seoTitle: "Make photo background white online, free",
+    seoTitle: "Make photo background white online, free, no upload",
     description:
-      "Change any photo background to white in your browser, free, nothing uploaded. Other solid colours too.",
+      "Change any photo background to solid white online, free. Add a photo, get a white background instantly. Runs in your browser, nothing is uploaded.",
     intro: [
-      "Drop in a photo and make your background white in one step. The background is removed and replaced with plain white, ready for an ID or passport photo, a product shot, a profile picture, or a form that asks for a white background.",
+      "Drop in a photo and make your photo background white in one step. The background is removed and replaced with solid white, ready for an ID or passport photo, a product shot, a profile picture, or a form that asks for a white background.",
       "White is the default here. There is also a row of colour presets and a hex box, so any flat colour works the same way. It all happens on your own device, and the photo is never uploaded.",
+    ],
+    sections: [
+      {
+        heading: "How to make a photo background white",
+        steps: [
+          "Open the tool above and drop in your photo, or choose a file. JPG, PNG and WebP all work.",
+          "Press remove the background. Your subject is cut out and placed on solid white, which is the default setting here.",
+          "Check the zoomed-in edge preview, especially around hair, so you can see the cutout before you commit to it.",
+          "Save the finished photo to your device. Nothing is uploaded at any point.",
+        ],
+      },
+      {
+        heading: "How to get a white background on photos",
+        body: [
+          "Any photo works as a starting point, including one taken on a phone against an ordinary wall. The tool finds the subject, removes whatever is behind it, and fills the space with even white, so you do not need a studio, a white wall or a lightbox to get a white background.",
+          "That is what most ID and passport photos, product listings and profile pictures ask for. For an ID or passport photo, if you also need an exact size with the head height and eye position set correctly, EveryKit Photos does that sizing and has this same white background built in.",
+        ],
+      },
     ],
     preset: { kind: "colour", hex: "#ffffff" },
     faq: [
       {
         q: "How do I make a photo background white?",
-        a: "Drop your photo in above and press the button. The tool removes the background and puts your subject on plain white, which is the default here. Then save the file. It all runs in your browser, so the photo is never uploaded, and there is a row of other colours and a hex box if you want a different one.",
+        a: "Drop your photo in above and press the button. The tool removes the background and puts your subject on solid white, which is the default here. Then save the file. It all runs in your browser, so the photo is never uploaded, and there is a row of other colours and a hex box if you want a different one.",
+      },
+      {
+        q: "How do I get a white background on photos?",
+        a: "Add the photo to the tool above and press the button. It removes whatever is behind your subject and puts a solid white background in its place, then you save the file. It works on a photo from a phone or a camera, and it all runs in your browser, so the photo is never uploaded.",
+      },
+      {
+        q: "How do I get a white background without a studio or a white wall?",
+        a: "You do not need either. The tool separates the subject from its background and fills the background with even white, so a photo taken anywhere, against any wall, comes out with a clean white background.",
       },
       UPLOAD_ANSWER,
       {
