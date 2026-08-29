@@ -17,6 +17,9 @@ export type Overview = {
   emailsReturning: number;
   viewsToday: number;
   viewsWeek: number;
+  /** Hits bucketed to /_event/not-found: bot probes and 404s the counter caught. */
+  notFoundToday: number;
+  notFoundWeek: number;
 };
 
 export type Count = { label: string; count: number };
@@ -42,6 +45,8 @@ export type Dashboard = {
   signupsByKit: Count[];
   signupsPerDay: DayCount[];
   viewsByKit: Count[];
+  /** Hub-served pages broken out by path, so /from-lgu and /about show on their own. */
+  pagesByPath: Count[];
   funnel: FunnelRow[];
   countingSince: string | null;
   recent: Signup[];
@@ -95,6 +100,8 @@ export async function loadDashboard(): Promise<Dashboard | null> {
        (SELECT count(*) FROM emails WHERE hits > 1) AS emails_returning,
        (SELECT coalesce(sum(count), 0) FROM pageviews WHERE day = current_date AND ${NOT_EVENT}) AS views_today,
        (SELECT coalesce(sum(count), 0) FROM pageviews WHERE day >= current_date - 6 AND ${NOT_EVENT}) AS views_week,
+       (SELECT coalesce(sum(count), 0) FROM pageviews WHERE path = '/_event/not-found' AND day = current_date) AS not_found_today,
+       (SELECT coalesce(sum(count), 0) FROM pageviews WHERE path = '/_event/not-found' AND day >= current_date - 6) AS not_found_week,
        to_char(current_date, 'YYYY-MM-DD') AS today,
        (SELECT to_char(min(day), 'YYYY-MM-DD') FROM pageviews) AS counting_since`,
   );
@@ -122,6 +129,19 @@ export async function loadDashboard(): Promise<Dashboard | null> {
       WHERE day >= current_date - $1::int AND ${NOT_EVENT}
       GROUP BY kit
       ORDER BY count DESC, kit`,
+    [TRAFFIC_DAYS - 1],
+  );
+
+  // The hub's own pages, broken out by path. "Traffic by kit" sums every hub
+  // page into one bucket, which hides landings like /from-lgu and /about; this
+  // splits them back apart. Only the hub is stored path-by-path here (kits post
+  // their own slug), so the kit filter keeps the rows meaningful.
+  const pages = await pool.query(
+    `SELECT path, sum(count) AS count
+       FROM pageviews
+      WHERE kit = 'hub' AND day >= current_date - $1::int AND ${NOT_EVENT}
+      GROUP BY path
+      ORDER BY count DESC, path`,
     [TRAFFIC_DAYS - 1],
   );
 
@@ -158,6 +178,8 @@ export async function loadDashboard(): Promise<Dashboard | null> {
       emailsReturning: toNumber(totals.emails_returning),
       viewsToday: toNumber(totals.views_today),
       viewsWeek: toNumber(totals.views_week),
+      notFoundToday: toNumber(totals.not_found_today),
+      notFoundWeek: toNumber(totals.not_found_week),
     },
     signupsByKit: byKit.rows.map((row) => ({
       label: String(row.first_kit),
@@ -170,6 +192,10 @@ export async function loadDashboard(): Promise<Dashboard | null> {
     ),
     viewsByKit: traffic.rows.map((row) => ({
       label: String(row.kit),
+      count: toNumber(row.count),
+    })),
+    pagesByPath: pages.rows.map((row) => ({
+      label: String(row.path),
       count: toNumber(row.count),
     })),
     funnel: funnel.rows.map((row) => ({

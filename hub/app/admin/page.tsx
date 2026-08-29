@@ -44,7 +44,8 @@ export default async function AdminDashboard() {
     );
   }
 
-  const { overview, signupsByKit, signupsPerDay, viewsByKit, funnel, countingSince, recent } = data;
+  const { overview, signupsByKit, signupsPerDay, viewsByKit, pagesByPath, funnel, countingSince, recent } =
+    data;
   const now = Date.now();
 
   return (
@@ -63,6 +64,16 @@ export default async function AdminDashboard() {
           <Card label="Came back" value={overview.emailsReturning} note="more than one visit" />
           <Card label="Views today" value={overview.viewsToday} />
           <Card label="Views this 7 days" value={overview.viewsWeek} />
+          <Card
+            label="Not found today"
+            value={overview.notFoundToday}
+            note="bot probes and 404s"
+          />
+          <Card
+            label="Not found this 7 days"
+            value={overview.notFoundWeek}
+            note="caught, kept out of views"
+          />
         </div>
       </section>
 
@@ -83,6 +94,15 @@ export default async function AdminDashboard() {
           <Bars rows={viewsByKit} empty="Nothing counted yet." />
         </section>
       </div>
+
+      <section className="mt-8">
+        <h2 className="text-[18px]">Traffic by page</h2>
+        <p className="mt-1 text-[13px] text-text-light">
+          Last {TRAFFIC_DAYS} days. The hub&apos;s own pages, split by path, so landings like
+          /from-lgu show on their own instead of folded into the hub total above.
+        </p>
+        <Bars rows={pagesByPath} empty="No hub pages counted yet." />
+      </section>
 
       <section className="mt-8">
         <h2 className="text-[18px]">Conversion funnel by kit</h2>
