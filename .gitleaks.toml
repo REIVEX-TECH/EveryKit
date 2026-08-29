@@ -1,0 +1,15 @@
+# gitleaks configuration for EveryKit.
+#
+# Extends the default gitleaks ruleset and allowlists known test fixtures by
+# path, so secret scanning stays green in CI without pinning to commit hashes
+# (which change if history is ever rewritten).
+title = "EveryKit gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "The curl-parser unit tests use example basic-auth input against a fake host, not real credentials."
+paths = [
+  '''dev/lib/dev/curl\.test\.ts''',
+]
