@@ -11,8 +11,8 @@ Lives at **photos.useeverykit.com**. One kit in the EveryKit family, by
 
 This is the `photos/` folder of the [EveryKit repo](../README.md). The shared
 context — brand, design system, payments and layout conventions — is in
-[CLAUDE.md](../CLAUDE.md) at the repo root. Read it before changing anything
-user-facing. Launch status is in [LAUNCH.md](../LAUNCH.md).
+[CONTRIBUTING.md](../CONTRIBUTING.md) at the repo root. Read it before changing
+anything user-facing.
 
 ## Local setup
 
@@ -48,11 +48,11 @@ failing quietly; the file lists what finishing it involves.
 
 ## Deploying
 
-Runs as PM2 process `everykit-photos` behind Caddy on the VPS, on port 3001. Deploys with `./deploy.sh` from the repo root.
+Runs as PM2 process `everykit-photos` behind nginx on the VPS, on port 3001. Deploys with `./deploy.sh` from the repo root.
 
-For the human, not automated: point an A record at the VPS for
-`photos.useeverykit.com` to this project, and set the environment variables in
-`/root/codes/EveryKit/.env.production`. Exact records are in [LAUNCH.md](../LAUNCH.md).
+A wildcard `*.useeverykit.com` DNS record resolves the subdomain, and the
+environment variables live in a git-ignored `.env.production` at the repo root
+(see [`.env.production.example`](../.env.production.example) for the shape).
 
 ## How the crop maths works
 

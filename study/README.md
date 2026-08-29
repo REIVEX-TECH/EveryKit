@@ -98,4 +98,4 @@ Runs as the PM2 process `everykit-study` on **port 3022**, behind nginx.
 - nginx server block: `deploy/nginx/useeverykit.conf`
   (`study.useeverykit.com` → `127.0.0.1:3022`).
 - Build order and reload: `deploy.sh` at the repo root.
-- DNS and the certbot step for this subdomain: `LAUNCH.md`.
+- DNS and TLS: a wildcard `*.useeverykit.com` record resolves the subdomain, and [`deploy/edge.sh`](../deploy/edge.sh) expands the certificate when a new hostname first appears.

@@ -8,8 +8,7 @@ Lives at **letters.useeverykit.com**. One kit in the EveryKit family, by
 
 This is the `letters/` folder of the [EveryKit repo](../README.md). The shared
 context — brand, design system, payments, email capture — is in
-[CLAUDE.md](../CLAUDE.md) at the repo root. Launch status is in
-[LAUNCH.md](../LAUNCH.md).
+[CONTRIBUTING.md](../CONTRIBUTING.md) at the repo root.
 
 ## Local setup
 
@@ -121,5 +120,4 @@ same commit — "built in your browser" would no longer be the whole truth.
 
 ## Deploying
 
-Runs as PM2 process `everykit-letters` behind Caddy on the VPS, on port 3002. Deploys with `./deploy.sh` from the repo root.For the human: point an A record for `letters` at the VPS. Environment
-variables live in `/root/codes/EveryKit/.env.production`.
+Runs as PM2 process `everykit-letters` behind nginx on the VPS, on port 3002. Deploys with `./deploy.sh` from the repo root. A wildcard `*.useeverykit.com` DNS record resolves the subdomain, and the environment variables live in a git-ignored `.env.production` at the repo root (see [`.env.production.example`](../.env.production.example)).

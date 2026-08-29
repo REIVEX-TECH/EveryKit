@@ -12,8 +12,8 @@ It is not a tool and not a marketing site. Resist adding sections.
 
 This is the `hub/` folder of the [EveryKit repo](../README.md). The shared
 context — brand, design system and layout conventions — is in
-[CLAUDE.md](../CLAUDE.md) at the repo root. Read it before changing anything
-user-facing. Launch status is in [LAUNCH.md](../LAUNCH.md).
+[CONTRIBUTING.md](../CONTRIBUTING.md) at the repo root. Read it before changing
+anything user-facing.
 
 ## Local setup
 
@@ -74,8 +74,8 @@ No Docker? Any Postgres will do — create a database and run
 ### In production
 
 Postgres runs on the same VPS as the apps, listening on localhost only. The
-role and database are created once by hand; the exact commands are in
-[LAUNCH.md](../LAUNCH.md).
+role and database are created once by hand, then `db/schema.sql` is loaded
+against the database.
 
 `DATABASE_URL` goes in `/root/codes/EveryKit/.env.production`, which is
 git-ignored and read by `ecosystem.config.js` at PM2 start. Changing it needs
@@ -153,10 +153,11 @@ curl -sI https://useeverykit.com/kits.json | grep -i access-control
 
 ## Deploying
 
-Runs as PM2 process `everykit-hub` on port 3000, behind Caddy. Deploys with
+Runs as PM2 process `everykit-hub` on port 3000, behind nginx. Deploys with
 `./deploy.sh` from the repo root.
 
-For the human, not automated: attach `useeverykit.com` to this project and add
-`www.useeverykit.com` redirecting to the apex. Kit subdomains belong to their
-own PM2 processes and their own Caddy blocks — see the repo root's
-`ecosystem.config.js` and `Caddyfile`.
+Kit subdomains belong to their own PM2 processes and share the one nginx config
+— see the repo root's `ecosystem.config.js` and
+[`deploy/nginx/useeverykit.conf`](../deploy/nginx/useeverykit.conf). TLS is
+handled by [`deploy/edge.sh`](../deploy/edge.sh), which expands the certificate
+when a new hostname appears.

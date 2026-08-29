@@ -50,6 +50,8 @@ desktop.ini
 
 # Agent/editor workspace config, kept local
 .claude/
+.cursor/
+CLAUDE.md
 
 # The crop regression photo is a real person's face. It stays on the machine
 # that reproduces the bug and is never committed: this repo is public, and a

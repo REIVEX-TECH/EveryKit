@@ -87,8 +87,4 @@ Runs as the PM2 process `everykit-qr` on **port 3014**, behind nginx.
 - nginx server block: `deploy/nginx/useeverykit.conf` (`qr.useeverykit.com`
   → `127.0.0.1:3014`).
 - Build order and reload: `deploy.sh` at the repo root.
-- DNS and the certbot step for this subdomain: `LAUNCH.md`.
-
-The subdomain needs an `A` record and a certbot run that includes **every** name
-already on the certificate plus this one; see `LAUNCH.md`. Adding only the new
-name would drop the others.
+- DNS and TLS: a wildcard `*.useeverykit.com` record resolves the subdomain, and [`deploy/edge.sh`](../deploy/edge.sh) expands the certificate when a new hostname first appears.

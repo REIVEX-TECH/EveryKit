@@ -1,155 +1,138 @@
-# EveryKit
+<p align="center">
+  <img src="assets/logo.png" alt="EveryKit" width="120" height="120">
+</p>
 
-Small single-purpose web tools that each finish one everyday task in about a
-minute. Free preview, one small payment for the finished file, no accounts.
+<h1 align="center">EveryKit</h1>
 
-Every tool runs entirely in the browser. Your file is read by the tab, worked on
-there, and never uploaded — which is both the point of the product and the
-reason it costs nothing to run.
+<p align="center">
+  Small, single-purpose web tools that each finish one everyday task in about a
+  minute. Free, and your files never leave your device.
+</p>
 
-Built by [Reivex](https://reivex.io).
+<p align="center">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-1d81f2.svg"></a>
+  <img alt="Next.js 15" src="https://img.shields.io/badge/Next.js-15-171717.svg">
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-1769d4.svg">
+</p>
+
+---
+
+EveryKit is a family of tiny web utilities built by [Reivex](https://reivex.io).
+Each one solves a single painful task, works on a phone as well as a computer,
+and is free to use with no account.
+
+The point of the product is also the reason it costs almost nothing to run:
+**every file is processed in the browser tab and never uploaded.** A passport
+photo, a PDF, a scanned document, a signature. It is read from the device,
+worked on there, and saved back, and no server ever sees it.
+
+## Privacy architecture
+
+The privacy promise is kept by the shape of the system, not by a setting.
+
+- **Files stay on the device.** Image, PDF and audio processing all run
+  client-side with WebAssembly and the Canvas APIs. There is no server-side file
+  handling anywhere in the codebase.
+- **One database table, and it holds one thing.** The only personal data the
+  platform stores is an email address, offered by the user at the moment they
+  take a result, and always skippable. Kits never hold database credentials;
+  they post to a single endpoint on the hub, which owns the table.
+- **Aggregate measurement only.** No third-party analytics, no tracking script,
+  no cookie, nothing per-person. The one measurement that exists is the hub's own
+  hit counter, which increments an aggregate `(day, kit, path, count)` row and
+  reads nothing about the caller.
+- **No paid or proprietary services.** Every dependency is free and open source,
+  so the whole platform runs on a single self-hosted server.
 
 ## The apps
 
-| | Folder | Domain | What it is |
+One hub and fourteen kits, each on its own subdomain.
+
+| App | Folder | Subdomain | What it does |
 | --- | --- | --- | --- |
-| Hub | [`hub/`](hub) | useeverykit.com | The directory of kits, `/kits.json`, and the one API endpoint |
+| Hub | [`hub/`](hub) | useeverykit.com | The directory, `/kits.json`, the shared endpoints and the admin dashboard |
 | Photos | [`photos/`](photos) | photos.useeverykit.com | Passport and visa photos cropped from a selfie |
 | Letters | [`letters/`](letters) | letters.useeverykit.com | Formal letters assembled from a short form |
+| PDF | [`pdf/`](pdf) | pdf.useeverykit.com | Merge, split, scan, OCR and shrink PDFs |
+| QR | [`qr/`](qr) | qr.useeverykit.com | QR codes for links, Wi-Fi, contacts and more |
+| Images | [`images/`](images) | images.useeverykit.com | Resize, convert, crop and compress photos |
+| Background | [`background/`](background) | background.useeverykit.com | Remove a background or replace it with solid white |
+| Text | [`text/`](text) | text.useeverykit.com | Count, convert and clean up text |
+| Sign | [`sign/`](sign) | sign.useeverykit.com | Draw a signature and sign a PDF |
+| Invoice | [`invoice/`](invoice) | invoice.useeverykit.com | Invoices, quotes and receipts as PDFs |
+| Ringtone | [`ringtone/`](ringtone) | ringtone.useeverykit.com | Trim any song into a ringtone |
+| Dev | [`dev/`](dev) | dev.useeverykit.com | Small developer tools (JSON, base64, JWT and more) |
+| Study | [`study/`](study) | study.useeverykit.com | Calculators and helpers for students |
+| Calc | [`calc/`](calc) | calc.useeverykit.com | Everyday calculators that just answer |
+| Teach | [`teach/`](teach) | teach.useeverykit.com | Classroom tools that save teachers time |
 
-None of them is deployed yet. [LAUNCH.md](LAUNCH.md) lists what is verified and what
-still needs a human.
+Each kit has its own `README.md` with the detail of how it works.
 
-## Repo map
+## Tech stack
 
-```
-CLAUDE.md      shared context: brand, design system, payments, conventions
-LAUNCH.md      pre-launch status and the remaining manual steps
-db/            the one table EveryKit has, and how to get the list out
-docker-compose.yml   local Postgres for developing the hub endpoint
-hub/           Next.js app — the directory, the registry, /api/subscribe
-photos/        Next.js app — the passport photo tool
-letters/       Next.js app — the formal letter writer
-docs/          the original build prompts, kept as a record of intent
-```
+- **Next.js 15** (App Router) and **React**, in **TypeScript** (strict).
+- **Tailwind CSS** for styling, with a shared token set (see
+  [CONTRIBUTING.md](CONTRIBUTING.md#design-system)).
+- **IBM Plex Sans** via `next/font/google`, icons from **lucide-react**.
+- **PostgreSQL** for the single email table, reached only through the hub.
+- Client-side processing with **WebAssembly** and the Canvas and Web Audio APIs.
+- Self-hosted: **PM2** processes behind **nginx** on one server.
 
-The three apps share no code. That is deliberate: consistency comes from
-`CLAUDE.md`, not from a package. A design change made in one has to be made in
-the others — a cost that stays smaller than a shared package until there are
-more kits than this.
+## Running locally
 
-## Running them
-
-Each app is a standalone Next.js project with its own `package.json`.
+You need Node 20+ and npm. Each app is its own npm project:
 
 ```bash
+cd photos
+npm install
+npm run dev
+```
+
+The hub additionally needs Postgres for its endpoints and dashboard. A local
+instance is provided via Docker:
+
+```bash
+docker compose up -d
+psql "$DATABASE_URL" -f db/schema.sql
 cd hub && npm install && npm run dev
 ```
 
-```bash
-cd photos && npm install && npm run dev
-```
+Copy the `.env.example` in any app to `.env.local` before running it. Full setup,
+the design system and the quality gate are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-```bash
-cd letters && npm install && npm run dev
-```
+## How it all fits together
 
-The ports are deliberately different — hub 4200, Photos 3000, Letters 3100 — so
-all three can run at once. That is how you test the two things that cross
-origins: the "More from EveryKit" strip, and the email ask.
-
-To point a local Photos at a local hub, put this in `photos/.env.local`:
+The apps share no runtime code. Consistency comes from the conventions in
+[CONTRIBUTING.md](CONTRIBUTING.md), not from a package, which keeps each app
+independently deployable.
 
 ```
-NEXT_PUBLIC_HUB_URL=http://localhost:4200
+hub/          the platform: directory, /kits.json, /api/subscribe, /api/hit, /admin
+<kit>/        one Next.js app per tool, standalone
+db/           the one table, and its schema
+deploy/       nginx config and the edge helper that manages TLS
+brand/        shared brand marks
 ```
 
-All three use the same commands:
+The hub's [`data/kits.ts`](hub/data/kits.ts) is the single source of truth for
+the directory, the `/kits.json` registry every kit reads, the search, and the
+cross-promotion strips.
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Dev server |
-| `npm run build` | Production build. Every route prerenders. |
-| `npm test` | Vitest |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm run lint` | ESLint |
+## Deployment
 
-Copy each app's `.env.example` to `.env.local` if you need to change anything.
-Neither app requires a secret to run.
+Everything runs on one server: a PM2 process per app on a localhost port, all
+behind nginx, with Postgres on the same box listening on localhost only.
+[`ecosystem.config.js`](ecosystem.config.js) defines the processes and
+[`deploy.sh`](deploy.sh) builds and reloads only the apps that changed. A
+wildcard `*.useeverykit.com` DNS record resolves every subdomain, and
+[`deploy/edge.sh`](deploy/edge.sh) expands the TLS certificate when a new
+hostname first appears.
 
-## Deploying
+## Contributing
 
-All three run on one VPS, as three `next start` processes behind Caddy, with
-Postgres on the same box:
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and our
+[Code of Conduct](CODE_OF_CONDUCT.md) first.
 
-| App | Port | Domain |
-| --- | --- | --- |
-| hub | 3000 | useeverykit.com (and www, redirected) |
-| photos | 3001 | photos.useeverykit.com |
-| letters | 3002 | letters.useeverykit.com |
+## License
 
-Nothing but Caddy is bound to a public interface. The apps listen on localhost,
-and Postgres listens on localhost only.
-
-| File | What it is |
-| --- | --- |
-| `ecosystem.config.js` | PM2 process definitions. Reads secrets from `.env.production`, which is git-ignored. |
-| `.env.production.example` | The shape of that file. |
-| `Caddyfile` | Copied to `/etc/caddy/Caddyfile`. Caddy obtains and renews the certificates itself. |
-| `deploy.sh` | Pull, install, build all three, then reload PM2. |
-
-Deploying a change:
-
-```bash
-cd /root/codes/EveryKit && ./deploy.sh
-```
-
-Everything is built before anything is reloaded, and the script aborts on a
-failed build — so a broken commit leaves the running site untouched rather than
-taking it down.
-
-Exact DNS records, first-time setup and environment variables are in
-[LAUNCH.md](LAUNCH.md).
-
-## The two documents
-
-**[CLAUDE.md](CLAUDE.md)** is the shared context every app is built against:
-the brand, the design tokens, the payments convention, the layout rules, and a
-definition of done. It applies to every app here and to any kit added later. Read it
-before changing anything user-facing. It is written for whoever is doing the
-work, human or otherwise.
-
-**[LAUNCH.md](LAUNCH.md)** is the current state: what has been verified and how,
-and what still needs an account, a domain or a decision. It is the handover
-document, not a changelog.
-
-## What is stored
-
-Two tables, and between them they hold one piece of personal data.
-
-An email address, if you give it, in `emails`. The hub owns it and the kits
-never hold database credentials — they POST to `/api/subscribe` and carry on
-whether it answers or not.
-
-Page counts, in `pageviews`: a date, a kit, a path and a number. Every kit posts
-to `/api/hit` once per page shown and the endpoint reads nothing else about the
-caller — no address, no user agent, no referrer, no cookie, no id. Two people
-and one person twice are the same row, permanently. That is the whole of the
-analytics, it is first party, and there is no vendor involved.
-
-Your files are a different matter and the promise there is unchanged: photos and
-letters are processed entirely in the browser and never uploaded. There is no
-server-side file handling anywhere and adding some would be a decision to make
-deliberately, not to drift into.
-
-See the email capture convention in [CLAUDE.md](CLAUDE.md), and
-[`db/`](db) for the schema and how to pull the list.
-
-## What is not here
-
-No accounts, no unsubscribe automation, no email sending, no third-party
-analytics, and nothing per-visitor anywhere.
-
-There is one dashboard, at `useeverykit.com/admin`, for the one person who runs
-this. It is server rendered, guarded by a signed cookie, noindexed, and linked
-from nowhere in the UI. It reads the two tables and writes nothing.
+[MIT](LICENSE) © Reivex
