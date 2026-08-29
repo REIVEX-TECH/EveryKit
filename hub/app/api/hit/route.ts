@@ -1,5 +1,6 @@
 import { recordPageview } from "@/lib/db";
 import { MAX_BODY_BYTES, normaliseKit, normalisePath } from "@/lib/pageviews";
+import { normalizeHitPath } from "./known-paths";
 import { readJsonObject } from "@/lib/http";
 import { isAllowedOrigin } from "@/lib/subscribe";
 
@@ -99,8 +100,12 @@ export async function POST(request: Request): Promise<Response> {
   // count nobody can trust is worse than a count that is missing.
   if (!kit || !path) return ok(origin);
 
+  // Bot probes and 404s are bucketed to /_event/not-found so they stop inflating
+  // real view counts (that path is excluded from the dashboard's view figures).
+  const countedPath = normalizeHitPath(kit, path);
+
   try {
-    await recordPageview(kit, path);
+    await recordPageview(kit, countedPath);
   } catch (error) {
     console.error("hit: could not count a page view", error);
   }
