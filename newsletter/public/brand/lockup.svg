@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" width="200" height="48" role="img" aria-label="EveryKit">
+  <!--
+    Mark plus wordmark. "Every" in the foreground colour, "Kit" in the primary,
+    the same split the text wordmark has always used.
+
+    The text is drawn as text rather than outlined so it stays selectable and
+    stays in IBM Plex Sans where the page has it; the generic fallback keeps it
+    close to right where it does not.
+  -->
+  <rect x="2"  y="2"  width="20" height="20" rx="5" fill="#1d81f2"/>
+  <rect x="26" y="2"  width="20" height="20" rx="5" fill="#ff8a4c"/>
+  <rect x="2"  y="26" width="20" height="20" rx="5" fill="#1d81f2"/>
+  <rect x="26" y="26" width="20" height="20" rx="5" fill="#1d81f2"/>
+  <text x="60" y="24" dominant-baseline="central"
+        font-family="'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif"
+        font-size="26" font-weight="600" letter-spacing="-0.3">
+    <tspan fill="#171717">Every</tspan><tspan fill="#1d81f2">Kit</tspan>
+  </text>
+</svg>

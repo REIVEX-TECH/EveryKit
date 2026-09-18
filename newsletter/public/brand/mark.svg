@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="EveryKit">
+  <!--
+    Four tiles in a 2x2 grid: a kit of tools, one of them picked out.
+
+    The concept art carried a glyph inside each tile — a globe, a toolbox, a
+    cursor, a wrench crossed with a screwdriver. None of them survive being
+    shrunk into a browser tab, and keeping them only at large sizes would mean
+    two different marks. The grid is the part that reads at any size, so the
+    grid is the mark.
+
+    Geometry snapped to a 48 unit grid: 20x20 tiles, 4 unit gutter, 2 unit
+    margin, 5 unit corner radius.
+  -->
+  <rect x="2"  y="2"  width="20" height="20" rx="5" fill="#1d81f2"/>
+  <rect x="26" y="2"  width="20" height="20" rx="5" fill="#ff8a4c"/>
+  <rect x="2"  y="26" width="20" height="20" rx="5" fill="#1d81f2"/>
+  <rect x="26" y="26" width="20" height="20" rx="5" fill="#1d81f2"/>
+</svg>

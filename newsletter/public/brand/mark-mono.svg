@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="EveryKit">
+  <!--
+    Single colour, for anywhere the accent cannot go: a favicon mask, a stamp,
+    a one-ink print. Same geometry as mark.svg.
+  -->
+  <rect x="2"  y="2"  width="20" height="20" rx="5" fill="#1d81f2"/>
+  <rect x="26" y="2"  width="20" height="20" rx="5" fill="#1d81f2"/>
+  <rect x="2"  y="26" width="20" height="20" rx="5" fill="#1d81f2"/>
+  <rect x="26" y="26" width="20" height="20" rx="5" fill="#1d81f2"/>
+</svg>
