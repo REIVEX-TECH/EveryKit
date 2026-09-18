@@ -126,6 +126,9 @@ module.exports = {
     app("everykit-invoice", "invoice", 3017, {
       NEXT_PUBLIC_SITE_URL: "https://invoice.useeverykit.com",
     }),
+    app("everykit-newsletter", "newsletter", 3025, {
+      NEXT_PUBLIC_SITE_URL: "https://newsletter.useeverykit.com",
+    }),
     app("everykit-ringtone", "ringtone", 3019, {
       NEXT_PUBLIC_SITE_URL: "https://ringtone.useeverykit.com",
     }),

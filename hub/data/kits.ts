@@ -166,6 +166,9 @@ export const kitTools: Record<string, KitTool[]> = {
     { name: "VAT and GST", path: "/vat", synonyms: ["vat", "gst", "sales tax", "add tax"], intents: ["add vat to a price", "work out gst on a bill"] },
     { name: "Trip fuel cost", path: "/trip-cost", synonyms: ["fuel cost", "petrol", "mileage", "split cost"], intents: ["fuel cost for a road trip", "split petrol cost between friends"] },
   ],
+  newsletter: [
+    { name: "Email newsletter builder", path: "/", synonyms: ["email builder", "newsletter template", "html email", "drag and drop email", "email template", "mailer", "email designer"], intents: ["make an html email without coding", "free newsletter template builder", "build an email newsletter", "drag and drop email builder", "create an email template", "design a marketing email", "email builder that works in outlook"] },
+  ],
   teach: [
     { name: "Rubric maker", path: "/rubric", synonyms: ["rubric", "marking grid", "criteria", "grading rubric"], intents: ["make a marking rubric", "grading grid for an assignment"] },
     { name: "Gradebook", path: "/gradebook", synonyms: ["gradebook", "weighted grades", "class marks", "grade calculator"], intents: ["work out weighted grades for a class", "gradebook with letter grades"] },
@@ -337,6 +340,16 @@ export const kits: Kit[] = [
     category: "documents",
     icon: "/icons/invoice.svg",
     outputAlt: "An invoice with a totals block",
+  },
+  {
+    slug: "newsletter",
+    name: "EveryKit Newsletter",
+    tagline: "Drag and drop email newsletters, no code",
+    url: "https://newsletter.useeverykit.com",
+    status: "live",
+    category: "documents",
+    icon: "/icons/newsletter.svg",
+    outputAlt: "An email newsletter laid out as stacked blocks: a heading, an image and a button",
   },
   {
     slug: "ringtone",
