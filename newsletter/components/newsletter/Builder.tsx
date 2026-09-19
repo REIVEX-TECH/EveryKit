@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, Copy, Download, Eye, Pencil, RotateCcw, X } from "lucide-react";
+import { Check, Copy, Download, Eye, FolderOpen, Monitor, Pencil, RotateCcw, Smartphone, X } from "lucide-react";
 import { EmailGate } from "@/components/site/EmailGate";
 import { hasGivenEmail } from "@/lib/emailCapture";
 import { countToolCompleted, countToolOpened } from "@/lib/pageview";
@@ -14,7 +14,7 @@ import {
   type NewsletterDoc,
   type NewsletterImage,
 } from "@/lib/newsletter/blocks";
-import { buildExport, renderEmailHtml } from "@/lib/newsletter/export";
+import { buildExport, importFromHtml, importFromZipBytes, renderEmailHtml } from "@/lib/newsletter/export";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/newsletter/draft";
 import { Palette } from "./Palette";
 import { Canvas } from "./Canvas";
@@ -31,10 +31,12 @@ export function Builder() {
   const [doc, setDoc] = useState<NewsletterDoc>(createDoc);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [view, setView] = useState<"edit" | "preview">("edit");
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
   const [pickingFor, setPickingFor] = useState<string | null>(null);
   const [pending, setPending] = useState<(() => void) | null>(null);
   const [copied, setCopied] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const openInputRef = useRef<HTMLInputElement>(null);
 
   // Restore a local draft on mount, and count the tool as opened once.
   useEffect(() => {
@@ -161,6 +163,27 @@ export function Builder() {
     setView("edit");
   }, []);
 
+  const openFile = useCallback(async (file: File) => {
+    const isZip = /\.zip$/i.test(file.name) || file.type === "application/zip";
+    let next: NewsletterDoc | null = null;
+    try {
+      if (isZip) {
+        next = importFromZipBytes(new Uint8Array(await file.arrayBuffer()));
+      } else {
+        next = importFromHtml(await file.text());
+      }
+    } catch {
+      next = null;
+    }
+    if (!next) {
+      window.alert("That file was not made by this tool, so it could not be opened. Choose the ZIP you exported here.");
+      return;
+    }
+    setDoc(next);
+    setSelectedId(null);
+    setView("edit");
+  }, []);
+
   // --- the gate + funnel --------------------------------------------------
 
   const take = useCallback((action: () => void) => {
@@ -239,6 +262,27 @@ export function Builder() {
             <SegButton active={view === "edit"} onClick={() => setView("edit")} icon={Pencil} label="Edit" />
             <SegButton active={view === "preview"} onClick={() => setView("preview")} icon={Eye} label="Preview" />
           </div>
+          <button
+            type="button"
+            onClick={() => openInputRef.current?.click()}
+            className="ek-btn ek-btn-quiet py-2 text-[13px]"
+            title="Open a ZIP you exported from this tool"
+          >
+            <FolderOpen aria-hidden="true" className="h-4 w-4" />
+            Open
+          </button>
+          <input
+            ref={openInputRef}
+            type="file"
+            accept=".zip,.html,text/html,application/zip"
+            className="sr-only"
+            aria-label="Open a newsletter you exported from this tool"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void openFile(file);
+              event.target.value = "";
+            }}
+          />
           <button type="button" onClick={startOver} className="ek-btn ek-btn-quiet py-2 text-[13px]">
             <RotateCcw aria-hidden="true" className="h-4 w-4" />
             Start over
@@ -295,11 +339,29 @@ export function Builder() {
               onPickImage={setPickingFor}
             />
           ) : (
-            <iframe
-              title="Email preview"
-              src={previewUrl ?? "about:blank"}
-              className="h-full w-full border-0 bg-white"
-            />
+            <div className="flex h-full flex-col bg-bg-soft">
+              <div className="flex items-center justify-center gap-3 border-b border-line bg-background px-3 py-2">
+                <div className="flex rounded-full border border-line p-0.5">
+                  <SegButton active={previewDevice === "desktop"} onClick={() => setPreviewDevice("desktop")} icon={Monitor} label="Desktop" />
+                  <SegButton active={previewDevice === "mobile"} onClick={() => setPreviewDevice("mobile")} icon={Smartphone} label="Mobile" />
+                </div>
+                <span className="text-[12px] text-text-light">
+                  {previewDevice === "mobile" ? "375px phone width. A 600px email scrolls sideways, as it does on a real phone." : "Full width. The email sits at its 600px."}
+                </span>
+              </div>
+              <div className="flex-1 overflow-auto p-4">
+                <div
+                  className="mx-auto h-full overflow-hidden rounded-[12px] border border-line bg-white shadow-sm transition-[max-width] duration-200"
+                  style={{ maxWidth: previewDevice === "mobile" ? 375 : "100%" }}
+                >
+                  <iframe
+                    title="Email preview"
+                    src={previewUrl ?? "about:blank"}
+                    className="h-full w-full border-0 bg-white"
+                  />
+                </div>
+              </div>
+            </div>
           )}
         </div>
 

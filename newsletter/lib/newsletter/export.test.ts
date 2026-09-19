@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { strFromU8, unzipSync } from "fflate";
+import { strFromU8, unzipSync, zipSync } from "fflate";
 import {
   buildExport,
   escapeHtml,
+  importFromZipBytes,
   newsletterFileName,
   renderEmailHtml,
   resolveUsedImages,
@@ -167,6 +168,37 @@ describe("the zip", () => {
     expect(result.readme.toLowerCase()).toContain("uploaded");
     expect(result.readme).not.toContain("—");
     expect(result.readme).not.toMatch(/ - /);
+  });
+});
+
+describe("round trip: export then reopen", () => {
+  it("rebuilds the same document from its own zip, images and all", () => {
+    const original = docWith(
+      [
+        { ...(createBlock("heading") as HeadingBlock), text: "Round trip" },
+        imageBlock("hero", { alt: "hero" }),
+        createBlock("footer"),
+      ],
+      [{ id: "hero", name: "Hero Shot.png", dataUrl: PNG_1PX }],
+    );
+    const { zip } = buildExport(original);
+    const reopened = importFromZipBytes(zip);
+    if (!reopened) throw new Error("import returned null");
+
+    expect(reopened.name).toBe("Test letter");
+    expect(reopened.pageBackground).toBe("#f4f4f5");
+    expect(reopened.blocks.map((block) => block.type)).toEqual(["heading", "image", "footer"]);
+    expect(reopened.blocks[0]).toMatchObject({ type: "heading", text: "Round trip" });
+
+    // The image is rehydrated to a data URL and still referenced by its block.
+    expect(reopened.images).toHaveLength(1);
+    expect(reopened.images[0].dataUrl.startsWith("data:image/png;base64,")).toBe(true);
+    expect(reopened.blocks[1]).toMatchObject({ type: "image", imageId: reopened.images[0].id });
+  });
+
+  it("returns null for a zip that is not one of ours", () => {
+    const foreign = zipSync({ "index.html": [new TextEncoder().encode("<html></html>"), { level: 0 }] });
+    expect(importFromZipBytes(foreign)).toBeNull();
   });
 });
 

@@ -13,7 +13,7 @@
  * into the archive.
  */
 
-import { zipSync } from "fflate";
+import { strFromU8, unzipSync, zipSync } from "fflate";
 import { EMAIL_WIDTH, type Block, type NewsletterDoc } from "./blocks";
 
 /**
@@ -90,6 +90,30 @@ export function base64ToBytes(base64: string): Uint8Array {
   const out = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
   return out;
+}
+
+/** Encode bytes to base64. Chunked so a large image does not blow the stack. */
+export function bytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+function utf8ToBase64(text: string): string {
+  return bytesToBase64(new TextEncoder().encode(text));
+}
+
+function base64ToUtf8(base64: string): string {
+  return new TextDecoder().decode(base64ToBytes(base64));
+}
+
+function mimeFromPath(path: string): string {
+  const ext = path.slice(path.lastIndexOf(".") + 1).toLowerCase();
+  const entry = Object.entries(MIME_EXT).find(([, value]) => value === ext);
+  return entry ? entry[0] : "image/png";
 }
 
 function safeBaseName(name: string): string {
@@ -210,13 +234,24 @@ function renderBlock(block: Block, pathById: Map<string, string>): string {
   }
 }
 
-/** The whole email as one HTML string. */
-export function renderEmailHtml(doc: NewsletterDoc, pathById: Map<string, string>): string {
+/**
+ * The whole email as one HTML string.
+ *
+ * `embedComment`, when given, is an HTML comment placed just inside <html>. The
+ * export uses it to carry a machine-readable snapshot of the document so the
+ * same file can be opened back into the builder. Email clients ignore comments,
+ * and the preview passes nothing, so it appears only in the downloaded file.
+ */
+export function renderEmailHtml(
+  doc: NewsletterDoc,
+  pathById: Map<string, string>,
+  embedComment = "",
+): string {
   const pageBg = safeColor(doc.pageBackground, "#f4f4f5");
   const rows = doc.blocks.map((block) => renderBlock(block, pathById)).filter(Boolean).join("\n");
 
   return `<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">${embedComment ? `\n${embedComment}` : ""}
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -294,7 +329,7 @@ export type ExportResult = {
 export function buildExport(doc: NewsletterDoc): ExportResult {
   const images = resolveUsedImages(doc);
   const pathById = new Map(images.map((image) => [image.id, image.path]));
-  const html = renderEmailHtml(doc, pathById);
+  const html = renderEmailHtml(doc, pathById, encodeEmbed(buildManifest(doc, images)));
   const readme = buildReadme(doc);
 
   const record: Record<string, [Uint8Array, { level: 0 | 6 }]> = {
@@ -315,4 +350,102 @@ export function buildExport(doc: NewsletterDoc): ExportResult {
     images,
     zip: zipSync(record),
   };
+}
+
+// --- reopening a saved export ---------------------------------------------
+
+/**
+ * The snapshot embedded in an export so it can be opened back into the builder.
+ *
+ * It carries the blocks and settings verbatim, and for each used image only its
+ * id, name and the path it was written to, not the bytes, since the bytes are
+ * already in the images/ folder of the same zip. The whole thing is base64 in an
+ * HTML comment, which uses no "-" so it can never accidentally close the comment.
+ */
+const EMBED_TAG = "everykit:v1:";
+const EMBED_RE = /<!--everykit:v1:([A-Za-z0-9+/=]+)-->/;
+
+type EmbeddedImage = { id: string; name: string; path: string };
+type EmbeddedDoc = {
+  v: 1;
+  name: string;
+  pageBackground: string;
+  blocks: Block[];
+  images: EmbeddedImage[];
+};
+
+function buildManifest(doc: NewsletterDoc, used: UsedImage[]): EmbeddedDoc {
+  const nameById = new Map(doc.images.map((image) => [image.id, image.name]));
+  return {
+    v: 1,
+    name: doc.name,
+    pageBackground: doc.pageBackground,
+    blocks: doc.blocks,
+    images: used.map((image) => ({
+      id: image.id,
+      name: nameById.get(image.id) ?? "image",
+      path: image.path,
+    })),
+  };
+}
+
+function encodeEmbed(manifest: EmbeddedDoc): string {
+  return `<!--${EMBED_TAG}${utf8ToBase64(JSON.stringify(manifest))}-->`;
+}
+
+export function parseEmbeddedDoc(html: string): EmbeddedDoc | null {
+  const match = EMBED_RE.exec(html);
+  if (!match) return null;
+  try {
+    const parsed = JSON.parse(base64ToUtf8(match[1])) as EmbeddedDoc;
+    if (!parsed || typeof parsed.name !== "string" || typeof parsed.pageBackground !== "string") {
+      return null;
+    }
+    if (!Array.isArray(parsed.blocks) || !Array.isArray(parsed.images)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Rebuild a document from a zip this tool produced. The blocks and settings come
+ * from the embedded snapshot; each image is read back out of the images/ folder
+ * and rehydrated into a data URL, so the builder is exactly where it left off.
+ * Returns null if the file is not one of ours.
+ */
+export function importFromZipBytes(bytes: Uint8Array): NewsletterDoc | null {
+  let entries: Record<string, Uint8Array>;
+  try {
+    entries = unzipSync(bytes);
+  } catch {
+    return null;
+  }
+  const indexBytes = entries["index.html"];
+  if (!indexBytes) return null;
+  const parsed = parseEmbeddedDoc(strFromU8(indexBytes));
+  if (!parsed) return null;
+
+  const images: NewsletterDoc["images"] = [];
+  for (const meta of parsed.images) {
+    const fileBytes = entries[meta.path];
+    if (!fileBytes) continue;
+    images.push({
+      id: meta.id,
+      name: meta.name,
+      dataUrl: `data:${mimeFromPath(meta.path)};base64,${bytesToBase64(fileBytes)}`,
+    });
+  }
+  return { name: parsed.name, pageBackground: parsed.pageBackground, blocks: parsed.blocks, images };
+}
+
+/**
+ * Rebuild a document from a bare index.html this tool produced. The blocks come
+ * back but the images cannot (their bytes live in the folder, not the file), so
+ * image blocks return with nothing chosen. Prefer the zip.
+ */
+export function importFromHtml(html: string): NewsletterDoc | null {
+  const parsed = parseEmbeddedDoc(html);
+  if (!parsed) return null;
+  return { name: parsed.name, pageBackground: parsed.pageBackground, blocks: parsed.blocks, images: [] };
 }
