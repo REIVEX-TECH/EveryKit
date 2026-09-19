@@ -7,17 +7,99 @@ import { hasGivenEmail } from "@/lib/emailCapture";
 import { countToolCompleted, countToolOpened } from "@/lib/pageview";
 import {
   createBlock,
+  createColumnChild,
   createDoc,
   newId,
+  withColumnCount,
   type Block,
   type BlockType,
+  type ColumnCell,
+  type ColumnChild,
+  type ColumnsBlock,
+  type ImageBlock,
   type NewsletterDoc,
   type NewsletterImage,
 } from "@/lib/newsletter/blocks";
 import { buildExport, importFromHtml, importFromZipBytes, renderEmailHtml } from "@/lib/newsletter/export";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/newsletter/draft";
 import { Palette } from "./Palette";
-import { Canvas } from "./Canvas";
+import { Canvas, type ColumnDrop } from "./Canvas";
+
+/** Find a block by id, searching top-level blocks and nested column cells. */
+function findBlock(blocks: Block[], id: string | null): Block | null {
+  if (!id) return null;
+  for (const block of blocks) {
+    if (block.id === id) return block;
+    if (block.type === "columns") {
+      for (const cell of block.columns) {
+        if (cell.block && cell.block.id === id) return cell.block;
+      }
+    }
+  }
+  return null;
+}
+
+/** Apply a transform to the block with this id, wherever it lives (nested too). */
+function applyToBlock(blocks: Block[], id: string, transform: (b: Block) => Block): Block[] {
+  return blocks.map((block) => {
+    if (block.id === id) return transform(block);
+    if (block.type === "columns") {
+      let changed = false;
+      const columns = block.columns.map((cell) => {
+        if (cell.block && cell.block.id === id) {
+          changed = true;
+          return { ...cell, block: transform(cell.block) as ColumnChild };
+        }
+        return cell;
+      });
+      return changed ? { ...block, columns } : block;
+    }
+    return block;
+  });
+}
+
+/** Operate on one columns block by id. */
+function mapColumns(blocks: Block[], columnsId: string, fn: (b: ColumnsBlock) => ColumnsBlock): Block[] {
+  return blocks.map((block) => (block.type === "columns" && block.id === columnsId ? fn(block) : block));
+}
+
+/** Set one cell's fields on a columns block. */
+function setCell(col: ColumnsBlock, index: number, patch: Partial<ColumnCell>): ColumnsBlock {
+  return { ...col, columns: col.columns.map((cell, i) => (i === index ? { ...cell, ...patch } : cell)) };
+}
+
+/** Clear any image block (top-level or nested) that referenced a removed image. */
+function clearImageRefs(blocks: Block[], imageId: string): Block[] {
+  return blocks.map((block) => {
+    if (block.type === "image" && block.imageId === imageId) return { ...block, imageId: null };
+    if (block.type === "columns") {
+      return {
+        ...block,
+        columns: block.columns.map((cell) =>
+          cell.block && cell.block.type === "image" && cell.block.imageId === imageId
+            ? { ...cell, block: { ...cell.block, imageId: null } }
+            : cell,
+        ),
+      };
+    }
+    return block;
+  });
+}
+
+/** A deep copy with fresh ids, including nested column blocks, for duplicate. */
+function cloneBlock(block: Block): Block {
+  if (block.type === "columns") {
+    return {
+      ...block,
+      id: newId(),
+      columns: block.columns.map((cell) => ({
+        ...cell,
+        block: cell.block ? ({ ...cell.block, id: newId() } as ColumnChild) : null,
+      })),
+    };
+  }
+  return { ...block, id: newId() };
+}
 import { Inspector } from "./Inspector";
 import { ImageWorkspace } from "./ImageWorkspace";
 
@@ -59,7 +141,7 @@ export function Builder() {
     return () => clearTimeout(timer);
   }, [doc, loaded]);
 
-  const selected = doc.blocks.find((block) => block.id === selectedId) ?? null;
+  const selected = findBlock(doc.blocks, selectedId);
 
   // --- document updates ---------------------------------------------------
 
@@ -82,8 +164,37 @@ export function Builder() {
   const updateBlock = useCallback((id: string, patch: Partial<Block>) => {
     setDoc((d) => ({
       ...d,
-      blocks: d.blocks.map((block) => (block.id === id ? ({ ...block, ...patch } as Block) : block)),
+      blocks: applyToBlock(d.blocks, id, (block) => ({ ...block, ...patch }) as Block),
     }));
+  }, []);
+
+  // --- column operations --------------------------------------------------
+
+  const onDropIntoColumn = useCallback((columnsId: string, index: number, drop: ColumnDrop) => {
+    const child: ColumnChild =
+      drop.kind === "image"
+        ? { ...(createColumnChild("image") as ImageBlock), imageId: drop.imageId }
+        : createColumnChild(drop.type as Parameters<typeof createColumnChild>[0]);
+    setDoc((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => setCell(col, index, { block: child })) }));
+    setSelectedId(child.id);
+  }, []);
+
+  const setColumnCount = useCallback((columnsId: string, count: 2 | 3) => {
+    setDoc((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => withColumnCount(col, count)) }));
+  }, []);
+
+  const setColumnRatio = useCallback((columnsId: string, ratio: number[]) => {
+    setDoc((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => ({ ...col, ratio: [...ratio] })) }));
+  }, []);
+
+  const setColumnCellProp = useCallback((columnsId: string, index: number, patch: Partial<ColumnCell>) => {
+    setDoc((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => setCell(col, index, patch)) }));
+  }, []);
+
+  const setColumnType = useCallback((columnsId: string, index: number, type: ColumnChild["type"] | "") => {
+    const child = type === "" ? null : createColumnChild(type);
+    setDoc((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => setCell(col, index, { block: child })) }));
+    if (child) setSelectedId(child.id);
   }, []);
 
   const moveBlock = useCallback((id: string, dir: -1 | 1) => {
@@ -113,7 +224,7 @@ export function Builder() {
     setDoc((d) => {
       const index = d.blocks.findIndex((block) => block.id === id);
       if (index < 0) return d;
-      const copy = { ...d.blocks[index], id: newId() } as Block;
+      const copy = cloneBlock(d.blocks[index]);
       const blocks = [...d.blocks];
       blocks.splice(index + 1, 0, copy);
       return { ...d, blocks };
@@ -149,9 +260,7 @@ export function Builder() {
     setDoc((d) => ({
       ...d,
       images: d.images.filter((image) => image.id !== id),
-      blocks: d.blocks.map((block) =>
-        block.type === "image" && block.imageId === id ? { ...block, imageId: null } : block,
-      ),
+      blocks: clearImageRefs(d.blocks, id),
     }));
   }, []);
 
@@ -337,6 +446,7 @@ export function Builder() {
               onInsertImage={insertImage}
               onReorder={reorder}
               onPickImage={setPickingFor}
+              onDropIntoColumn={onDropIntoColumn}
             />
           ) : (
             <div className="flex h-full flex-col bg-bg-soft">
@@ -372,6 +482,13 @@ export function Builder() {
             onChange={(patch) => selected && updateBlock(selected.id, patch)}
             onPickImage={() => selected && setPickingFor(selected.id)}
             onClearImage={() => selected && updateBlock(selected.id, { imageId: null } as Partial<Block>)}
+            columnOps={{
+              setCount: setColumnCount,
+              setRatio: setColumnRatio,
+              setCellProp: setColumnCellProp,
+              setType: setColumnType,
+              pickImage: (id) => setPickingFor(id),
+            }}
           />
         </aside>
       </div>

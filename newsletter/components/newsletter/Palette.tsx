@@ -14,7 +14,7 @@ const ICONS: Record<BlockType, typeof Type> = {
   image: ImageIcon,
   button: MousePointerClick,
   banner: Megaphone,
-  twoColumn: Columns2,
+  columns: Columns2,
   divider: Minus,
   spacer: MoveVertical,
   footer: PanelBottom,

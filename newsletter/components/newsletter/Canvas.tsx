@@ -3,10 +3,12 @@
 import { useRef, useState } from "react";
 import { ArrowDown, ArrowUp, Copy, GripVertical, ImagePlus, Trash2 } from "lucide-react";
 import {
+  COLUMN_CHILD_TYPES,
   EMAIL_WIDTH,
   blockLabel,
   type Block,
   type BlockType,
+  type ColumnsBlock,
   type NewsletterImage,
 } from "@/lib/newsletter/blocks";
 import { BLOCK_DRAG_TYPE } from "./Palette";
@@ -19,49 +21,73 @@ const DRAG_TYPES = [MOVE_DRAG_TYPE, IMAGE_DRAG_TYPE, BLOCK_DRAG_TYPE];
  * Whether this drag carries one of our payloads. Checked against
  * `dataTransfer.types`, which is the ONLY thing readable during dragover:
  * getData returns an empty string until the drop event for security reasons, so
- * gating preventDefault on getData (as this once did) meant preventDefault
- * never ran, the browser refused the drop, and nothing was ever inserted.
+ * gating preventDefault on getData meant preventDefault never ran, the browser
+ * refused the drop, and nothing was ever inserted.
  */
 function hasDropData(event: React.DragEvent): boolean {
   return DRAG_TYPES.some((type) => event.dataTransfer.types.includes(type));
 }
 
-type Props = {
-  blocks: Block[];
+type DropPayload =
+  | { kind: "block"; type: BlockType }
+  | { kind: "image"; imageId: string }
+  | { kind: "move"; id: string };
+
+/** Read the payload from a drop event (getData is readable now, unlike dragover). */
+function readDrop(event: React.DragEvent): DropPayload | null {
+  const move = event.dataTransfer.getData(MOVE_DRAG_TYPE);
+  if (move) return { kind: "move", id: move };
+  const image = event.dataTransfer.getData(IMAGE_DRAG_TYPE);
+  if (image) return { kind: "image", imageId: image };
+  const block = event.dataTransfer.getData(BLOCK_DRAG_TYPE);
+  if (block) return { kind: "block", type: block as BlockType };
+  return null;
+}
+
+/** What a column cell accepts on drop, and how the builder is asked to apply it. */
+export type ColumnDrop = { kind: "block"; type: BlockType } | { kind: "image"; imageId: string };
+
+/** The shared handlers the block bodies need, bundled so nesting stays tidy. */
+type Ctx = {
   images: NewsletterImage[];
-  pageBackground: string;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   onCommitText: (id: string, patch: Partial<Block>) => void;
+  onPickImage: (id: string) => void;
+  onDropIntoColumn: (columnsId: string, index: number, drop: ColumnDrop) => void;
+};
+
+type Props = Ctx & {
+  blocks: Block[];
+  pageBackground: string;
   onMove: (id: string, dir: -1 | 1) => void;
   onDuplicate: (id: string) => void;
   onRemove: (id: string) => void;
   onInsertBlock: (type: BlockType, index: number) => void;
   onInsertImage: (imageId: string, index: number) => void;
   onReorder: (id: string, index: number) => void;
-  onPickImage: (id: string) => void;
 };
 
 /**
- * The canvas: a fixed 600px email column on the page background, rendered as
- * closely to the exported email as a web view can. It is the drop target for
- * new blocks (from the palette), for images (from the workspace), and for
- * reordering existing blocks by their grip.
+ * The canvas: the email column on the page background, rendered as closely to
+ * the exported email as a web view can. It is the drop target for new blocks
+ * (from the palette), for images (from the workspace), and for reordering
+ * existing blocks by their grip. Columns rows have their own per-column drop
+ * targets, handled in ColumnsBody.
  */
 export function Canvas(props: Props) {
   const { blocks, pageBackground, selectedId } = props;
   const [dropIndex, setDropIndex] = useState<number | null>(null);
   const [dragActive, setDragActive] = useState(false);
 
-  function readDrop(event: React.DragEvent): { kind: "block" | "image" | "move"; value: string } | null {
-    const move = event.dataTransfer.getData(MOVE_DRAG_TYPE);
-    if (move) return { kind: "move", value: move };
-    const image = event.dataTransfer.getData(IMAGE_DRAG_TYPE);
-    if (image) return { kind: "image", value: image };
-    const block = event.dataTransfer.getData(BLOCK_DRAG_TYPE);
-    if (block) return { kind: "block", value: block };
-    return null;
-  }
+  const ctx: Ctx = {
+    images: props.images,
+    selectedId: props.selectedId,
+    onSelect: props.onSelect,
+    onCommitText: props.onCommitText,
+    onPickImage: props.onPickImage,
+    onDropIntoColumn: props.onDropIntoColumn,
+  };
 
   function handleDrop(event: React.DragEvent) {
     if (!hasDropData(event)) return;
@@ -71,9 +97,9 @@ export function Canvas(props: Props) {
     setDropIndex(null);
     setDragActive(false);
     if (!payload) return;
-    if (payload.kind === "move") props.onReorder(payload.value, index);
-    else if (payload.kind === "image") props.onInsertImage(payload.value, index);
-    else props.onInsertBlock(payload.value as BlockType, index);
+    if (payload.kind === "move") props.onReorder(payload.id, index);
+    else if (payload.kind === "image") props.onInsertImage(payload.imageId, index);
+    else props.onInsertBlock(payload.type, index);
   }
 
   return (
@@ -83,17 +109,12 @@ export function Canvas(props: Props) {
       onClick={() => props.onSelect(null)}
       onDragOver={(event) => {
         if (!hasDropData(event)) return;
-        // preventDefault is what makes this a valid drop target. Without it the
-        // browser shows a "no drop" cursor and never fires the drop event.
         event.preventDefault();
         event.dataTransfer.dropEffect = event.dataTransfer.types.includes(MOVE_DRAG_TYPE) ? "move" : "copy";
         setDragActive(true);
-        // A dragover that did not land on a row (the gutter) drops at the end.
         setDropIndex((current) => (current === null ? blocks.length : current));
       }}
       onDragLeave={(event) => {
-        // Only when the pointer actually leaves the canvas, not on the way
-        // between two child blocks.
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
           setDragActive(false);
           setDropIndex(null);
@@ -113,11 +134,14 @@ export function Canvas(props: Props) {
             <div key={block.id}>
               {dropIndex === index ? <DropLine /> : null}
               <BlockRow
-                {...props}
                 block={block}
+                ctx={ctx}
                 isFirst={index === 0}
                 isLast={index === blocks.length - 1}
                 selected={block.id === selectedId}
+                onMove={props.onMove}
+                onDuplicate={props.onDuplicate}
+                onRemove={props.onRemove}
                 onDragOverRow={(before) => setDropIndex(before ? index : index + 1)}
               />
             </div>
@@ -157,22 +181,23 @@ function EmptyState({ onAdd, active }: { onAdd: (type: BlockType) => void; activ
 
 function BlockRow({
   block,
+  ctx,
   isFirst,
   isLast,
   selected,
-  images,
-  onSelect,
-  onCommitText,
   onMove,
   onDuplicate,
   onRemove,
-  onPickImage,
   onDragOverRow,
-}: Props & {
+}: {
   block: Block;
+  ctx: Ctx;
   isFirst: boolean;
   isLast: boolean;
   selected: boolean;
+  onMove: (id: string, dir: -1 | 1) => void;
+  onDuplicate: (id: string) => void;
+  onRemove: (id: string) => void;
   onDragOverRow: (before: boolean) => void;
 }) {
   return (
@@ -180,12 +205,10 @@ function BlockRow({
       role="group"
       onClick={(event) => {
         event.stopPropagation();
-        onSelect(block.id);
+        ctx.onSelect(block.id);
       }}
       onDragOver={(event) => {
         if (!hasDropData(event)) return;
-        // Take ownership of this dragover so the container's gutter default does
-        // not overwrite the precise insertion point, and mark it a valid drop.
         event.preventDefault();
         event.stopPropagation();
         const rect = event.currentTarget.getBoundingClientRect();
@@ -195,8 +218,6 @@ function BlockRow({
         selected ? "outline outline-2 outline-primary" : "outline outline-1 outline-transparent hover:outline-line-strong"
       }`}
     >
-      {/* Block type label, on hover or when selected, so the canvas always says
-          what each block is. */}
       <span
         className={`pointer-events-none absolute -top-2.5 left-2 z-10 rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white transition-opacity ${
           selected ? "opacity-0" : "opacity-0 group-hover:opacity-100"
@@ -236,7 +257,7 @@ function BlockRow({
         </div>
       ) : null}
 
-      <BlockBody block={block} images={images} onCommitText={onCommitText} onPickImage={onPickImage} />
+      <BlockBody block={block} ctx={ctx} />
     </div>
   );
 }
@@ -261,47 +282,30 @@ function IconButton({
 }
 
 /** The block itself, drawn to look like the email it will export to. */
-function BlockBody({
-  block,
-  images,
-  onCommitText,
-  onPickImage,
-}: {
-  block: Block;
-  images: NewsletterImage[];
-  onCommitText: (id: string, patch: Partial<Block>) => void;
-  onPickImage: (id: string) => void;
-}) {
+function BlockBody({ block, ctx }: { block: Block; ctx: Ctx }) {
   const pad = `${block.padding}px`;
 
   switch (block.type) {
     case "heading":
       return (
-        <Editable id={block.id} value={block.text} onCommit={(text) => onCommitText(block.id, { text } as Partial<Block>)}
+        <Editable id={block.id} value={block.text} onCommit={(text) => ctx.onCommitText(block.id, { text } as Partial<Block>)}
           style={{ padding: pad, background: block.background, color: block.color, textAlign: block.align, fontSize: block.fontSize, fontWeight: 700, lineHeight: 1.3 }} />
       );
     case "banner":
       return (
-        <Editable id={block.id} value={block.text} onCommit={(text) => onCommitText(block.id, { text } as Partial<Block>)}
+        <Editable id={block.id} value={block.text} onCommit={(text) => ctx.onCommitText(block.id, { text } as Partial<Block>)}
           style={{ padding: pad, background: block.background, color: block.color, textAlign: block.align, fontSize: block.fontSize, fontWeight: 700, lineHeight: 1.3 }} />
       );
     case "text":
     case "footer":
       return (
-        <Editable id={block.id} value={block.text} onCommit={(text) => onCommitText(block.id, { text } as Partial<Block>)}
+        <Editable id={block.id} value={block.text} onCommit={(text) => ctx.onCommitText(block.id, { text } as Partial<Block>)}
           style={{ padding: pad, background: block.background, color: block.color, textAlign: block.align, fontSize: block.fontSize, lineHeight: 1.5 }} />
       );
-    case "twoColumn":
-      return (
-        <div style={{ padding: pad, background: block.background, display: "flex", gap: 16 }}>
-          <Editable id={`${block.id}-l`} value={block.left} onCommit={(left) => onCommitText(block.id, { left } as Partial<Block>)}
-            style={{ flex: 1, color: block.color, textAlign: block.align, fontSize: block.fontSize, lineHeight: 1.5 }} />
-          <Editable id={`${block.id}-r`} value={block.right} onCommit={(right) => onCommitText(block.id, { right } as Partial<Block>)}
-            style={{ flex: 1, color: block.color, textAlign: block.align, fontSize: block.fontSize, lineHeight: 1.5 }} />
-        </div>
-      );
+    case "columns":
+      return <ColumnsBody block={block} ctx={ctx} />;
     case "image": {
-      const chosen = images.find((image) => image.id === block.imageId) ?? null;
+      const chosen = ctx.images.find((image) => image.id === block.imageId) ?? null;
       return (
         <div style={{ padding: pad, background: block.background, textAlign: block.align }}>
           {chosen ? (
@@ -310,7 +314,7 @@ function BlockBody({
           ) : (
             <button
               type="button"
-              onClick={(event) => { event.stopPropagation(); onPickImage(block.id); }}
+              onClick={(event) => { event.stopPropagation(); ctx.onPickImage(block.id); }}
               className="mx-auto flex w-full flex-col items-center gap-2 rounded-[10px] border-2 border-dashed border-line-strong bg-bg-soft py-10 text-text-light hover:border-primary"
             >
               <ImagePlus aria-hidden="true" className="h-6 w-6" />
@@ -343,6 +347,97 @@ function BlockBody({
         </div>
       );
   }
+}
+
+/**
+ * A columns row on the canvas. Each column is a drop target for an allowed block
+ * type or an image, and shows its nested block (which stays clickable to edit)
+ * or an empty drop hint. Flexbox is fine here because this is the web builder;
+ * the EXPORT uses tables only.
+ */
+function ColumnsBody({ block, ctx }: { block: ColumnsBlock; ctx: Ctx }) {
+  const cells = block.columns.slice(0, block.count);
+  return (
+    <div style={{ display: "flex", padding: `${block.padding}px`, background: block.background }}>
+      {cells.map((cell, index) => (
+        <ColumnCellView
+          key={index}
+          columnsId={block.id}
+          index={index}
+          widthPct={block.ratio[index] ?? Math.round(100 / block.count)}
+          cell={cell}
+          ctx={ctx}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ColumnCellView({
+  columnsId,
+  index,
+  widthPct,
+  cell,
+  ctx,
+}: {
+  columnsId: string;
+  index: number;
+  widthPct: number;
+  cell: ColumnsBlock["columns"][number];
+  ctx: Ctx;
+}) {
+  const [over, setOver] = useState(false);
+  const nested = cell.block;
+  const nestedSelected = nested !== null && ctx.selectedId === nested.id;
+
+  return (
+    <div
+      style={{ width: `${widthPct}%`, boxSizing: "border-box", padding: "0 4px" }}
+      onDragOver={(event) => {
+        if (!hasDropData(event)) return;
+        // Own this drop so the canvas row does not also try to insert a block.
+        event.preventDefault();
+        event.stopPropagation();
+        setOver(true);
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(event) => {
+        if (!hasDropData(event)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        setOver(false);
+        const payload = readDrop(event);
+        if (!payload) return;
+        if (payload.kind === "block" && (COLUMN_CHILD_TYPES as string[]).includes(payload.type)) {
+          ctx.onDropIntoColumn(columnsId, index, { kind: "block", type: payload.type });
+        } else if (payload.kind === "image") {
+          ctx.onDropIntoColumn(columnsId, index, { kind: "image", imageId: payload.imageId });
+        }
+        // A move, or a type a column may not hold (banner, divider, footer,
+        // columns), is ignored rather than dropped somewhere wrong.
+      }}
+    >
+      <div
+        onClick={(event) => {
+          event.stopPropagation();
+          ctx.onSelect(nested ? nested.id : columnsId);
+        }}
+        style={{ background: cell.background, padding: `${cell.padding}px`, minHeight: 48 }}
+        className={`h-full rounded-[8px] transition-colors ${
+          over ? "outline outline-2 outline-primary" : nestedSelected ? "outline outline-2 outline-primary" : "outline outline-1 outline-dashed outline-line-strong"
+        }`}
+      >
+        {nested ? (
+          <BlockBody block={nested} ctx={ctx} />
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-1 py-6 text-center text-text-light">
+            <ImagePlus aria-hidden="true" className="h-5 w-5" />
+            <span className="text-[12px]">Drop a block, or pick a type in the panel</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 /**

@@ -1,8 +1,23 @@
 "use client";
 
 import { AlignCenter, AlignLeft, AlignRight, ImageOff } from "lucide-react";
-import type { Align, Block, NewsletterImage } from "@/lib/newsletter/blocks";
-import { blockLabel } from "@/lib/newsletter/blocks";
+import type {
+  Align,
+  Block,
+  ColumnCell,
+  ColumnChild,
+  ColumnsBlock,
+  NewsletterImage,
+} from "@/lib/newsletter/blocks";
+import { RATIO_PRESETS, blockLabel } from "@/lib/newsletter/blocks";
+
+export type ColumnOps = {
+  setCount: (columnsId: string, count: 2 | 3) => void;
+  setRatio: (columnsId: string, ratio: number[]) => void;
+  setCellProp: (columnsId: string, index: number, patch: Partial<ColumnCell>) => void;
+  setType: (columnsId: string, index: number, type: ColumnChild["type"] | "") => void;
+  pickImage: (nestedImageId: string) => void;
+};
 
 /**
  * The right-hand inspector: every control for the selected block, and nothing
@@ -15,12 +30,14 @@ export function Inspector({
   onChange,
   onPickImage,
   onClearImage,
+  columnOps,
 }: {
   block: Block | null;
   images: NewsletterImage[];
   onChange: (patch: Partial<Block>) => void;
   onPickImage: () => void;
   onClearImage: () => void;
+  columnOps: ColumnOps;
 }) {
   if (!block) {
     return (
@@ -29,6 +46,10 @@ export function Inspector({
         <p className="mt-2">Select a block on the canvas to edit it here.</p>
       </div>
     );
+  }
+
+  if (block.type === "columns") {
+    return <ColumnsInspector block={block} images={images} ops={columnOps} onChange={onChange} />;
   }
 
   const has = (key: string) => key in block;
@@ -42,13 +63,6 @@ export function Inspector({
       <div className="mt-3 flex flex-col gap-4">
         {block.type === "heading" || block.type === "text" || block.type === "banner" || block.type === "footer" ? (
           <Area label="Text" value={block.text} onChange={(text) => onChange({ text } as Partial<Block>)} />
-        ) : null}
-
-        {block.type === "twoColumn" ? (
-          <>
-            <Area label="Left column" value={block.left} onChange={(left) => onChange({ left } as Partial<Block>)} />
-            <Area label="Right column" value={block.right} onChange={(right) => onChange({ right } as Partial<Block>)} />
-          </>
         ) : null}
 
         {block.type === "image" ? (
@@ -240,5 +254,118 @@ function AlignRow({ value, onChange }: { value: Align; onChange: (v: Align) => v
         })}
       </div>
     </Row>
+  );
+}
+
+/**
+ * The layout controls for a columns row: how many columns, the split, and each
+ * column's block type, background and padding. The content of a nested block is
+ * edited by selecting that block on the canvas, which keeps this panel readable.
+ */
+function ColumnsInspector({
+  block,
+  images,
+  ops,
+  onChange,
+}: {
+  block: ColumnsBlock;
+  images: NewsletterImage[];
+  ops: ColumnOps;
+  onChange: (patch: Partial<Block>) => void;
+}) {
+  const counts: Array<2 | 3> = [2, 3];
+  const presets = RATIO_PRESETS[block.count];
+  const ratioLabel = (r: number[]) => r.join(" / ");
+
+  return (
+    <div>
+      <h2 className="text-[13px] font-semibold uppercase tracking-wide text-text-light">Columns</h2>
+
+      <div className="mt-3 flex flex-col gap-4">
+        <Row label="Number of columns">
+          <div className="flex gap-1">
+            {counts.map((n) => (
+              <button
+                key={n}
+                type="button"
+                aria-pressed={block.count === n}
+                onClick={() => ops.setCount(block.id, n)}
+                className={`h-9 flex-1 rounded-[8px] border text-[13px] font-semibold ${
+                  block.count === n ? "border-primary bg-primary/5 text-primary-dark" : "border-line text-text-light hover:border-line-strong"
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </Row>
+
+        <Row label={`Split ratio (${ratioLabel(block.ratio)})`}>
+          <div className="flex flex-wrap gap-1.5">
+            {presets.map((preset) => {
+              const active = preset.length === block.ratio.length && preset.every((v, i) => v === block.ratio[i]);
+              return (
+                <button
+                  key={preset.join("-")}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => ops.setRatio(block.id, preset)}
+                  className={`rounded-full border px-2.5 py-1 text-[12px] font-semibold tabular-nums ${
+                    active ? "border-primary bg-primary/5 text-primary-dark" : "border-line text-text-light hover:border-line-strong"
+                  }`}
+                >
+                  {ratioLabel(preset)}
+                </button>
+              );
+            })}
+          </div>
+        </Row>
+
+        {block.columns.slice(0, block.count).map((cell, index) => {
+          const nested = cell.block;
+          const chosen = nested && nested.type === "image" ? images.find((im) => im.id === nested.imageId) ?? null : null;
+          return (
+            <div key={index} className="rounded-[10px] border border-line bg-background p-3">
+              <p className="text-[12px] font-semibold text-foreground">Column {index + 1}</p>
+              <div className="mt-2 flex flex-col gap-3">
+                <Row label="Block">
+                  <select
+                    value={nested?.type ?? ""}
+                    onChange={(e) => ops.setType(block.id, index, e.target.value as ColumnChild["type"] | "")}
+                    className="w-full rounded-[10px] border border-line bg-background px-3 py-2 text-[14px] outline-none focus:border-primary"
+                  >
+                    <option value="">Empty</option>
+                    <option value="heading">Heading</option>
+                    <option value="text">Text</option>
+                    <option value="image">Image</option>
+                    <option value="button">Button</option>
+                    <option value="spacer">Spacer</option>
+                  </select>
+                </Row>
+
+                {nested && nested.type === "image" ? (
+                  <div>
+                    <button type="button" onClick={() => ops.pickImage(nested.id)} className="ek-btn ek-btn-quiet py-2 text-[13px]">
+                      {chosen ? "Replace image" : "Choose image"}
+                    </button>
+                    {chosen ? <p className="mt-1 truncate text-[12px] text-text-light">{chosen.name}</p> : null}
+                  </div>
+                ) : null}
+
+                {nested && nested.type !== "image" && nested.type !== "spacer" ? (
+                  <p className="text-[12px] text-text-light">Click the block on the canvas to edit its content.</p>
+                ) : null}
+
+                <Swatch label="Column background" value={cell.background} onChange={(background) => ops.setCellProp(block.id, index, { background })} />
+                <NumberRow label="Column padding" value={cell.padding} min={0} max={60} onChange={(padding) => ops.setCellProp(block.id, index, { padding })} />
+              </div>
+            </div>
+          );
+        })}
+
+        <Swatch label="Row background" value={block.background} onChange={(background) => onChange({ background } as Partial<Block>)} />
+        <NumberRow label="Row padding" value={block.padding} min={0} max={120} onChange={(padding) => onChange({ padding } as Partial<Block>)} />
+      </div>
+    </div>
   );
 }
