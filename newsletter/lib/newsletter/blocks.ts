@@ -22,10 +22,25 @@ export type BlockType =
   | "image"
   | "button"
   | "banner"
-  | "twoColumn"
+  | "columns"
   | "divider"
   | "spacer"
   | "footer";
+
+/**
+ * The block types a column cell may hold. One level only: a column cannot hold
+ * another columns block, a banner, a divider or a footer, which keeps the model
+ * flat enough to render and reason about.
+ */
+export type ColumnChildType = "heading" | "text" | "image" | "button" | "spacer";
+
+export const COLUMN_CHILD_TYPES: ColumnChildType[] = [
+  "heading",
+  "text",
+  "image",
+  "button",
+  "spacer",
+];
 
 /** An image the person added, held in the tab as a data URL until export. */
 export type NewsletterImage = {
@@ -54,8 +69,29 @@ export type HeadingBlock = Common & TextLike & { type: "heading"; text: string }
 export type TextBlock = Common & TextLike & { type: "text"; text: string };
 export type BannerBlock = Common & TextLike & { type: "banner"; text: string };
 export type FooterBlock = Common & TextLike & { type: "footer"; text: string };
-export type TwoColumnBlock = Common &
-  TextLike & { type: "twoColumn"; left: string; right: string };
+
+/**
+ * One cell of a columns row. It carries its own background and padding, and one
+ * nested block of an allowed child type (or none yet). The nested block is a
+ * full Block so it reuses every existing per-block editor and email renderer;
+ * there is one source of truth for how a heading or an image is drawn.
+ */
+export type ColumnCell = {
+  background: string;
+  padding: number;
+  block: ColumnChild | null;
+};
+
+/** A block permitted inside a column. */
+export type ColumnChild = HeadingBlock | TextBlock | ImageBlock | ButtonBlock | SpacerBlock;
+
+export type ColumnsBlock = Common & {
+  type: "columns";
+  count: 2 | 3;
+  /** Width percentages, one per column, summing to 100. length === count. */
+  ratio: number[];
+  columns: ColumnCell[];
+};
 
 export type ImageBlock = Common & {
   type: "image";
@@ -84,7 +120,7 @@ export type Block =
   | TextBlock
   | BannerBlock
   | FooterBlock
-  | TwoColumnBlock
+  | ColumnsBlock
   | ImageBlock
   | ButtonBlock
   | DividerBlock
@@ -104,7 +140,7 @@ export const PALETTE: Array<{ type: BlockType; label: string; hint: string }> = 
   { type: "image", label: "Image", hint: "A picture from your workspace" },
   { type: "button", label: "Button", hint: "A link that looks like a button" },
   { type: "banner", label: "Banner", hint: "A full width coloured strip" },
-  { type: "twoColumn", label: "Two columns", hint: "Two blocks of text side by side" },
+  { type: "columns", label: "Columns", hint: "Two or three columns, each holding a block" },
   { type: "divider", label: "Divider", hint: "A thin horizontal line" },
   { type: "spacer", label: "Spacer", hint: "Empty vertical space" },
   { type: "footer", label: "Footer", hint: "Small print and an unsubscribe line" },
@@ -163,17 +199,15 @@ export function createBlock(type: BlockType): Block {
         fontSize: 12,
         padding: 24,
       };
-    case "twoColumn":
+    case "columns":
       return {
         id,
         type,
-        left: "The left column. Good for a short point.",
-        right: "The right column. Good for a second one.",
-        color: BODY,
         background: WHITE,
-        align: "left",
-        fontSize: 15,
-        padding: 24,
+        padding: 0,
+        count: 2,
+        ratio: [50, 50],
+        columns: [emptyCell(), emptyCell()],
       };
     case "image":
       return { id, type, imageId: null, alt: "", href: "", width: EMAIL_WIDTH, background: WHITE, align: "center", padding: 0 };
@@ -195,6 +229,47 @@ export function createBlock(type: BlockType): Block {
     case "spacer":
       return { id, type, height: 24, background: WHITE, padding: 0 };
   }
+}
+
+/** A fresh, empty column cell. */
+export function emptyCell(): ColumnCell {
+  return { background: WHITE, padding: 0, block: null };
+}
+
+/** A fresh nested block for a column. Reuses createBlock's defaults. */
+export function createColumnChild(type: ColumnChildType): ColumnChild {
+  return createBlock(type) as ColumnChild;
+}
+
+/**
+ * The split-ratio presets offered per column count. Percentages, summing to 100.
+ * The first entry in each list is the default for that count.
+ */
+export const RATIO_PRESETS: Record<2 | 3, number[][]> = {
+  2: [
+    [50, 50],
+    [60, 40],
+    [40, 60],
+    [33, 67],
+    [67, 33],
+  ],
+  3: [
+    [33, 34, 33],
+    [50, 25, 25],
+    [25, 50, 25],
+    [25, 25, 50],
+  ],
+};
+
+/**
+ * Change a columns block's count, preserving the cells that still fit and the
+ * blocks inside them, and resetting the ratio to that count's default.
+ */
+export function withColumnCount(block: ColumnsBlock, count: 2 | 3): ColumnsBlock {
+  const columns = [...block.columns];
+  while (columns.length < count) columns.push(emptyCell());
+  columns.length = count;
+  return { ...block, count, columns, ratio: [...RATIO_PRESETS[count][0]] };
 }
 
 /** A brand-new, empty newsletter. */

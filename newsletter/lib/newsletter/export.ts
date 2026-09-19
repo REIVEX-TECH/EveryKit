@@ -66,6 +66,25 @@ function clampInt(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
 }
 
+function evenRatio(count: number): number[] {
+  const each = Math.floor(100 / count);
+  const out = Array(count).fill(each);
+  out[out.length - 1] += 100 - each * count;
+  return out;
+}
+
+/**
+ * Column widths in px, derived from the ratio and capped to the 600px email, so
+ * the split is carried as real pixel widths the email clients honour. A ratio
+ * that is malformed (wrong length, non-positive) falls back to even columns.
+ */
+function ratioToPx(ratio: number[], count: number): number[] {
+  const source = Array.isArray(ratio) && ratio.length === count ? ratio : evenRatio(count);
+  const clean = source.map((p) => (Number.isFinite(p) && p > 0 ? p : 1));
+  const total = clean.reduce((a, b) => a + b, 0) || count;
+  return clean.map((p) => Math.max(40, Math.round((EMAIL_WIDTH * p) / total)));
+}
+
 // --- images ---------------------------------------------------------------
 
 const MIME_EXT: Record<string, string> = {
@@ -136,9 +155,16 @@ export type UsedImage = { id: string; path: string; bytes: Uint8Array };
 export function resolveUsedImages(doc: NewsletterDoc): UsedImage[] {
   const byId = new Map(doc.images.map((image) => [image.id, image]));
   const usedIds: string[] = [];
+  const note = (imageId: string | null) => {
+    if (imageId && byId.has(imageId) && !usedIds.includes(imageId)) usedIds.push(imageId);
+  };
   for (const block of doc.blocks) {
-    if (block.type === "image" && block.imageId && byId.has(block.imageId)) {
-      if (!usedIds.includes(block.imageId)) usedIds.push(block.imageId);
+    if (block.type === "image") note(block.imageId);
+    // One level of nesting: image blocks placed inside a columns row.
+    if (block.type === "columns") {
+      for (const cell of block.columns) {
+        if (cell.block && cell.block.type === "image") note(cell.block.imageId);
+      }
     }
   }
 
@@ -183,16 +209,34 @@ function renderBlock(block: Block, pathById: Map<string, string>): string {
       const size = clampInt(block.fontSize, 9, 40);
       return `<tr><td align="${block.align}" style="padding:${pad}px;background-color:${bg};font-family:${FONT_STACK};font-size:${size}px;line-height:1.5;color:${safeColor(block.color, "#444444")};">${textToHtml(block.text)}</td></tr>`;
     }
-    case "twoColumn": {
-      const size = clampInt(block.fontSize, 9, 40);
-      const color = safeColor(block.color, "#444444");
-      const cellBase = `valign="top" align="${block.align}" style="font-family:${FONT_STACK};font-size:${size}px;line-height:1.5;color:${color};`;
+    case "columns": {
+      const widths = ratioToPx(block.ratio, block.count);
+      const cells = block.columns.slice(0, block.count);
+      const columnsHtml = cells
+        .map((cell, index) => {
+          const colBg = safeColor(cell.background, "#ffffff");
+          const colPad = clampInt(cell.padding, 0, 60);
+          const content = cell.block
+            ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${renderBlock(cell.block, pathById)}</table>`
+            : "&nbsp;";
+          // The column is an inline-block whose width tracks the container but is
+          // capped at its share of 600px. When the container is wide enough the
+          // columns sit at their ratio side by side; when it is not, the later
+          // column cannot fit and wraps below, which is the stacking.
+          return (
+            `<div style="display:inline-block;width:100%;max-width:${widths[index]}px;vertical-align:top;text-align:left;">` +
+            `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">` +
+            `<tr><td valign="top" style="padding:${colPad}px;background-color:${colBg};">${content}</td></tr>` +
+            `</table></div>`
+          );
+        })
+        .join("");
+      // font-size:0 on the wrapper removes the whitespace gap between inline-block
+      // columns; each inner table sets its own font again.
       return (
-        `<tr><td style="padding:${pad}px;background-color:${bg};">` +
-        `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>` +
-        `<td width="50%" ${cellBase}padding-right:8px;">${textToHtml(block.left)}</td>` +
-        `<td width="50%" ${cellBase}padding-left:8px;">${textToHtml(block.right)}</td>` +
-        `</tr></table></td></tr>`
+        `<tr><td align="center" style="padding:${pad}px;background-color:${bg};">` +
+        `<div style="font-size:0;text-align:center;">${columnsHtml}</div>` +
+        `</td></tr>`
       );
     }
     case "image": {
@@ -262,7 +306,7 @@ export function renderEmailHtml(
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:${pageBg};">
 <tr>
 <td align="center" style="padding:0;">
-<table role="presentation" width="${EMAIL_WIDTH}" cellpadding="0" cellspacing="0" border="0" style="width:${EMAIL_WIDTH}px;max-width:${EMAIL_WIDTH}px;margin:0 auto;font-family:${FONT_STACK};">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:${EMAIL_WIDTH}px;margin:0 auto;font-family:${FONT_STACK};">
 ${rows}
 </table>
 </td>
