@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { ArrowDown, ArrowUp, Copy, GripVertical, ImagePlus, Trash2 } from "lucide-react";
 import {
   EMAIL_WIDTH,
+  blockLabel,
   type Block,
   type BlockType,
   type NewsletterImage,
@@ -12,6 +13,18 @@ import { BLOCK_DRAG_TYPE } from "./Palette";
 import { IMAGE_DRAG_TYPE } from "./ImageWorkspace";
 
 const MOVE_DRAG_TYPE = "application/x-ek-move";
+const DRAG_TYPES = [MOVE_DRAG_TYPE, IMAGE_DRAG_TYPE, BLOCK_DRAG_TYPE];
+
+/**
+ * Whether this drag carries one of our payloads. Checked against
+ * `dataTransfer.types`, which is the ONLY thing readable during dragover:
+ * getData returns an empty string until the drop event for security reasons, so
+ * gating preventDefault on getData (as this once did) meant preventDefault
+ * never ran, the browser refused the drop, and nothing was ever inserted.
+ */
+function hasDropData(event: React.DragEvent): boolean {
+  return DRAG_TYPES.some((type) => event.dataTransfer.types.includes(type));
+}
 
 type Props = {
   blocks: Block[];
@@ -38,6 +51,7 @@ type Props = {
 export function Canvas(props: Props) {
   const { blocks, pageBackground, selectedId } = props;
   const [dropIndex, setDropIndex] = useState<number | null>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   function readDrop(event: React.DragEvent): { kind: "block" | "image" | "move"; value: string } | null {
     const move = event.dataTransfer.getData(MOVE_DRAG_TYPE);
@@ -50,10 +64,12 @@ export function Canvas(props: Props) {
   }
 
   function handleDrop(event: React.DragEvent) {
+    if (!hasDropData(event)) return;
     event.preventDefault();
     const payload = readDrop(event);
     const index = dropIndex ?? blocks.length;
     setDropIndex(null);
+    setDragActive(false);
     if (!payload) return;
     if (payload.kind === "move") props.onReorder(payload.value, index);
     else if (payload.kind === "image") props.onInsertImage(payload.value, index);
@@ -62,25 +78,36 @@ export function Canvas(props: Props) {
 
   return (
     <div
-      className="min-h-full w-full overflow-auto p-6"
+      className="min-h-full w-full overflow-auto p-6 transition-colors"
       style={{ background: pageBackground }}
       onClick={() => props.onSelect(null)}
       onDragOver={(event) => {
-        // Allow dropping in the gutter below the last block.
-        if (readDrop(event)) {
-          event.preventDefault();
-          if (dropIndex === null) setDropIndex(blocks.length);
+        if (!hasDropData(event)) return;
+        // preventDefault is what makes this a valid drop target. Without it the
+        // browser shows a "no drop" cursor and never fires the drop event.
+        event.preventDefault();
+        event.dataTransfer.dropEffect = event.dataTransfer.types.includes(MOVE_DRAG_TYPE) ? "move" : "copy";
+        setDragActive(true);
+        // A dragover that did not land on a row (the gutter) drops at the end.
+        setDropIndex((current) => (current === null ? blocks.length : current));
+      }}
+      onDragLeave={(event) => {
+        // Only when the pointer actually leaves the canvas, not on the way
+        // between two child blocks.
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setDragActive(false);
+          setDropIndex(null);
         }
       }}
       onDrop={handleDrop}
     >
       <div
-        className="mx-auto bg-white"
+        className={`mx-auto bg-white transition-shadow ${dragActive ? "outline outline-2 outline-primary" : ""}`}
         style={{ width: EMAIL_WIDTH, maxWidth: "100%" }}
         onClick={(event) => event.stopPropagation()}
       >
         {blocks.length === 0 ? (
-          <EmptyState onAdd={(type) => props.onInsertBlock(type, 0)} active={dropIndex !== null} />
+          <EmptyState onAdd={(type) => props.onInsertBlock(type, 0)} active={dragActive} />
         ) : (
           blocks.map((block, index) => (
             <div key={block.id}>
@@ -103,18 +130,24 @@ export function Canvas(props: Props) {
 }
 
 function DropLine() {
-  return <div className="mx-2 my-0.5 h-0.5 rounded bg-primary" aria-hidden="true" />;
+  return (
+    <div className="relative mx-1 my-1 h-[3px] rounded-full bg-primary" aria-hidden="true">
+      <span className="absolute -left-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-primary" />
+    </div>
+  );
 }
 
 function EmptyState({ onAdd, active }: { onAdd: (type: BlockType) => void; active: boolean }) {
   return (
     <div
-      className={`m-4 flex flex-col items-center gap-3 rounded-[12px] border-2 border-dashed p-12 text-center ${
-        active ? "border-primary bg-bg-soft" : "border-line-strong"
+      className={`m-4 flex flex-col items-center gap-3 rounded-[12px] border-2 border-dashed p-12 text-center transition-colors ${
+        active ? "border-primary bg-primary/5" : "border-line-strong"
       }`}
     >
       <ImagePlus aria-hidden="true" className="h-7 w-7 text-text-light" />
-      <p className="text-[15px] text-text-light">Drag a block here to start your newsletter.</p>
+      <p className="text-[15px] text-text-light">
+        {active ? "Drop it here" : "Drag a block here to start your newsletter."}
+      </p>
       <button type="button" onClick={() => onAdd("heading")} className="ek-btn ek-btn-accent py-2 text-[14px]">
         Add a heading
       </button>
@@ -150,14 +183,42 @@ function BlockRow({
         onSelect(block.id);
       }}
       onDragOver={(event) => {
+        if (!hasDropData(event)) return;
+        // Take ownership of this dragover so the container's gutter default does
+        // not overwrite the precise insertion point, and mark it a valid drop.
+        event.preventDefault();
+        event.stopPropagation();
         const rect = event.currentTarget.getBoundingClientRect();
         onDragOverRow(event.clientY < rect.top + rect.height / 2);
       }}
-      className={`relative ${selected ? "outline outline-2 outline-primary" : "outline outline-1 outline-transparent hover:outline-line-strong"}`}
+      className={`group relative transition-[outline-color] ${
+        selected ? "outline outline-2 outline-primary" : "outline outline-1 outline-transparent hover:outline-line-strong"
+      }`}
     >
+      {/* Block type label, on hover or when selected, so the canvas always says
+          what each block is. */}
+      <span
+        className={`pointer-events-none absolute -top-2.5 left-2 z-10 rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white transition-opacity ${
+          selected ? "opacity-0" : "opacity-0 group-hover:opacity-100"
+        }`}
+      >
+        {blockLabel(block.type)}
+      </span>
+
       {selected ? (
         <div className="absolute -top-3 right-2 z-10 flex items-center gap-0.5 rounded-full border border-line bg-background px-1 py-0.5 shadow-sm">
-          <IconButton label="Drag to reorder" draggable onDragStart={(e) => { e.dataTransfer.setData(MOVE_DRAG_TYPE, block.id); e.dataTransfer.effectAllowed = "move"; }} className="cursor-grab active:cursor-grabbing">
+          <span className="px-1 text-[10px] font-semibold uppercase tracking-wide text-text-light">
+            {blockLabel(block.type)}
+          </span>
+          <IconButton
+            label="Drag to reorder"
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.setData(MOVE_DRAG_TYPE, block.id);
+              e.dataTransfer.effectAllowed = "move";
+            }}
+            className="cursor-grab active:cursor-grabbing"
+          >
             <GripVertical className="h-3.5 w-3.5" />
           </IconButton>
           <IconButton label="Move up" disabled={isFirst} onClick={(e) => { e.stopPropagation(); onMove(block.id, -1); }}>
