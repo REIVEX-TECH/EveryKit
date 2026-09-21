@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, Copy, Download, Eye, FolderOpen, Monitor, Pencil, RotateCcw, Smartphone, X } from "lucide-react";
+import { Check, Copy, Download, Eye, FolderOpen, Monitor, Pencil, Redo2, RotateCcw, Smartphone, Undo2, X } from "lucide-react";
 import { EmailGate } from "@/components/site/EmailGate";
 import { hasGivenEmail } from "@/lib/emailCapture";
 import { countToolCompleted, countToolOpened } from "@/lib/pageview";
@@ -21,6 +21,17 @@ import {
   type NewsletterImage,
 } from "@/lib/newsletter/blocks";
 import { buildExport, importFromHtml, importFromZipBytes, renderEmailHtml } from "@/lib/newsletter/export";
+import {
+  canRedo as histCanRedo,
+  canUndo as histCanUndo,
+  initHistory,
+  present,
+  push,
+  redo as histRedo,
+  replaceTop,
+  undo as histUndo,
+  type History,
+} from "@/lib/newsletter/history";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/newsletter/draft";
 import { Palette } from "./Palette";
 import { Canvas, type ColumnDrop } from "./Canvas";
@@ -103,6 +114,65 @@ function cloneBlock(block: Block): Block {
 import { Inspector } from "./Inspector";
 import { ImageWorkspace } from "./ImageWorkspace";
 
+/** How long a burst of rapid edits stays a single undo step. */
+const COALESCE_MS = 500;
+
+/**
+ * Document state with undo/redo.
+ *
+ * `commit` records a discrete step (add, delete, move, drop, and so on).
+ * `coalesce` records rapid edits under a key so a burst (typing in a field,
+ * dragging a slider) collapses into one step: the first edit pushes, and later
+ * edits with the same key within the window replace the top instead. Any
+ * structural action or an undo/redo ends the current burst. `reset` throws the
+ * whole history away, used when a different newsletter is loaded.
+ */
+function useDocHistory(initial: NewsletterDoc) {
+  const [history, setHistory] = useState<History<NewsletterDoc>>(() => initHistory(initial));
+  const coalesceRef = useRef<{ key: string; timer: ReturnType<typeof setTimeout> } | null>(null);
+
+  const endCoalesce = useCallback(() => {
+    if (coalesceRef.current) {
+      clearTimeout(coalesceRef.current.timer);
+      coalesceRef.current = null;
+    }
+  }, []);
+
+  const commit = useCallback(
+    (updater: (d: NewsletterDoc) => NewsletterDoc) => {
+      endCoalesce();
+      setHistory((h) => push(h, updater(present(h))));
+    },
+    [endCoalesce],
+  );
+
+  const coalesce = useCallback(
+    (updater: (d: NewsletterDoc) => NewsletterDoc, key: string) => {
+      const active = coalesceRef.current;
+      const same = active !== null && active.key === key;
+      if (active) clearTimeout(active.timer);
+      coalesceRef.current = { key, timer: setTimeout(() => { coalesceRef.current = null; }, COALESCE_MS) };
+      setHistory((h) => (same ? replaceTop(h, updater(present(h))) : push(h, updater(present(h)))));
+    },
+    [],
+  );
+
+  const undo = useCallback(() => { endCoalesce(); setHistory((h) => histUndo(h)); }, [endCoalesce]);
+  const redo = useCallback(() => { endCoalesce(); setHistory((h) => histRedo(h)); }, [endCoalesce]);
+  const reset = useCallback((next: NewsletterDoc) => { endCoalesce(); setHistory(initHistory(next)); }, [endCoalesce]);
+
+  return {
+    doc: present(history),
+    commit,
+    coalesce,
+    undo,
+    redo,
+    reset,
+    canUndo: histCanUndo(history),
+    canRedo: histCanRedo(history),
+  };
+}
+
 /**
  * The builder. All of the document state lives here and flows down; the panels
  * are presentational. The email gate and the two funnel events are wired once,
@@ -110,7 +180,7 @@ import { ImageWorkspace } from "./ImageWorkspace";
  * tool-completed when an export or an HTML copy actually happens.
  */
 export function Builder() {
-  const [doc, setDoc] = useState<NewsletterDoc>(createDoc);
+  const { doc, commit, coalesce, undo, redo, reset, canUndo, canRedo } = useDocHistory(createDoc());
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [view, setView] = useState<"edit" | "preview">("edit");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
@@ -123,7 +193,7 @@ export function Builder() {
   // Restore a local draft on mount, and count the tool as opened once.
   useEffect(() => {
     const draft = loadDraft();
-    if (draft) setDoc(draft);
+    if (draft) reset(draft);
     setLoaded(true);
     // Only count an open where the builder is actually usable. On a phone the
     // page shows the "larger screen" notice instead, and counting an open there
@@ -131,7 +201,7 @@ export function Builder() {
     if (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches) {
       countToolOpened();
     }
-  }, []);
+  }, [reset]);
 
   // Persist the draft, debounced, once the initial load has run so an empty
   // first render never overwrites a saved draft.
@@ -141,18 +211,47 @@ export function Builder() {
     return () => clearTimeout(timer);
   }, [doc, loaded]);
 
+  // Keyboard undo/redo, but only when focus is not in a text field, where the
+  // browser's own text undo must win. Range and colour inputs are not text
+  // fields, so a slider or swatch still undoes at the document level.
+  useEffect(() => {
+    const isTextField = (target: EventTarget | null): boolean => {
+      const node = target as HTMLElement | null;
+      if (!node || !node.tagName) return false;
+      if (node.tagName === "TEXTAREA") return true;
+      if (node.tagName === "INPUT") {
+        const type = (node as HTMLInputElement).type;
+        return !["checkbox", "radio", "range", "color", "button", "submit", "reset", "file"].includes(type);
+      }
+      return node.isContentEditable === true;
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (!event.metaKey && !event.ctrlKey) return;
+      const key = event.key.toLowerCase();
+      const wantsUndo = key === "z" && !event.shiftKey && !event.altKey;
+      const wantsRedo = (key === "z" && event.shiftKey) || key === "y";
+      if (!wantsUndo && !wantsRedo) return;
+      if (isTextField(document.activeElement) || isTextField(event.target)) return;
+      event.preventDefault();
+      if (wantsUndo) undo();
+      else redo();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [undo, redo]);
+
   const selected = findBlock(doc.blocks, selectedId);
 
   // --- document updates ---------------------------------------------------
 
   const insertAt = useCallback((block: Block, index: number) => {
-    setDoc((d) => {
+    commit((d) => {
       const blocks = [...d.blocks];
       blocks.splice(Math.max(0, Math.min(index, blocks.length)), 0, block);
       return { ...d, blocks };
     });
     setSelectedId(block.id);
-  }, []);
+  }, [commit]);
 
   const insertBlock = useCallback((type: BlockType, index: number) => insertAt(createBlock(type), index), [insertAt]);
 
@@ -161,12 +260,22 @@ export function Builder() {
     [insertAt],
   );
 
+  // Rapid property edits (typing, sliders, colour) coalesce per block into one
+  // undo step; a different block or a pause starts a new step.
   const updateBlock = useCallback((id: string, patch: Partial<Block>) => {
-    setDoc((d) => ({
+    coalesce((d) => ({
+      ...d,
+      blocks: applyToBlock(d.blocks, id, (block) => ({ ...block, ...patch }) as Block),
+    }), `prop:${id}`);
+  }, [coalesce]);
+
+  // A discrete block change (choosing or clearing an image) that is its own step.
+  const commitBlock = useCallback((id: string, patch: Partial<Block>) => {
+    commit((d) => ({
       ...d,
       blocks: applyToBlock(d.blocks, id, (block) => ({ ...block, ...patch }) as Block),
     }));
-  }, []);
+  }, [commit]);
 
   // --- column operations --------------------------------------------------
 
@@ -175,30 +284,30 @@ export function Builder() {
       drop.kind === "image"
         ? { ...(createColumnChild("image") as ImageBlock), imageId: drop.imageId }
         : createColumnChild(drop.type as Parameters<typeof createColumnChild>[0]);
-    setDoc((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => setCell(col, index, { block: child })) }));
+    commit((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => setCell(col, index, { block: child })) }));
     setSelectedId(child.id);
-  }, []);
+  }, [commit]);
 
   const setColumnCount = useCallback((columnsId: string, count: 2 | 3) => {
-    setDoc((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => withColumnCount(col, count)) }));
-  }, []);
+    commit((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => withColumnCount(col, count)) }));
+  }, [commit]);
 
   const setColumnRatio = useCallback((columnsId: string, ratio: number[]) => {
-    setDoc((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => ({ ...col, ratio: [...ratio] })) }));
-  }, []);
+    commit((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => ({ ...col, ratio: [...ratio] })) }));
+  }, [commit]);
 
   const setColumnCellProp = useCallback((columnsId: string, index: number, patch: Partial<ColumnCell>) => {
-    setDoc((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => setCell(col, index, patch)) }));
-  }, []);
+    coalesce((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => setCell(col, index, patch)) }), `col:${columnsId}:${index}`);
+  }, [coalesce]);
 
   const setColumnType = useCallback((columnsId: string, index: number, type: ColumnChild["type"] | "") => {
     const child = type === "" ? null : createColumnChild(type);
-    setDoc((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => setCell(col, index, { block: child })) }));
+    commit((d) => ({ ...d, blocks: mapColumns(d.blocks, columnsId, (col) => setCell(col, index, { block: child })) }));
     if (child) setSelectedId(child.id);
-  }, []);
+  }, [commit]);
 
   const moveBlock = useCallback((id: string, dir: -1 | 1) => {
-    setDoc((d) => {
+    commit((d) => {
       const index = d.blocks.findIndex((block) => block.id === id);
       const target = index + dir;
       if (index < 0 || target < 0 || target >= d.blocks.length) return d;
@@ -206,10 +315,10 @@ export function Builder() {
       [blocks[index], blocks[target]] = [blocks[target], blocks[index]];
       return { ...d, blocks };
     });
-  }, []);
+  }, [commit]);
 
   const reorder = useCallback((id: string, toIndex: number) => {
-    setDoc((d) => {
+    commit((d) => {
       const from = d.blocks.findIndex((block) => block.id === id);
       if (from < 0) return d;
       const blocks = [...d.blocks];
@@ -218,10 +327,10 @@ export function Builder() {
       blocks.splice(Math.max(0, Math.min(adjusted, blocks.length)), 0, moved);
       return { ...d, blocks };
     });
-  }, []);
+  }, [commit]);
 
   const duplicateBlock = useCallback((id: string) => {
-    setDoc((d) => {
+    commit((d) => {
       const index = d.blocks.findIndex((block) => block.id === id);
       if (index < 0) return d;
       const copy = cloneBlock(d.blocks[index]);
@@ -229,12 +338,12 @@ export function Builder() {
       blocks.splice(index + 1, 0, copy);
       return { ...d, blocks };
     });
-  }, []);
+  }, [commit]);
 
   const removeBlock = useCallback((id: string) => {
-    setDoc((d) => ({ ...d, blocks: d.blocks.filter((block) => block.id !== id) }));
+    commit((d) => ({ ...d, blocks: d.blocks.filter((block) => block.id !== id) }));
     setSelectedId((current) => (current === id ? null : current));
-  }, []);
+  }, [commit]);
 
   // --- images -------------------------------------------------------------
 
@@ -252,25 +361,25 @@ export function Builder() {
       ),
     ).then((results) => {
       const added = results.filter((image): image is NewsletterImage => image !== null);
-      if (added.length > 0) setDoc((d) => ({ ...d, images: [...d.images, ...added] }));
+      if (added.length > 0) commit((d) => ({ ...d, images: [...d.images, ...added] }));
     });
-  }, []);
+  }, [commit]);
 
   const removeImage = useCallback((id: string) => {
-    setDoc((d) => ({
+    commit((d) => ({
       ...d,
       images: d.images.filter((image) => image.id !== id),
       blocks: clearImageRefs(d.blocks, id),
     }));
-  }, []);
+  }, [commit]);
 
   const startOver = useCallback(() => {
     if (!window.confirm("Start a new newsletter? This clears the current one from this browser.")) return;
     clearDraft();
-    setDoc(createDoc());
+    reset(createDoc());
     setSelectedId(null);
     setView("edit");
-  }, []);
+  }, [reset]);
 
   const openFile = useCallback(async (file: File) => {
     const isZip = /\.zip$/i.test(file.name) || file.type === "application/zip";
@@ -288,10 +397,10 @@ export function Builder() {
       window.alert("That file was not made by this tool, so it could not be opened. Choose the ZIP you exported here.");
       return;
     }
-    setDoc(next);
+    reset(next);
     setSelectedId(null);
     setView("edit");
-  }, []);
+  }, [reset]);
 
   // --- the gate + funnel --------------------------------------------------
 
@@ -351,7 +460,7 @@ export function Builder() {
           <input
             type="text"
             value={doc.name}
-            onChange={(event) => setDoc((d) => ({ ...d, name: event.target.value }))}
+            onChange={(event) => { const name = event.target.value; coalesce((d) => ({ ...d, name }), "meta:name"); }}
             className="mt-1 w-56 rounded-[10px] border border-line bg-background px-3 py-2 text-[14px] outline-none focus:border-primary"
           />
         </label>
@@ -360,7 +469,7 @@ export function Builder() {
           <input
             type="color"
             value={/^#[0-9a-fA-F]{6}$/.test(doc.pageBackground) ? doc.pageBackground : "#f4f4f5"}
-            onChange={(event) => setDoc((d) => ({ ...d, pageBackground: event.target.value }))}
+            onChange={(event) => { const pageBackground = event.target.value; coalesce((d) => ({ ...d, pageBackground }), "meta:bg"); }}
             aria-label="Page background colour"
             className="mt-1 h-10 w-14 cursor-pointer rounded-[10px] border border-line bg-background p-1"
           />
@@ -370,6 +479,28 @@ export function Builder() {
           <div className="flex rounded-full border border-line p-0.5">
             <SegButton active={view === "edit"} onClick={() => setView("edit")} icon={Pencil} label="Edit" />
             <SegButton active={view === "preview"} onClick={() => setView("preview")} icon={Eye} label="Preview" />
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={undo}
+              disabled={!canUndo}
+              aria-label="Undo"
+              title="Undo (Ctrl+Z)"
+              className="ek-btn ek-btn-quiet px-3 py-2 text-[13px] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Undo2 aria-hidden="true" className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={redo}
+              disabled={!canRedo}
+              aria-label="Redo"
+              title="Redo (Ctrl+Shift+Z)"
+              className="ek-btn ek-btn-quiet px-3 py-2 text-[13px] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Redo2 aria-hidden="true" className="h-4 w-4" />
+            </button>
           </div>
           <button
             type="button"
@@ -481,7 +612,7 @@ export function Builder() {
             images={doc.images}
             onChange={(patch) => selected && updateBlock(selected.id, patch)}
             onPickImage={() => selected && setPickingFor(selected.id)}
-            onClearImage={() => selected && updateBlock(selected.id, { imageId: null } as Partial<Block>)}
+            onClearImage={() => selected && commitBlock(selected.id, { imageId: null } as Partial<Block>)}
             columnOps={{
               setCount: setColumnCount,
               setRatio: setColumnRatio,
@@ -498,7 +629,7 @@ export function Builder() {
           images={pickImages}
           onAdd={addImages}
           onPick={(imageId) => {
-            updateBlock(pickingFor, { imageId } as Partial<Block>);
+            commitBlock(pickingFor, { imageId } as Partial<Block>);
             setPickingFor(null);
           }}
           onClose={() => setPickingFor(null)}
